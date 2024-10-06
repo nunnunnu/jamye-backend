@@ -35,9 +35,7 @@ class UserFactoryTest @Autowired constructor(var userFactory: UserFactory, val u
             UserDto(id = id, email = email, password = "test", nickname = nickname)
         )
 
-        userRepo.save(create)
         val save = userRepo.save(create)
-        assertThat(save).isNotNull()
         assertThat(save.id).isEqualTo(id)
         assertThat(save.email).isEqualTo(email)
         assertThat(save.nickname).isEqualTo(nickname)
