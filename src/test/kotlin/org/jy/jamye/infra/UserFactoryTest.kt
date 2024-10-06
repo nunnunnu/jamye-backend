@@ -35,9 +35,7 @@ class UserFactoryTest @Autowired constructor(var userFactory: UserFactory, val u
             UserDto(id = id, email = email, password = "test", nickname = nickname)
         )
 
-        userRepo.save(create)
         val save = userRepo.save(create)
-        assertThat(save).isNotNull()
         assertThat(save.id).isEqualTo(id)
         assertThat(save.email).isEqualTo(email)
         assertThat(save.nickname).isEqualTo(nickname)
@@ -57,8 +55,9 @@ class UserFactoryTest @Autowired constructor(var userFactory: UserFactory, val u
     @DisplayName("유저 save 실패 - 중복 이메일")
     fun createUserDuplicateEmail() {
         assertThatThrownBy {
-            assertThat(userFactory.create(
-                UserDto(id = "test3", email = testEmail, password = "test", nickname = "test")));
+            userFactory.create(
+                UserDto(id = "test3", email = testEmail, password = "test", nickname = "test")
+            )
         }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("이미 등록된 이메일입니다.")
     }
