@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-@RequiredArgsConstructor
 class UserFactory(private val userRepo: UserRepository)
 {
     val log: Logger = LoggerFactory.getLogger(UserFactory::class.java)

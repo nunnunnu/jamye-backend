@@ -1,6 +1,5 @@
 package org.jy.jamye.ui
 
-import lombok.RequiredArgsConstructor
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.ui.post.UserPostDto
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequiredArgsConstructor
 class UserController(
     private val userService: UserService
 ) {
