@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 data class ResponseDto<T> (
     val message: String? = null,
-    @JsonFormat(pattern = "yyyy-MM-dd HH:MM:SS")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val time: LocalDateTime = LocalDateTime.now(),
     var data: T? = null,
     val status: HttpStatus
