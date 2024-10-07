@@ -1,5 +1,6 @@
 package org.jy.jamye.application.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDateTime
 
 data class UserDto (
@@ -7,7 +8,8 @@ data class UserDto (
     val id: String,
     val email: String,
     val nickname: String,
-    var password: String,
-    var createDate: LocalDateTime? = null,
+    @JsonIgnore
+    val password: String,
+    val createDate: LocalDateTime? = null,
     var updateDate: LocalDateTime? = null
 )
