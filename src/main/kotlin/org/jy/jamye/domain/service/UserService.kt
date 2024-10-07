@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserService(private val userFactory: UserFactory, private val userRepo: UserRepository) {
-    fun createUser(data: UserDto) {
+    fun createUser(data: UserDto): Long {
         val user = userFactory.create(data)
         userRepo.save(user)
+        return user.sequence!!
     }
 }
