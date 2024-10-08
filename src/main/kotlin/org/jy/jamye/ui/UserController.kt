@@ -20,11 +20,7 @@ class UserController(
     @PostMapping("/join")
     fun createUser(@RequestBody data: UserPostDto) : ResponseDto<Long> {
         val sequence = userService.createUser(
-            UserDto(
-                id = data.id,
-                email = data.email,
-                password = data.password,
-            )
+            UserDto(id = data.id, email = data.email, password = data.password,)
         )
         return ResponseDto(data = sequence, status = HttpStatus.CREATED)
     }
