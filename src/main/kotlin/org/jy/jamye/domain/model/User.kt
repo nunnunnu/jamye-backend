@@ -22,7 +22,7 @@ class User(
     val createDate: LocalDateTime = LocalDateTime.now(),
     @Column(name = "update_date")
     @UpdateTimestamp
-    var updateDate: LocalDateTime = LocalDateTime.now(),
+    val updateDate: LocalDateTime = LocalDateTime.now(),
     @Enumerated(value = EnumType.STRING)
     @Column(name="role") var role: Role,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

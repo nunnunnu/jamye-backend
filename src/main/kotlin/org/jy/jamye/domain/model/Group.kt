@@ -19,7 +19,7 @@ class Group (
     val createDate: LocalDateTime = LocalDateTime.now(),
     @Column(name = "update_date")
     @UpdateTimestamp
-    var updateDate: LocalDateTime = LocalDateTime.now(),
+    val updateDate: LocalDateTime = LocalDateTime.now(),
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "gi_seq", nullable = false)
     var sequence: Long? = null
