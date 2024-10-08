@@ -26,7 +26,7 @@ class User(
     @Enumerated(value = EnumType.STRING)
     @Column(name="role") var role: Role,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "seq", nullable = false)
+    @Column(name = "ui_seq", nullable = false)
     val sequence: Long? = null,
 ) : UserDetails {
 
