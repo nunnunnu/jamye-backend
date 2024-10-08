@@ -24,14 +24,9 @@ class JwtTokenProvider(
     private val authBuilder: AuthenticationManagerBuilder
 ) {
     val log: Logger = LoggerFactory.getLogger(JwtTokenProvider::class.java)
-    private lateinit var key: Key
-    private val tokenExpireMinutes = 60 //토근 만료시간 (현재 일주일)
-    private val refreshExpireMinutes = 60 * 24 * 30 //리프레쉬 토큰 만료시간(현재 한달) 자동로그인도 풀리는경우
-
-    init {
-        val keyBytes: ByteArray = BASE64.decode(secretKey)
-        this.key = Keys.hmacShaKeyFor(keyBytes)
-    }
+    private val tokenExpireMinutes = 60 //토근 만료시간
+    private val refreshExpireMinutes = 60 * 24 * 30 //리프레쉬 토큰 만료시간
+    private val key: Key = Keys.hmacShaKeyFor(BASE64.decode(secretKey))
 
     fun generateToken(authentication: Authentication): TokenDto {
         val authorities = authentication.authorities.stream().map { obj: GrantedAuthority -> obj.authority }.collect(
@@ -50,10 +45,9 @@ class JwtTokenProvider(
         if (claims["auth"] == null) {
             throw IllegalArgumentException("권한 정보가 없는 토큰입니다.")
         }
-        val authorities: Collection<GrantedAuthority> =
-            claims["auth"].toString().split(",")
-                .map { role -> SimpleGrantedAuthority(role) }
-                .toList()
+        val authorities = claims["auth"].toString()
+            .split(",")
+            .map { SimpleGrantedAuthority(it) }
 
 
         val principal: UserDetails = User(claims.subject, "", authorities)
