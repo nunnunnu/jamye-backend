@@ -18,7 +18,7 @@ class UserGroupPost (
     val createDate: LocalDateTime = LocalDateTime.now(),
     @Column(name = "update_date")
     @UpdateTimestamp
-    var updateDate: LocalDateTime = LocalDateTime.now(),
+    val updateDate: LocalDateTime = LocalDateTime.now(),
     @Column(name = "ugp_seq", nullable = false)
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var userPostSequence: Long? = null
