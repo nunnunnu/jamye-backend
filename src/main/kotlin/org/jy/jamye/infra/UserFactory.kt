@@ -11,13 +11,12 @@ import org.springframework.stereotype.Service
 @Service
 class UserFactory(
     private val userRepo: UserRepository,
-    private val passwordEncoder: PasswordEncoder,
-    encoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder
 )
 {
     val log: Logger = LoggerFactory.getLogger(UserFactory::class.java)
     fun create(user: UserDto): User {
-        if(userRepo.existsById(user.id)) {
+        if(userRepo.existsByUserId(user.id)) {
             log.info("[createUser] 회원가입 실패, 중복 ID = {}", user.id)
             throw IllegalArgumentException("이미 등록된 아이디입니다.")
         }
@@ -26,6 +25,6 @@ class UserFactory(
             throw IllegalArgumentException("이미 등록된 이메일입니다.")
         }
         val encode = passwordEncoder.encode(user.password)
-        return User(id = user.id, email = user.email, password = encode, role = Role.USER)
+        return User(userId = user.id, email = user.email, password = encode, role = Role.USER)
     }
 }

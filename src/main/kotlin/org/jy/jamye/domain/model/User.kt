@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 @Table(name = "user_info")
 class User(
     @Column(name = "id", nullable = false)
-    val id: String,
+    val userId: String,
     @Column(name = "email", nullable = false)
     val email: String,
     @Column(name = "pw")
@@ -38,6 +38,6 @@ class User(
     }
 
     override fun getUsername(): String {
-        return this.id
+        return this.userId
     }
 }

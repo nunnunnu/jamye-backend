@@ -26,7 +26,7 @@ class JwtTokenProvider(
     val log: Logger = LoggerFactory.getLogger(JwtTokenProvider::class.java)
     private lateinit var key: Key
     private val tokenExpireMinutes = 60 //토근 만료시간 (현재 일주일)
-    private val refreshExpireMinutes = 60 * 24 * 24 //리프레쉬 토큰 만료시간(현재 한달) 자동로그인도 풀리는경우
+    private val refreshExpireMinutes = 60 * 24 * 30 //리프레쉬 토큰 만료시간(현재 한달) 자동로그인도 풀리는경우
 
     init {
         val keyBytes: ByteArray = BASE64.decode(secretKey)
@@ -64,7 +64,7 @@ class JwtTokenProvider(
         return try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).body
         } catch (e: ExpiredJwtException) {
-            e.claims
+            throw e
         }
     }
 
@@ -73,17 +73,17 @@ class JwtTokenProvider(
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
             return true
         } catch (e: SecurityException) {
-            log.info("Invalid JWT Token$e") //등록안됨
+            log.warn("Invalid JWT Token$e") //등록안됨
         } catch (e: MalformedJwtException) {
-            log.info("Invalid JWT Token$e")
+            log.warn("Invalid JWT Token$e")
         } catch (e: ExpiredJwtException) {
-            log.info("Expired JWT Token$e")
+            log.warn("Expired JWT Token$e")
         } catch (e: UnsupportedJwtException) {
-            log.info("Unsupported JWT Token$e") //토큰형태가 아님
+            log.warn("Unsupported JWT Token$e") //토큰형태가 아님
         } catch (e: IllegalArgumentException) {
-            log.info("JWT claims string is empty.$e") //없는 토큰임
+            log.warn("JWT claims string is empty.$e") //없는 토큰임
         } catch (e: Exception) {
-            log.info("JWT token Error.$e")
+            log.warn("JWT token Error.$e")
         }
         return false
     }
@@ -96,9 +96,9 @@ class JwtTokenProvider(
         return expiration.before(Date())
     }
 
-    fun getAccessToken(email: String, password: String): TokenDto {
+    fun getAccessToken(id: String, password: String): TokenDto {
         val authenticationToken =
-            UsernamePasswordAuthenticationToken(email, password)
+            UsernamePasswordAuthenticationToken(id, password)
 
         val authentication: Authentication =
             authBuilder.getObject().authenticate(authenticationToken)

@@ -12,11 +12,11 @@ data class UserDto (
     val password: String,
     val createDate: LocalDateTime? = null,
     var updateDate: LocalDateTime? = null
-) {
-    data class UserLoginDto(
-        val sequence: Long,
-        val id: String,
-        val email: String,
-        val token: TokenDto,
-    )
-}
+)
+
+data class UserLoginDto(
+    val sequence: Long,
+    val id: String,
+    val email: String,
+    val token: TokenDto,
+)

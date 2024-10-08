@@ -3,10 +3,11 @@ package org.jy.jamye.domain.service
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.Security.JwtTokenProvider
 import org.jy.jamye.application.dto.UserDto
+import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.infra.UserFactory
 import org.jy.jamye.infra.UserRepository
 import org.slf4j.LoggerFactory
-import org.springframework.security.core.token.TokenService
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,14 +28,14 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
-    fun login(id: String, password: String): UserDto.UserLoginDto {
-        val user = userRepo.findById(id).orElseThrow() {throw EntityNotFoundException() }
+    fun login(id: String, password: String): UserLoginDto {
+        val user = userRepo.findByUserId(id).orElseThrow { throw BadCredentialsException("로그인 정보를 다시 확인해주세요") }
         if (!passwordEncoder.matches(password, user.password)) {
             log.info("[login] 로그인 실패 = {}", id)
-            throw IllegalArgumentException("로그인 정보를 다시 확인해주세요")
+            throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
         }
-        val generateToken = tokenProvider.getAccessToken(user.id, password)
-        return UserDto.UserLoginDto(sequence = user.sequence!!, token = generateToken, id = user.id, email = user.email)
+        val generateToken = tokenProvider.getAccessToken(user.userId, password)
+        return UserLoginDto(sequence = user.sequence!!, token = generateToken, id = user.userId, email = user.email)
     }
 
 }

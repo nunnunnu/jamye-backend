@@ -45,11 +45,11 @@ class SecurityConfig(private val jwtFilter: JwtFilter) {
         corsConfiguration.addAllowedMethod(CorsConfiguration.ALL)
         corsConfiguration.addAllowedHeader(CorsConfiguration.ALL)
 
-        corsConfiguration.allowedOrigins = listOf("/**")
-        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration)
+        corsConfiguration.allowedOrigins = listOf("*")
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("*", corsConfiguration)
 
         corsConfiguration.allowCredentials = true
-        corsConfiguration.setMaxAge(Duration.ofHours(2))
+        corsConfiguration.maxAge = 7200 // 2시간(초)
 
         return urlBasedCorsConfigurationSource
     }

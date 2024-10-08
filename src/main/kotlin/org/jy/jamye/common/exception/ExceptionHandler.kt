@@ -1,12 +1,14 @@
 package org.jy.jamye.common.exception
 
+import com.fasterxml.jackson.core.JsonParseException
+import jakarta.persistence.EntityNotFoundException
 import org.hibernate.exception.ConstraintViolationException
 import org.jy.jamye.common.io.ResponseDto
 import org.springframework.beans.TypeMismatchException
-import org.springframework.boot.json.JsonParseException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -23,8 +25,8 @@ class ExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException::class,
         MethodArgumentNotValidException::class,
+        EntityNotFoundException::class,
         JsonParseException::class,
-        HttpMessageNotReadableException::class,
         HttpMediaTypeNotSupportedException::class,
         HttpMessageNotReadableException::class,
         MissingServletRequestPartException::class,
@@ -40,5 +42,13 @@ class ExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ResponseDto(message = e.message, status = HttpStatus.BAD_REQUEST))
+    }
+
+    @ExceptionHandler(BadCredentialsException::class
+    )
+    fun authExceptionHandler(e: Exception): ResponseEntity<ResponseDto<Nothing>> {
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(ResponseDto(message = e.message, status = HttpStatus.FORBIDDEN))
     }
 }
