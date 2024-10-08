@@ -6,3 +6,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+
+jwt:
+  secretKey: fajldfklsdjfeijcnklcnsdknclnsdkncsldnckasdcnl

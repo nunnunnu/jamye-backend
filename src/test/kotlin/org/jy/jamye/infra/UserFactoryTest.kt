@@ -39,6 +39,7 @@ class UserFactoryTest @Autowired constructor(var userFactory: UserFactory, val u
         assertThat(save.id).isEqualTo(id)
         assertThat(save.email).isEqualTo(email)
         assertThat(save.nickname).isEqualTo(nickname)
+
     }
 
     @Test
