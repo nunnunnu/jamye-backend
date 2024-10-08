@@ -12,6 +12,7 @@ class GroupUser (
     val userSequence: Long,
     @Column(name = "gi_seq", nullable = false)
     val groupSequence: Long,
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "grade")
     val grade: Grade,
     @Column(name = "nickname")
