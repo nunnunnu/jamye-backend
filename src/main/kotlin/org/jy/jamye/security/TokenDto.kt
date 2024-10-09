@@ -1,4 +1,4 @@
-package org.jy.jamye.Security
+package org.jy.jamye.security
 
 data class TokenDto(
     val grantType: String? = "Bearer",

@@ -1,11 +1,14 @@
 package org.jy.jamye.domain.service
 
 import jakarta.persistence.EntityNotFoundException
-import org.jy.jamye.Security.JwtTokenProvider
+import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
+import org.jy.jamye.common.util.StringUtils
+import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.UserFactory
 import org.jy.jamye.infra.UserRepository
+import org.jy.jamye.ui.post.UserUpdateDto
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -36,6 +39,32 @@ class UserService(
         }
         val generateToken = tokenProvider.getAccessToken(user.userId, password)
         return UserLoginDto(sequence = user.sequence!!, token = generateToken, id = user.userId, email = user.email)
+    }
+
+    @Transactional(readOnly = true)
+    fun getUser(userSeq: Long): UserDto {
+        val user = getUserNotNull(userSeq)
+        return UserDto(sequence = user.sequence, id = user.userId, email = user.email)
+    }
+
+    @Transactional
+    fun updateUser(userSeq: Long, data: UserUpdateDto): UserDto {
+        val user = getUserNotNull(userSeq)
+        if (!passwordEncoder.matches(data.oldPassword, user.password)) {
+            throw BadCredentialsException("비밀번호를 다시 확인해주세요.")
+        }
+        var encodePassword: String? = null
+        if(StringUtils.hasText(data.newPassword)) {
+            encodePassword = passwordEncoder.encode(data.newPassword)
+        }
+
+        user.updateUserInfo(data.email, encodePassword)
+        return return UserDto(sequence = user.sequence, id = user.userId, email = user.email)
+
+    }
+
+    private fun getUserNotNull(userSeq: Long): User {
+        return userRepo.findById(userSeq).orElseThrow { EntityNotFoundException("없는 유저 번호를 입력하셨습니다.") }
     }
 
 }
