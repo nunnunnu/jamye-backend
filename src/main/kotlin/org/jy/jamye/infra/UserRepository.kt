@@ -2,10 +2,14 @@ package org.jy.jamye.infra
 
 import org.jy.jamye.domain.model.User
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Meta
 import java.util.*
 
 interface UserRepository : JpaRepository<User, Long> {
+    @Meta(comment = "이메일 중복 체크")
     fun existsByEmail(email: String): Boolean
+    @Meta(comment = "ID 중복 체크")
     fun existsByUserId(id: String): Boolean
+    @Meta(comment = "ID로 유저 정보 조회")
     fun findByUserId(id: String): Optional<User>
 }

@@ -1,4 +1,4 @@
-package org.jy.jamye.Security
+package org.jy.jamye.security
 
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.infra.UserRepository
