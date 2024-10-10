@@ -7,6 +7,8 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.jy.jamye.application.dto.UserDto
+import org.jy.jamye.domain.model.Role
+import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.UserFactory
 import org.jy.jamye.infra.UserRepository
 import org.jy.jamye.security.JwtTokenProvider
@@ -31,14 +33,14 @@ class UserControllerTest @Autowired constructor(
     private var testId = "setupId"
     private var testEmail = "setupEmail@email.com"
     private val testPassword = "setupPassword"
-    private var setUpUserSequence: Long? = null
+    private var setupUser: User? = null
 
     @BeforeEach
     fun setup() {
         val user = userFactory.create(UserDto(id = testId, email = testEmail, password = testPassword))
 
         userRepo.save(user)
-        setUpUserSequence = user.sequence
+        setupUser = user
     }
 
     @Test
@@ -113,7 +115,7 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("회원정보 조회_성공")
     fun 회원정보_조회_성공() {
-        val response = userController.getUser(setUpUserSequence!!)
+        val response = userController.getUser(setupUser!!)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         assertThat(response.data).isNotNull
         val user = response.data!!
@@ -124,8 +126,9 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("회원정보 조회 - 실패")
     fun 회원정보_조회_실패_번호없음() {
+        val errorUser = User(userId = "error", email = testEmail, password = testPassword, role = Role.ROLE_USER)
         assertThatThrownBy {
-            assertThat(userController.getUser(0L))
+            assertThat(userController.getUser(errorUser))
         }.isInstanceOf(EntityNotFoundException::class.java)
             .hasMessageContaining("없는 유저 번호를 입력하셨습니다.")
     }
@@ -136,7 +139,7 @@ class UserControllerTest @Autowired constructor(
         val updateEmail = "update@email.com"
         val newPassword = "newPassword"
         val response = userController.updateUser(
-            setUpUserSequence!!,
+            setupUser!!,
             UserUpdateDto(email = updateEmail, newPassword = newPassword, oldPassword = testPassword)
         )
 
@@ -154,7 +157,7 @@ class UserControllerTest @Autowired constructor(
     fun 회원정보_이메일만_수정() {
         val updateEmail = "update2@email.com"
         val response = userController.updateUser(
-            setUpUserSequence!!,
+            setupUser!!,
             UserUpdateDto(email = updateEmail, oldPassword = testPassword))
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -170,7 +173,7 @@ class UserControllerTest @Autowired constructor(
     fun 회원정보_비밀번호만_수정() {
         val newPassword = "newPassword"
         val response = userController.updateUser(
-            setUpUserSequence!!,
+            setupUser!!,
             UserUpdateDto(oldPassword = testPassword, newPassword = newPassword))
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -184,11 +187,11 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("회원 정보 삭제 - 성공")
     fun 회원정보삭제_성공() {
-        val response = userController.deleteUser(setUpUserSequence!!, UserPasswordDto(testPassword))
+        val response = userController.deleteUser(setupUser!!, UserPasswordDto(testPassword))
         assertThat(response.status).isEqualTo(HttpStatus.OK)
 
         assertThatThrownBy {
-            assertThat(userController.getUser(setUpUserSequence!!))
+            assertThat(userController.getUser(setupUser!!))
         }.isInstanceOf(EntityNotFoundException::class.java)
             .hasMessageContaining("없는 유저 번호를 입력하셨습니다.")
     }
@@ -197,11 +200,11 @@ class UserControllerTest @Autowired constructor(
     @DisplayName("회원 정보 삭제 - 실패")
     fun 회원정보삭제_실패() {
         assertThatThrownBy {
-            assertThat(userController.deleteUser(setUpUserSequence!!, UserPasswordDto("잘못된비밀번호")))
+            assertThat(userController.deleteUser(setupUser!!, UserPasswordDto("잘못된비밀번호")))
         }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("비밀번호 오류")
 
-        val response = userController.getUser(setUpUserSequence!!)
+        val response = userController.getUser(setupUser!!)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         assertThat(response.data).isNotNull
     }

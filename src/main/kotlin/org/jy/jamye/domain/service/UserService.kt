@@ -34,7 +34,7 @@ class UserService(
     fun login(id: String, password: String): UserLoginDto {
         val user = userRepo.findByUserId(id).orElseThrow { throw BadCredentialsException("로그인 정보를 다시 확인해주세요") }
         if (!passwordEncoder.matches(password, user.password)) {
-            log.info("[login] 로그인 실패 = {}", id)
+            log.debug("[login] 로그인 실패 = {}", id)
             throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
         }
         val generateToken = tokenProvider.getAccessToken(user.userId, password)
@@ -42,14 +42,14 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
-    fun getUser(userSeq: Long): UserDto {
-        val user = getUserOrThrow(userSeq)
-        return UserDto(sequence = user.sequence, id = user.userId, email = user.email)
+    fun getUser(id: String): UserDto {
+        val user = getUserByIdOrThrow(id)
+        return UserDto(sequence = user.sequence, id = user.userId, email = user.email, createDate = user.createDate, updateDate = user.updateDate)
     }
 
     @Transactional
-    fun updateUser(userSeq: Long, data: UserUpdateDto): UserDto {
-        val user = getUserOrThrow(userSeq)
+    fun updateUser(id: String, data: UserUpdateDto): UserDto {
+        val user = getUserByIdOrThrow(id)
         if (!passwordEncoder.matches(data.oldPassword, user.password)) {
             throw BadCredentialsException("비밀번호를 다시 확인해주세요.")
         }
@@ -60,17 +60,17 @@ class UserService(
 
     }
 
-    private fun getUserOrThrow(userSeq: Long): User {
-        return userRepo.findById(userSeq).orElseThrow { EntityNotFoundException("없는 유저 번호를 입력하셨습니다.") }
+    private fun getUserByIdOrThrow(id: String): User {
+        return userRepo.findByUserId(id).orElseThrow { EntityNotFoundException("없는 유저 번호를 입력하셨습니다.") }
     }
 
     @Transactional
-    fun deleteUser(userSeq: Long, password: String) {
-        val user = getUserOrThrow(userSeq)
+    fun deleteUser(id: String, password: String) {
+        val user = getUserByIdOrThrow(id)
         if (!passwordEncoder.matches(password, user.password)) {
             throw IllegalArgumentException("비밀번호 오류")
         }
-        userRepo.deleteById(userSeq)
+        userRepo.deleteById(user.sequence!!)
     }
 
 }

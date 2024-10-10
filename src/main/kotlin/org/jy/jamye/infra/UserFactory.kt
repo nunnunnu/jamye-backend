@@ -17,14 +17,14 @@ class UserFactory(
     val log: Logger = LoggerFactory.getLogger(UserFactory::class.java)
     fun create(user: UserDto): User {
         if(userRepo.existsByUserId(user.id)) {
-            log.info("[createUser] 회원가입 실패, 중복 ID = {}", user.id)
+            log.debug("[createUser] 회원가입 실패, 중복 ID = {}", user.id)
             throw IllegalArgumentException("이미 등록된 아이디입니다.")
         }
         if(userRepo.existsByEmail(user.email)) {
-            log.info("[createUser] 회원가입 실패, 중복 email = {}", user.email)
+            log.debug("[createUser] 회원가입 실패, 중복 email = {}", user.email)
             throw IllegalArgumentException("이미 등록된 이메일입니다.")
         }
         val encode = passwordEncoder.encode(user.password)
-        return User(userId = user.id, email = user.email, password = encode, role = Role.USER)
+        return User(userId = user.id, email = user.email, password = encode, role = Role.ROLE_USER)
     }
 }
