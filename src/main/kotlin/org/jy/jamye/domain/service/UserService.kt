@@ -14,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.HttpClientErrorException.BadRequest
 
 @Service
 class UserService(
@@ -62,6 +63,15 @@ class UserService(
 
     private fun getUserOrThrow(userSeq: Long): User {
         return userRepo.findById(userSeq).orElseThrow { EntityNotFoundException("없는 유저 번호를 입력하셨습니다.") }
+    }
+
+    @Transactional
+    fun deleteUser(userSeq: Long, password: String) {
+        val user = getUserOrThrow(userSeq)
+        if (!passwordEncoder.matches(password, user.password)) {
+            throw IllegalArgumentException("비밀번호 오류")
+        }
+        userRepo.deleteById(userSeq)
     }
 
 }
