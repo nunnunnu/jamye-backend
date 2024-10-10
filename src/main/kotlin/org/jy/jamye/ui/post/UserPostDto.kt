@@ -11,5 +11,10 @@ data class LoginPostDto(
     val password: String
 )
 
+data class UserUpdateDto(
+    val email: String? = null,
+    val newPassword: String? = null,
+    val oldPassword: String
+)
 
 

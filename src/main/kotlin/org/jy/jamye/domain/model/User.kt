@@ -3,9 +3,11 @@ package org.jy.jamye.domain.model
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
+import org.jy.jamye.common.util.StringUtils
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDateTime
 
 @Entity
@@ -14,7 +16,7 @@ class User(
     @Column(name = "id", nullable = false)
     val userId: String,
     @Column(name = "email", nullable = false)
-    val email: String,
+    var email: String,
     @Column(name = "pw")
     private var password: String,
     @Column(name = "create_date")
@@ -39,5 +41,14 @@ class User(
 
     override fun getUsername(): String {
         return this.userId
+    }
+
+    fun updateUserInfo(email: String?, encodePassword: String?) {
+        email?.let {
+            this.email = it
+        }
+        encodePassword?.let {
+            this.password = it
+        }
     }
 }
