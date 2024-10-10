@@ -17,4 +17,4 @@ jwt:
   secretKey: fajldfklsdjfeijcnklcnsdknclnsdkncsldnckasdcnl
 logging:
   level:
-    root: trace
+    root: debug

@@ -34,7 +34,7 @@ class UserService(
     fun login(id: String, password: String): UserLoginDto {
         val user = userRepo.findByUserId(id).orElseThrow { throw BadCredentialsException("로그인 정보를 다시 확인해주세요") }
         if (!passwordEncoder.matches(password, user.password)) {
-            log.info("[login] 로그인 실패 = {}", id)
+            log.debug("[login] 로그인 실패 = {}", id)
             throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
         }
         val generateToken = tokenProvider.getAccessToken(user.userId, password)

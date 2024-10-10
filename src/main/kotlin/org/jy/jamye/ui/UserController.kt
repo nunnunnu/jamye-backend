@@ -34,8 +34,8 @@ class UserController(
 
     @GetMapping
     fun getUser(@AuthenticationPrincipal user: UserDetails) : ResponseDto<UserDto> {
-        val user = userService.getUser(user.username)
-        return ResponseDto(data = user, status = HttpStatus.OK)
+        val userDto = userService.getUser(user.username)
+        return ResponseDto(data = userDto, status = HttpStatus.OK)
     }
 
     @PatchMapping
@@ -44,7 +44,7 @@ class UserController(
         return ResponseDto(data = userDto, status = HttpStatus.OK)
     }
 
-    @DeleteMapping
+    @PostMapping
     fun deleteUser(@AuthenticationPrincipal user: UserDetails, @RequestBody password: UserPasswordDto) : ResponseDto<Nothing> {
         userService.deleteUser(user.username, password.password)
         return ResponseDto(status = HttpStatus.OK)
