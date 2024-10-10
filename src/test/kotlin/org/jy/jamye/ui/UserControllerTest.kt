@@ -2,6 +2,7 @@ package org.jy.jamye.ui
 
 import jakarta.persistence.EntityNotFoundException
 import jakarta.transaction.Transactional
+import jakarta.validation.ConstraintViolationException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -46,7 +47,7 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("유저 생성 api 테스트 - 성공")
     fun 회원가입_성공() {
-        val data = UserPostDto(id = "testId2", email = "test2@email.com", password = "test")
+        val data = UserPostDto(id = "testId2", email = "test2@email.com", password = "testtest")
         val response = userController.createUser(data)
 
         val userSequence: Long? = response.data
@@ -57,7 +58,7 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("유저 생성 api 테스트 - 실패: 중복 ID")
     fun 회원가입_실패_중복ID() {
-        val data = UserPostDto(id = testId, email = "test3@email.com", password = "test")
+        val data = UserPostDto(id = testId, email = "test3@email.com", password = "testtest")
 
         assertThatThrownBy {
             assertThat(userController.createUser(data))
@@ -68,12 +69,40 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("유저 생성 api 테스트 - 실패: 중복 ID")
     fun 회원가입_실패_중복이메일() {
-        val data = UserPostDto(id = "testId4", email = testEmail, password = "test")
+        val data = UserPostDto(id = "testId4", email = testEmail, password = "testtest")
 
         assertThatThrownBy {
             assertThat(userController.createUser(data))
         }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("이미 등록된 이메일입니다.")
+    }
+
+    @Test
+    @DisplayName("유저 생성 api 테스트 - 실패: 이메일 형식 에러")
+    fun 회원가입_실패_이메일형식_에러() {
+        assertThatThrownBy {
+            assertThat(UserPostDto(id = "testId4", email = "sj", password = "testtest"))
+        }.isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Invalid email format")
+    }
+
+    @Test
+    @DisplayName("유저 생성 api 테스트 - 실패: 이메일 형식 에러")
+    fun 회원가입_실패_비밀번호자리수_에러() {
+        assertThatThrownBy {
+            assertThat(UserPostDto(id = "testId4", email = "testEmail@mail.com", password = "test"))
+        }.isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Password must be at least 8 characters long")
+    }
+
+    @Test
+    @DisplayName("유저 생성 api 테스트 - 실패: 아이디 입력X")
+    fun 회원가입_실패_아이디_입력X() {
+        val user = UserPostDto(id = "", email = "testEmail@mail.com", password = "testtest")
+        assertThatThrownBy {
+            assertThat(userController.createUser(user))
+        }.isInstanceOf(ConstraintViolationException::class.java)
+            .hasMessageContaining("아이디는 필수입니다.")
     }
 
     @Test
@@ -169,6 +198,17 @@ class UserControllerTest @Autowired constructor(
     }
 
     @Test
+    @DisplayName("회원정보 수정 실패 - 이메일 형식에러")
+    fun 회원정보_수정_실패_이메일형식에러() {
+        val updateEmail = "update2email.com"
+
+        assertThatThrownBy {
+            assertThat(UserUpdateDto(email = updateEmail, oldPassword = testPassword))
+        }.isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Invalid email format")
+    }
+
+    @Test
     @DisplayName("회원정보 수정 성공 - 비밀번호만_수정")
     fun 회원정보_비밀번호만_수정() {
         val newPassword = "newPassword"
@@ -182,6 +222,16 @@ class UserControllerTest @Autowired constructor(
         assertThat(user.id).isEqualTo(testId)
         assertThat(user.email).isEqualTo(testEmail)
         assertThat(user.createDate).isNotEqualTo(user.updateDate)
+    }
+
+    @Test
+    @DisplayName("회원정보 수정 실패 - 비밀번호자리수에러")
+    fun 회원정보_수정_실패_비밀번호_자리수에러() {
+        val newPassword = "aaaa"
+        assertThatThrownBy {
+            assertThat(UserUpdateDto(oldPassword = testPassword, newPassword = newPassword))
+        }.isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Password must be at least 8 characters long")
     }
 
     @Test

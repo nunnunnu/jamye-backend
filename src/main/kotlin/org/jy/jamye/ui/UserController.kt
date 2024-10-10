@@ -1,5 +1,6 @@
 package org.jy.jamye.ui
 
+import jakarta.validation.Valid
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
@@ -11,15 +12,17 @@ import org.jy.jamye.ui.post.UserUpdateDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/user")
+@Validated
 class UserController(
     private val userService: UserService
 ) {
     @PostMapping("/join")
-    fun createUser(@RequestBody data: UserPostDto) : ResponseDto<Long> {
+    fun createUser(@Valid @RequestBody data: UserPostDto) : ResponseDto<Long> {
         val sequence = userService.createUser(
             UserDto(id = data.id, email = data.email, password = data.password,)
         )
