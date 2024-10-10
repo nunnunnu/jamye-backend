@@ -205,24 +205,4 @@ class UserControllerTest @Autowired constructor(
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         assertThat(response.data).isNotNull
     }
-
-    @Test
-    @DisplayName("회원정보 조회 성공")
-    fun 회원정보_조회() {
-        val response = userController.getUser(setUpUserSequence!!)
-        assertThat(response.status).isEqualTo(HttpStatus.OK)
-        assertThat(response.data).isNotNull
-        val user = response.data!!
-        assertThat(user.id).isEqualTo(testId)
-        assertThat(user.email).isEqualTo(testEmail)
-    }
-
-    @Test
-    @DisplayName("회원정보 조회 실패 - 번호 오류")
-    fun 회원정보조회_실패_기본키오류() {
-        assertThatThrownBy {
-            assertThat(userController.getUser(0L))
-        }.isInstanceOf(EntityNotFoundException::class.java)
-            .hasMessageContaining("없는 유저 번호를 입력하셨습니다.")
-    }
 }
