@@ -11,6 +11,7 @@ import org.jy.jamye.infra.UserFactory
 import org.jy.jamye.infra.UserRepository
 import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.ui.post.LoginPostDto
+import org.jy.jamye.ui.post.UserPasswordDto
 import org.jy.jamye.ui.post.UserPostDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.springframework.beans.factory.annotation.Autowired
@@ -178,5 +179,30 @@ class UserControllerTest @Autowired constructor(
         assertThat(user.id).isEqualTo(testId)
         assertThat(user.email).isEqualTo(testEmail)
         assertThat(user.createDate).isNotEqualTo(user.updateDate)
+    }
+
+    @Test
+    @DisplayName("회원 정보 삭제 - 성공")
+    fun 회원정보삭제_성공() {
+        val response = userController.deleteUser(setUpUserSequence!!, UserPasswordDto(testPassword))
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+
+        assertThatThrownBy {
+            assertThat(userController.getUser(setUpUserSequence!!))
+        }.isInstanceOf(EntityNotFoundException::class.java)
+            .hasMessageContaining("없는 유저 번호를 입력하셨습니다.")
+    }
+
+    @Test
+    @DisplayName("회원 정보 삭제 - 실패")
+    fun 회원정보삭제_실패() {
+        assertThatThrownBy {
+            assertThat(userController.deleteUser(setUpUserSequence!!, UserPasswordDto("잘못된비밀번호")))
+        }.isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("비밀번호 오류")
+
+        val response = userController.getUser(setUpUserSequence!!)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        assertThat(response.data).isNotNull
     }
 }

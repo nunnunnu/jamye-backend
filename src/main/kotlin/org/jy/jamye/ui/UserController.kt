@@ -5,6 +5,7 @@ import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.ui.post.LoginPostDto
+import org.jy.jamye.ui.post.UserPasswordDto
 import org.jy.jamye.ui.post.UserPostDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.springframework.http.HttpStatus
@@ -39,6 +40,12 @@ class UserController(
     fun updateUser(@PathVariable("userSeq") userSeq: Long, @RequestBody data: UserUpdateDto) : ResponseDto<UserDto> {
         val user = userService.updateUser(userSeq, data)
         return ResponseDto(data = user, status = HttpStatus.OK)
+    }
+
+    @DeleteMapping("/{userSeq}")
+    fun deleteUser(@PathVariable("userSeq") userSeq: Long, @RequestBody password: UserPasswordDto) : ResponseDto<Nothing> {
+        userService.deleteUser(userSeq, password.password)
+        return ResponseDto(status = HttpStatus.OK)
     }
 
 }

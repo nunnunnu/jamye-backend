@@ -17,4 +17,8 @@ data class UserUpdateDto(
     val oldPassword: String
 )
 
+data class UserPasswordDto(
+    val password: String
+)
+
 
