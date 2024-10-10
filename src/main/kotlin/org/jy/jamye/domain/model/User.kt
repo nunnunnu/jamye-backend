@@ -43,13 +43,12 @@ class User(
         return this.userId
     }
 
-    fun updateUserInfo(email: String?, newPassword: String?) {
-        if(StringUtils.hasText(email)) {
-            this.email = email!!
+    fun updateUserInfo(email: String?, encodePassword: String?) {
+        email?.let {
+            this.email = it
         }
-        if(StringUtils.hasText(newPassword)) {
-            this.password = newPassword!!
+        encodePassword?.let {
+            this.password = it
         }
-
     }
 }

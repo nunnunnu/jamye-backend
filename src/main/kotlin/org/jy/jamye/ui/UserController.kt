@@ -35,7 +35,7 @@ class UserController(
         return ResponseDto(data = user, status = HttpStatus.OK)
     }
 
-    @PostMapping("/{userSeq}")
+    @PatchMapping("/{userSeq}")
     fun updateUser(@PathVariable("userSeq") userSeq: Long, @RequestBody data: UserUpdateDto) : ResponseDto<UserDto> {
         val user = userService.updateUser(userSeq, data)
         return ResponseDto(data = user, status = HttpStatus.OK)

@@ -43,27 +43,24 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun getUser(userSeq: Long): UserDto {
-        val user = getUserNotNull(userSeq)
+        val user = getUserOrThrow(userSeq)
         return UserDto(sequence = user.sequence, id = user.userId, email = user.email)
     }
 
     @Transactional
     fun updateUser(userSeq: Long, data: UserUpdateDto): UserDto {
-        val user = getUserNotNull(userSeq)
+        val user = getUserOrThrow(userSeq)
         if (!passwordEncoder.matches(data.oldPassword, user.password)) {
             throw BadCredentialsException("비밀번호를 다시 확인해주세요.")
         }
-        var encodePassword: String? = null
-        if(StringUtils.hasText(data.newPassword)) {
-            encodePassword = passwordEncoder.encode(data.newPassword)
-        }
+        val encodePassword = if (StringUtils.hasText(data.newPassword)) passwordEncoder.encode(data.newPassword) else null
 
         user.updateUserInfo(data.email, encodePassword)
-        return return UserDto(sequence = user.sequence, id = user.userId, email = user.email)
+        return UserDto(sequence = user.sequence, id = user.userId, email = user.email, updateDate = user.updateDate, createDate = user.createDate)
 
     }
 
-    private fun getUserNotNull(userSeq: Long): User {
+    private fun getUserOrThrow(userSeq: Long): User {
         return userRepo.findById(userSeq).orElseThrow { EntityNotFoundException("없는 유저 번호를 입력하셨습니다.") }
     }
 

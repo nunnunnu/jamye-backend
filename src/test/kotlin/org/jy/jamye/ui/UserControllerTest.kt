@@ -130,7 +130,7 @@ class UserControllerTest @Autowired constructor(
     }
 
     @Test
-    @DisplayName("회원정보 수정 - 성공")
+    @DisplayName("회원정보 수정 성공 - 전체 정보 수정")
     fun 회원정보_수정_성공() {
         val updateEmail = "update@email.com"
         val newPassword = "newPassword"
@@ -144,12 +144,12 @@ class UserControllerTest @Autowired constructor(
         val user = response.data!!
         assertThat(user.id).isEqualTo(testId)
         assertThat(user.email).isEqualTo(updateEmail)
-        assertThat(user.password).isNotEqualTo(newPassword)
+        assertThat(user.createDate).isNotEqualTo(user.updateDate)
 
     }
 
     @Test
-    @DisplayName("회원정보 수정 - 성공")
+    @DisplayName("회원정보 수정 성공 - 이메일만 수정")
     fun 회원정보_이메일만_수정() {
         val updateEmail = "update2@email.com"
         val response = userController.updateUser(
@@ -161,10 +161,11 @@ class UserControllerTest @Autowired constructor(
         val user = response.data!!
         assertThat(user.id).isEqualTo(testId)
         assertThat(user.email).isEqualTo(updateEmail)
+        assertThat(user.createDate).isNotEqualTo(user.updateDate)
     }
 
     @Test
-    @DisplayName("회원정보 수정 - 성공")
+    @DisplayName("회원정보 수정 성공 - 비밀번호만_수정")
     fun 회원정보_비밀번호만_수정() {
         val newPassword = "newPassword"
         val response = userController.updateUser(
@@ -176,5 +177,6 @@ class UserControllerTest @Autowired constructor(
         val user = response.data!!
         assertThat(user.id).isEqualTo(testId)
         assertThat(user.email).isEqualTo(testEmail)
+        assertThat(user.createDate).isNotEqualTo(user.updateDate)
     }
 }
