@@ -1,0 +1,20 @@
+package org.jy.jamye.application.dto
+
+import org.jy.jamye.domain.model.Grade
+import java.time.LocalDateTime
+
+class UserInGroupDto (
+    val userSequence: Long,
+    val groupSequence: Long,
+    val grade: Grade,
+    var nickname: String,
+    var imageUrl: String? = null,
+    val createDate: LocalDateTime = LocalDateTime.now(),
+    val updateDate: LocalDateTime = LocalDateTime.now(),
+    val groupUserSequence: Long,
+){
+    data class Simple (
+        var nickname: String,
+        var imageUrl: String? = null
+    )
+}
