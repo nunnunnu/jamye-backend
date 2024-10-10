@@ -8,11 +8,12 @@ import org.junit.jupiter.api.DisplayName
 import org.jy.jamye.application.dto.UserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.crypto.password.PasswordEncoder
 import kotlin.test.Test
 
 @SpringBootTest
 @Transactional
-class UserFactoryTest @Autowired constructor(var userFactory: UserFactory, val userRepo: UserRepository) {
+class UserFactoryTest @Autowired constructor(var userFactory: UserFactory, val userRepo: UserRepository, var passwordEncoder: PasswordEncoder) {
     private var testId = "setupId"
     private var testEmail = "setupEmail@email.com"
     @BeforeEach
@@ -29,13 +30,14 @@ class UserFactoryTest @Autowired constructor(var userFactory: UserFactory, val u
     fun createUserSuccess() {
         val id = "testid"
         val email = "test1@email.com"
+        val password = "test"
         val create = userFactory.create(
-            UserDto(id = id, email = email, password = "test")
+            UserDto(id = id, email = email, password = password)
         )
 
-        val save = userRepo.save(create)
-        assertThat(save.userId).isEqualTo(id)
-        assertThat(save.email).isEqualTo(email)
+        assertThat(create.userId).isEqualTo(id)
+        assertThat(create.email).isEqualTo(email)
+        assertThat(passwordEncoder.matches(password, create.password)).isTrue()
 
     }
 

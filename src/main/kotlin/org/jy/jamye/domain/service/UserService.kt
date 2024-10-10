@@ -64,4 +64,13 @@ class UserService(
         return userRepo.findById(userSeq).orElseThrow { EntityNotFoundException("없는 유저 번호를 입력하셨습니다.") }
     }
 
+    @Transactional
+    fun deleteUser(userSeq: Long, password: String) {
+        val user = getUserOrThrow(userSeq)
+        if (!passwordEncoder.matches(password, user.password)) {
+            throw IllegalArgumentException("비밀번호 오류")
+        }
+        userRepo.deleteById(userSeq)
+    }
+
 }
