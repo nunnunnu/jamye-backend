@@ -25,6 +25,6 @@ class UserFactory(
             throw IllegalArgumentException("이미 등록된 이메일입니다.")
         }
         val encode = passwordEncoder.encode(user.password)
-        return User(userId = user.id, email = user.email, password = encode, role = Role.USER)
+        return User(userId = user.id, email = user.email, password = encode, role = Role.ROLE_USER)
     }
 }

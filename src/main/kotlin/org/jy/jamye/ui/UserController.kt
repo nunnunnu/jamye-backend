@@ -9,6 +9,8 @@ import org.jy.jamye.ui.post.UserPasswordDto
 import org.jy.jamye.ui.post.UserPostDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -30,21 +32,21 @@ class UserController(
         return ResponseDto(data = user, status = HttpStatus.OK)
     }
 
-    @GetMapping("/{userSeq}")
-    fun getUser(@PathVariable("userSeq") userSeq: Long) : ResponseDto<UserDto> {
-        val user = userService.getUser(userSeq)
+    @GetMapping
+    fun getUser(@AuthenticationPrincipal user: UserDetails) : ResponseDto<UserDto> {
+        val user = userService.getUser(user.username)
         return ResponseDto(data = user, status = HttpStatus.OK)
     }
 
-    @PatchMapping("/{userSeq}")
-    fun updateUser(@PathVariable("userSeq") userSeq: Long, @RequestBody data: UserUpdateDto) : ResponseDto<UserDto> {
-        val user = userService.updateUser(userSeq, data)
-        return ResponseDto(data = user, status = HttpStatus.OK)
+    @PatchMapping
+    fun updateUser(@AuthenticationPrincipal user: UserDetails, @RequestBody data: UserUpdateDto) : ResponseDto<UserDto> {
+        val userDto = userService.updateUser(user.username, data)
+        return ResponseDto(data = userDto, status = HttpStatus.OK)
     }
 
-    @DeleteMapping("/{userSeq}")
-    fun deleteUser(@PathVariable("userSeq") userSeq: Long, @RequestBody password: UserPasswordDto) : ResponseDto<Nothing> {
-        userService.deleteUser(userSeq, password.password)
+    @DeleteMapping
+    fun deleteUser(@AuthenticationPrincipal user: UserDetails, @RequestBody password: UserPasswordDto) : ResponseDto<Nothing> {
+        userService.deleteUser(user.username, password.password)
         return ResponseDto(status = HttpStatus.OK)
     }
 
