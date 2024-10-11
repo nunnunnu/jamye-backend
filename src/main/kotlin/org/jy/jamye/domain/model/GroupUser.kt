@@ -18,7 +18,7 @@ class GroupUser (
     @Column(name = "nickname")
     var nickname: String,
     @Column(name = "img_url")
-    var imageUrl: String,
+    var imageUrl: String? = null,
     @Column(name = "create_date")
     @CreationTimestamp
     val createDate: LocalDateTime = LocalDateTime.now(),
@@ -26,6 +26,9 @@ class GroupUser (
     @UpdateTimestamp
     val updateDate: LocalDateTime = LocalDateTime.now(),
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val groupUserSequence: Long? = null
+    val groupUserSequence: Long? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gi_seq", updatable = false, insertable = false)
+    val group: Group
     ){
 }
