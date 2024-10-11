@@ -1,6 +1,6 @@
 package org.jy.jamye.ui.post
 
-class GroupPostDto (
+data class GroupPostDto (
     val name: String,
     val imageUrl: String? = null,
     val description: String? = null,

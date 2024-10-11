@@ -15,9 +15,9 @@ class GroupService(
     fun getGroupInUser(userSequence: Long): List<GroupDto> {
         val groupConnection = groupUserRepo.findByUserSequence(userSequence)
         var result = ArrayList<GroupDto>()
-        groupConnection.map {
-                val group = it.group!!
-                result.add(GroupDto(sequence = group.sequence, name = group.name, description = group.description, createDate = group.createDate, updateDate = group.updateDate))
+        groupConnection.forEach() {
+                val group = it.group
+                result.add(GroupDto(groupSequence = group.sequence, name = group.name, description = group.description, createDate = group.createDate, updateDate = group.updateDate))
         }
         return result
     }
@@ -28,7 +28,7 @@ class GroupService(
         val groupMaster =
             groupFactory.createGroupMasterConnection(group.sequence!!, userSequence, masterUserInfo, group)
         groupUserRepo.save(groupMaster)
-        return GroupDto.Detail(sequence = group.sequence!!, name = group.name, description = group.description,
+        return GroupDto.Detail(groupSequence = group.sequence!!, name = group.name, description = group.description,
             imageUrl = group.imageUrl, createDate = group.createDate, updateDate = group.updateDate,
             users = listOf(UserInGroupDto(
                 nickname = groupMaster.nickname,
