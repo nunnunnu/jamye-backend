@@ -97,7 +97,7 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
         assertThat(group.name).isEqualTo(name)
         assertThat(group.description).isEqualTo(description)
         assertThat(group.users).isNotNull
-        val masterInfo = group.users!!.filter { it -> it.grade.equals(Grade.MASTER) }
+        val masterInfo = group.users!!.filter { it -> it.grade == Grade.MASTER }
         assertThat(masterInfo.size).isEqualTo(1)
         assertThat(masterInfo[0].nickname).isEqualTo(masterNickName)
     }
