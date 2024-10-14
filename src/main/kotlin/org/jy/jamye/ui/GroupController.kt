@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 class GroupController(private val groupService: GroupApplicationService,) {
     @GetMapping("/list")
     fun groups(@AuthenticationPrincipal user: UserDetails) :  ResponseDto<List<GroupDto>> {
-        val groups = groupService.getGroupInUser(user.username)
+        val groups = groupService.getGroupsInUser(user.username)
         return ResponseDto(data = groups, status = HttpStatus.OK)
     }
 
@@ -30,5 +30,11 @@ class GroupController(private val groupService: GroupApplicationService,) {
             UserInGroupDto.Simple(nickname = data.nickname, imageUrl = data.profileImageUrl)
         )
         return ResponseDto(data = result, status = HttpStatus.CREATED)
+    }
+
+    @GetMapping("/{groupSeq}")
+    fun getGroup(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<GroupDto.Detail> {
+        val result = groupService.getGroup(user.username, groupSeq)
+        return ResponseDto(data = result, status = HttpStatus.OK)
     }
 }

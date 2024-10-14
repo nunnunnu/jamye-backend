@@ -9,15 +9,18 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class GroupApplicationService(private val userService: UserService, private val groupService: GroupService) {
-    @Transactional(readOnly = true)
-    fun getGroupInUser(id: String): List<GroupDto> {
+    fun getGroupsInUser(id: String): List<GroupDto> {
         val user = userService.getUser(id)
         return groupService.getGroupInUser(user.sequence!!)
     }
 
-    @Transactional
     fun createGroup(id: String, data: GroupDto, masterUserInfo: UserInGroupDto.Simple): GroupDto.Detail {
         val user = userService.getUser(id)
         return groupService.createGroup(user.sequence!!, data, masterUserInfo);
+    }
+
+    fun getGroup(userId: String, groupSeq: Long): GroupDto.Detail {
+        val user = userService.getUser(userId)
+        return groupService.getGroup(user.sequence!!, groupSeq)
     }
 }

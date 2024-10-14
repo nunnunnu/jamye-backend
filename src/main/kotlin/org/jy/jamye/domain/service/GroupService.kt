@@ -1,10 +1,14 @@
 package org.jy.jamye.domain.service
 
+import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.infra.GroupFactory
 import org.jy.jamye.infra.GroupRepository
+import org.jy.jamye.infra.GroupUserRepository
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class GroupService(
@@ -12,6 +16,7 @@ class GroupService(
     private val groupUserRepo: GroupUserRepository,
     private val groupFactory: GroupFactory
 ) {
+    @Transactional(readOnly = true)
     fun getGroupInUser(userSequence: Long): List<GroupDto> {
         val groupConnection = groupUserRepo.findByUserSequence(userSequence)
         var result = ArrayList<GroupDto>()
@@ -22,6 +27,7 @@ class GroupService(
         return result
     }
 
+    @Transactional
     fun createGroup(userSequence: Long, data: GroupDto, masterUserInfo: UserInGroupDto.Simple): GroupDto.Detail {
         val group = groupFactory.createGroup(userSequence, data)
         groupRepo.save(group)
@@ -40,6 +46,34 @@ class GroupService(
                 userSequence = groupMaster.userSequence,
                 groupSequence = group.sequence!!))
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun getGroup(userSequence: Long, groupSequence: Long): GroupDto.Detail {
+        val usersInGroup = groupUserRepo.findByGroupSequence(groupSequence)
+        val filter = usersInGroup.filter { it.userSequence == userSequence }
+
+        if(filter.isEmpty()) throw IllegalArgumentException()
+
+        val group = groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
+
+        return GroupDto.Detail(
+            groupSequence = group.sequence!!,
+            name = group.name,
+            description = group.description,
+            imageUrl = group.imageUrl,
+            createDate = group.createDate,
+            updateDate = group.updateDate,
+            users = usersInGroup.map { it -> UserInGroupDto(
+                userSequence = it.userSequence,
+                groupSequence = it.groupSequence,
+                groupUserSequence = it.groupUserSequence!!,
+                nickname = it.nickname,
+                imageUrl = it.imageUrl,
+                grade = it.grade,
+                createDate = it.createDate,
+                updateDate = it.updateDate
+            ) })
     }
 
 }
