@@ -8,7 +8,9 @@ import org.jy.jamye.domain.model.GroupUser
 import org.springframework.stereotype.Service
 
 @Service
-class GroupFactory {
+class GroupFactory(
+    private val groupUserRepository: GroupUserRepository
+) {
     fun createGroup(userSequence: Long, data: GroupDto): Group {
         return Group(name = data.name, description = data.description, imageUrl = data.imageUrl)
     }
@@ -19,6 +21,9 @@ class GroupFactory {
         masterUserInfo: UserInGroupDto.Simple,
         group: Group
     ): GroupUser {
+        if(groupUserRepository.existsByUserSequenceAndGroupSequence(userSequence, groupSequence))
+            throw IllegalArgumentException("Group user already exists")
+
         return GroupUser(
             userSequence = userSequence,
             groupSequence = groupSequence,
