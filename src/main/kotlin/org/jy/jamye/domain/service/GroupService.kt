@@ -9,6 +9,8 @@ import org.jy.jamye.infra.GroupUserRepository
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class GroupService(
@@ -76,4 +78,14 @@ class GroupService(
             ) })
     }
 
+    fun inviteCodePublish(userSequence: Long, groupSequence: Long): String {
+        userInGroupCheckOrThrow(userSequence, groupSequence)
+        return LocalDateTime.now().toString() + UUID.randomUUID() + groupSequence
+    }
+
+    private fun userInGroupCheckOrThrow(userSequence: Long, groupSequence: Long) {
+        if (!groupUserRepo.existsByUserSequenceAndGroupSequence(userSequence, groupSequence)) {
+            throw BadCredentialsException("Group user does not exist")
+        }
+    }
 }
