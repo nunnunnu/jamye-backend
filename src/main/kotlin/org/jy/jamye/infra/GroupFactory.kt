@@ -32,4 +32,23 @@ class GroupFactory(
             grade = Grade.MASTER,
             group = group)
     }
+
+    fun createGroupNormalUser(userSequence: Long, group: Group, nickName: String, profileImageUrl: String?)
+    : GroupUser {
+        val groupSequence = group.sequence!!
+        if(groupUserRepository.existsByGroupSequenceAndNickname(groupSequence, nickName)) {
+            throw IllegalArgumentException("Group nickname already exists")
+        }
+        if(groupUserRepository.existsByUserSequenceAndGroupSequence(userSequence, groupSequence)) {
+            throw IllegalArgumentException("Group user already exists")
+        }
+
+        return GroupUser(
+            userSequence = userSequence,
+            groupSequence = groupSequence,
+            nickname = nickName,
+            imageUrl = profileImageUrl,
+            grade = Grade.NORMAL,
+            group = group)
+    }
 }
