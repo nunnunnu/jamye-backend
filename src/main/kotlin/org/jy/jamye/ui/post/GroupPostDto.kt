@@ -6,4 +6,11 @@ data class GroupPostDto (
     val description: String? = null,
     val nickname: String,
     val profileImageUrl: String? = null
-)
+) {
+    class Invite (
+        val groupSequence: Long,
+        val inviteCode: String,
+        val nickName: String,
+        val profileImageUrl: String? = null
+    )
+}

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/group")
-class GroupController(private val groupService: GroupApplicationService,private val session: HttpSession) {
+class GroupController(private val groupService: GroupApplicationService, private val session: HttpSession) {
     @GetMapping("/list")
     fun groups(@AuthenticationPrincipal user: UserDetails) :  ResponseDto<List<GroupDto>> {
         val groups = groupService.getGroupsInUser(user.username)
@@ -43,7 +43,20 @@ class GroupController(private val groupService: GroupApplicationService,private 
     fun inviteGroupCode(@AuthenticationPrincipal user: UserDetails, @PathVariable groupSeq: Long): ResponseDto<String> {
         val groupInviteCode: String = groupService.inviteGroupCode(user.username, groupSeq)
         // redis 구현 전 임시 세션 저장
-        session.setAttribute("inviteCode", groupInviteCode)
+        session.setAttribute(groupInviteCode, groupSeq)
         return ResponseDto(data = groupInviteCode, status = HttpStatus.OK)
     }
+
+    @PostMapping("/invite")
+    fun inviteGroupUser(@AuthenticationPrincipal user: UserDetails,
+                        @RequestBody data: GroupPostDto.Invite
+    ): ResponseDto<Long> {
+        val groupSequence: Long? = session.getAttribute(data.inviteCode) as Long?
+        if (groupSequence == null || groupSequence != data.groupSequence) {
+            throw IllegalArgumentException("정상적인 초대코드가 아님")
+        }
+        val userInGroupSequence = groupService.inviteGroupUser(user.username, data)
+        return ResponseDto(data = userInGroupSequence, status = HttpStatus.OK)
+    }
+
 }
