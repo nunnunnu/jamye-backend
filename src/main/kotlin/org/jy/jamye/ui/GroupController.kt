@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/api/group")
@@ -53,7 +52,7 @@ class GroupController(private val groupService: GroupApplicationService, private
                         @RequestBody data: GroupPostDto.Invite
     ): ResponseDto<Long> {
         val groupSequence: Long? = session.getAttribute(data.inviteCode) as Long?
-        if(groupSequence != data.groupSequence) {
+        if (groupSequence == null || groupSequence != data.groupSequence) {
             throw IllegalArgumentException("정상적인 초대코드가 아님")
         }
         val userInGroupSequence = groupService.inviteGroupUser(user.username, data)

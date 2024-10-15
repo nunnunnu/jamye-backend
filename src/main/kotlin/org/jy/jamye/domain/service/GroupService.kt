@@ -12,6 +12,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @Service
@@ -83,7 +84,7 @@ class GroupService(
     @Transactional(readOnly = true)
     fun inviteCodePublish(userSequence: Long, groupSequence: Long): String {
         userInGroupCheckOrThrow(userSequence, groupSequence)
-        return LocalDateTime.now().toString() + UUID.randomUUID() + "_" + groupSequence
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "_" + UUID.randomUUID() + "_" + groupSequence
     }
 
     private fun userInGroupCheckOrThrow(userSequence: Long, groupSequence: Long) {
