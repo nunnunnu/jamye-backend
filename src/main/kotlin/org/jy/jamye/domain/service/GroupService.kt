@@ -3,13 +3,16 @@ package org.jy.jamye.domain.service
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.domain.model.Group
 import org.jy.jamye.infra.GroupFactory
 import org.jy.jamye.infra.GroupRepository
 import org.jy.jamye.infra.GroupUserRepository
+import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @Service
@@ -78,14 +81,31 @@ class GroupService(
             ) })
     }
 
+    @Transactional(readOnly = true)
     fun inviteCodePublish(userSequence: Long, groupSequence: Long): String {
         userInGroupCheckOrThrow(userSequence, groupSequence)
-        return LocalDateTime.now().toString() + UUID.randomUUID() + groupSequence
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "_" + UUID.randomUUID() + "_" + groupSequence
     }
 
     private fun userInGroupCheckOrThrow(userSequence: Long, groupSequence: Long) {
         if (!groupUserRepo.existsByUserSequenceAndGroupSequence(userSequence, groupSequence)) {
             throw BadCredentialsException("Group user does not exist")
         }
+    }
+
+    @Transactional
+    fun inviteUser(userSequence: Long, data: GroupPostDto.Invite): Long {
+        val groupNormalUser = groupFactory.createGroupNormalUser(
+            userSequence,
+            getGroupOrThrow(data.groupSequence),
+            data.nickName,
+            data.profileImageUrl
+        )
+        groupUserRepo.save(groupNormalUser)
+        return groupNormalUser.groupUserSequence!!
+    }
+
+    private fun getGroupOrThrow(groupSequence: Long): Group {
+        return groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
     }
 }

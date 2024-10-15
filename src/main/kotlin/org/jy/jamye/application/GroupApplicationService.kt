@@ -4,6 +4,7 @@ import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.UserService
+import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,5 +28,10 @@ class GroupApplicationService(private val userService: UserService, private val 
     fun inviteGroupCode(userId: String, groupSeq: Long) : String{
         val user = userService.getUser(userId)
         return groupService.inviteCodePublish(user.sequence!!, groupSeq)
+    }
+
+    fun inviteGroupUser(userId: String, data: GroupPostDto.Invite): Long {
+        val user = userService.getUser(userId)
+        return groupService.inviteUser(user.sequence!!, data)
     }
 }
