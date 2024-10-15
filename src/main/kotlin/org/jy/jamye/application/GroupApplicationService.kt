@@ -23,4 +23,9 @@ class GroupApplicationService(private val userService: UserService, private val 
         val user = userService.getUser(userId)
         return groupService.getGroup(user.sequence!!, groupSeq)
     }
+
+    fun inviteGroupCode(userId: String, groupSeq: Long) : String{
+        val user = userService.getUser(userId)
+        return groupService.inviteCodePublish(user.sequence!!, groupSeq)
+    }
 }

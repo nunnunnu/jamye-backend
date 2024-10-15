@@ -1,6 +1,8 @@
 package org.jy.jamye.ui
 
+import jakarta.servlet.http.HttpSession
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.BeforeEach
@@ -19,6 +21,7 @@ import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
@@ -102,4 +105,18 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
         assertThat(masterInfo[0].nickname).isEqualTo(masterNickName)
     }
 
+    @Test
+    fun inviteGroup() {
+        val response = groupController.inviteGroupCode(setupUser!!, setupGroup!!.sequence!!)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        assertThat(response.data).isNotNull
+    }
+
+    @Test
+    fun inviteGroup_fail() {
+        assertThatThrownBy {
+            assertThat(groupController.inviteGroupCode(setupUser!!, 0L))
+        }.isInstanceOf(BadCredentialsException::class.java)
+            .hasMessageContaining("Group user does not exist")
+    }
 }
