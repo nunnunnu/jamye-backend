@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class GroupApplicationService(private val userService: UserService, private val groupService: GroupService) {
-    fun getGroupsInUser(id: String): List<GroupDto> {
+    fun getGroupsInUser(id: String): List<GroupDto.UserInfo> {
         val user = userService.getUser(id)
         return groupService.getGroupInUser(user.sequence!!)
     }
@@ -33,5 +33,11 @@ class GroupApplicationService(private val userService: UserService, private val 
     fun inviteGroupUser(userId: String, data: GroupPostDto.Invite): Long {
         val user = userService.getUser(userId)
         return groupService.inviteUser(user.sequence!!, data)
+    }
+
+    fun deleteGroup(id: String, groupSequence: Long) {
+        val user = userService.getUser(id)
+        groupService.deleteGroup(user.sequence!!, groupSequence)
+
     }
 }
