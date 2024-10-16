@@ -1,6 +1,5 @@
 package org.jy.jamye.ui
 
-import jakarta.servlet.http.HttpSession
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -23,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.transaction.annotation.Transactional
+import kotlin.test.fail
 
 @SpringBootTest
 @Transactional
@@ -68,9 +68,10 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
 
         assertThat(groups.size).isEqualTo(1)
         val group = groups[0]
+        assertThat(group).isNotNull
         assertThat(group.name).isEqualTo(name)
         assertThat(group.description).isEqualTo(description)
-        assertThat(group).isNotNull
+        assertThat(group.userNickName).isEqualTo(masterNickName)
     }
 
     @Test
@@ -197,4 +198,47 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
             .hasMessageContaining("정상적인 초대코드가 아님")
 
     }
+
+    @Test
+    fun deleteGroup_success() {
+        val groupSequence = setupGroup!!.sequence!!
+        val response = groupController.deleteGroup(setupUser!!, groupSequence)
+
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+
+        if (!groupRepository.findById(groupSequence).isEmpty) {
+            fail()
+        }
+        if(groupUserRepository.findAllByGroupSequence(groupSequence).isNotEmpty()) {
+            fail()
+        }
+    }
+
+    @Test
+    fun deleteGroup_fail_grade() {
+        val groupSequence = setupGroup!!.sequence!!
+        val save = userRepo.save(
+            userFactory.create(
+                UserDto(
+                    id = "testId3",
+                    email = "testEmail3@email.com",
+                    password = "testPassword"
+                )
+            )
+        )
+        groupController.inviteGroupUser(
+            save,
+            GroupPostDto.Invite(
+                groupSequence = groupSequence,
+                nickName = "kk",
+                inviteCode = setupInviteCode!!
+            )
+        )
+        assertThatThrownBy {
+            assertThat(groupController.deleteGroup(save, groupSequence))
+        }.isInstanceOf(BadCredentialsException::class.java)
+            .hasMessageContaining("그룹 개설자만 그룹을 삭제가능합니다")
+    }
+
+
 }

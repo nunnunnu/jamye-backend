@@ -3,6 +3,7 @@ package org.jy.jamye.domain.service
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
 import org.jy.jamye.infra.GroupFactory
 import org.jy.jamye.infra.GroupRepository
@@ -22,14 +23,14 @@ class GroupService(
     private val groupFactory: GroupFactory
 ) {
     @Transactional(readOnly = true)
-    fun getGroupInUser(userSequence: Long): List<GroupDto> {
-        val groupConnection = groupUserRepo.findByUserSequence(userSequence)
-        var result = ArrayList<GroupDto>()
-        groupConnection.forEach() {
-                val group = it.group
-                result.add(GroupDto(groupSequence = group.sequence, name = group.name, description = group.description, createDate = group.createDate, updateDate = group.updateDate))
+    fun getGroupInUser(userSequence: Long): List<GroupDto.UserInfo> {
+        val groupConnection = groupUserRepo.findAllByUserSequence(userSequence)
+        return groupConnection.map {
+            val group = it.group
+            GroupDto.UserInfo(
+                groupSequence = group.sequence, name = group.name, description = group.description, createDate = group.createDate, updateDate = group.updateDate, userNickName = it.nickname
+            )
         }
-        return result
     }
 
     @Transactional
@@ -55,7 +56,7 @@ class GroupService(
 
     @Transactional(readOnly = true)
     fun getGroup(userSequence: Long, groupSequence: Long): GroupDto.Detail {
-        val usersInGroup = groupUserRepo.findByGroupSequence(groupSequence)
+        val usersInGroup = groupUserRepo.findAllByGroupSequence(groupSequence)
         val filter = usersInGroup.filter { it.userSequence == userSequence }
 
         if(filter.isEmpty()) throw IllegalArgumentException()
@@ -107,5 +108,19 @@ class GroupService(
 
     private fun getGroupOrThrow(groupSequence: Long): Group {
         return groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
+    }
+
+    fun deleteGroup(userSequence: Long, groupSequence: Long) {
+        if (!userIsMaster(userSequence, groupSequence)) {
+            throw BadCredentialsException("그룹 개설자만 그룹을 삭제가능합니다")
+        }
+        groupRepo.deleteById(groupSequence)
+        groupUserRepo.deleteByGroup(groupSequence)
+
+        //todo: 게시글 삭제 여부 결정 필요
+    }
+
+    private fun userIsMaster(userSequence: Long, groupSequence: Long): Boolean {
+        return groupUserRepo.existsByUserSequenceAndGroupSequenceAndGrade(userSequence, groupSequence, Grade.MASTER)
     }
 }

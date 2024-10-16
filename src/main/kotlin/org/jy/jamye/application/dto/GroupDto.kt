@@ -19,4 +19,13 @@ class GroupDto(
         var groupSequence: Long,
         val users: List<UserInGroupDto>? = listOf()
     )
+    data class UserInfo(
+        var name: String,
+        var imageUrl: String? = null,
+        var description: String? = null,
+        val createDate: LocalDateTime? = null,
+        val updateDate: LocalDateTime? = null,
+        var groupSequence: Long? = null,
+        var userNickName: String
+    )
 }

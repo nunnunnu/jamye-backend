@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/group")
 class GroupController(private val groupService: GroupApplicationService, private val session: HttpSession) {
     @GetMapping("/list")
-    fun groups(@AuthenticationPrincipal user: UserDetails) :  ResponseDto<List<GroupDto>> {
+    fun groups(@AuthenticationPrincipal user: UserDetails) :  ResponseDto<List<GroupDto.UserInfo>> {
         val groups = groupService.getGroupsInUser(user.username)
         return ResponseDto(data = groups, status = HttpStatus.OK)
     }
@@ -57,6 +57,12 @@ class GroupController(private val groupService: GroupApplicationService, private
         }
         val userInGroupSequence = groupService.inviteGroupUser(user.username, data)
         return ResponseDto(data = userInGroupSequence, status = HttpStatus.OK)
+    }
+
+    @DeleteMapping("/{groupSeq}")
+    fun deleteGroup(@AuthenticationPrincipal user: UserDetails, @PathVariable("groupSeq") groupSeq: Long): ResponseDto<Nothing> {
+        groupService.deleteGroup(user.username, groupSeq)
+        return ResponseDto(data = null, status = HttpStatus.OK)
     }
 
 }
