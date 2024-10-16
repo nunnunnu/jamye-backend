@@ -1,6 +1,8 @@
 package org.jy.jamye.infra
 
 import org.jy.jamye.application.dto.UserDto
+import org.jy.jamye.common.exception.Custom.AlreadyRegisteredIdException
+import org.jy.jamye.common.exception.Custom.DuplicateEmailException
 import org.jy.jamye.domain.model.Role
 import org.jy.jamye.domain.model.User
 import org.slf4j.Logger
@@ -18,11 +20,11 @@ class UserFactory(
     fun create(user: UserDto): User {
         if(userRepo.existsByUserId(user.id)) {
             log.debug("[createUser] 회원가입 실패, 중복 ID = {}", user.id)
-            throw IllegalArgumentException("이미 등록된 아이디입니다.")
+            throw AlreadyRegisteredIdException()
         }
         if(userRepo.existsByEmail(user.email)) {
             log.debug("[createUser] 회원가입 실패, 중복 email = {}", user.email)
-            throw IllegalArgumentException("이미 등록된 이메일입니다.")
+            throw DuplicateEmailException()
         }
         val encode = passwordEncoder.encode(user.password)
         return User(userId = user.id, email = user.email, password = encode, role = Role.ROLE_USER)

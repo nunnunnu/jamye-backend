@@ -8,6 +8,9 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.jy.jamye.application.dto.UserDto
+import org.jy.jamye.common.exception.Custom.AlreadyRegisteredIdException
+import org.jy.jamye.common.exception.Custom.DuplicateEmailException
+import org.jy.jamye.common.exception.Custom.PasswordErrorException
 import org.jy.jamye.domain.model.Role
 import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.UserFactory
@@ -62,18 +65,18 @@ class UserControllerTest @Autowired constructor(
 
         assertThatThrownBy {
             assertThat(userController.createUser(data))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("이미 등록된 아이디입니다.")
+        }.isInstanceOf(AlreadyRegisteredIdException::class.java)
+            .hasMessageContaining("이미 가입된 아이디입니다.")
     }
 
     @Test
-    @DisplayName("유저 생성 api 테스트 - 실패: 중복 ID")
+    @DisplayName("유저 생성 api 테스트 - 실패: 중복 이메일")
     fun 회원가입_실패_중복이메일() {
         val data = UserPostDto(id = "testId4", email = testEmail, password = "testtest")
 
         assertThatThrownBy {
             assertThat(userController.createUser(data))
-        }.isInstanceOf(IllegalArgumentException::class.java)
+        }.isInstanceOf(DuplicateEmailException::class.java)
             .hasMessageContaining("이미 등록된 이메일입니다.")
     }
 
@@ -251,8 +254,8 @@ class UserControllerTest @Autowired constructor(
     fun 회원정보삭제_실패() {
         assertThatThrownBy {
             assertThat(userController.deleteUser(setupUser!!, UserPasswordDto("잘못된비밀번호")))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("비밀번호 오류")
+        }.isInstanceOf(PasswordErrorException::class.java)
+            .hasMessageContaining("비밀번호가 일치하지 않습니다.")
 
         val response = userController.getUser(setupUser!!)
         assertThat(response.status).isEqualTo(HttpStatus.OK)

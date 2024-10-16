@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.common.exception.Custom.AlreadyJoinedGroupException
+import org.jy.jamye.common.exception.Custom.DuplicateGroupNicknameException
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
 import org.jy.jamye.domain.model.User
@@ -166,8 +168,8 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
                     nickName = masterNickName,
                     inviteCode = setupInviteCode!!
                 )))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("Group nickname already exists")
+        }.isInstanceOf(DuplicateGroupNicknameException::class.java)
+            .hasMessageContaining("이미 그룹에 등록된 닉네임입니다.")
 
     }
 
@@ -180,8 +182,8 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
                     nickName = "sd",
                     inviteCode = setupInviteCode!!
                 )))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("Group user already exists")
+        }.isInstanceOf(AlreadyJoinedGroupException::class.java)
+            .hasMessageContaining("이미 그룹에 가입된 상태입니다.")
 
     }
 
