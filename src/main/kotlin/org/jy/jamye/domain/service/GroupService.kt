@@ -25,7 +25,6 @@ class GroupService(
     @Transactional(readOnly = true)
     fun getGroupInUser(userSequence: Long): List<GroupDto.UserInfo> {
         val groupConnection = groupUserRepo.findAllByUserSequence(userSequence)
-        var result = ArrayList<GroupDto.UserInfo>()
         return groupConnection.map {
             val group = it.group
             GroupDto.UserInfo(
