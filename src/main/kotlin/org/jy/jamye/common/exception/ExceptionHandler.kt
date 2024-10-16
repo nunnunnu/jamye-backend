@@ -3,14 +3,11 @@ package org.jy.jamye.common.exception
 import com.fasterxml.jackson.core.JsonParseException
 import jakarta.persistence.EntityNotFoundException
 import org.hibernate.exception.ConstraintViolationException
-import org.jy.jamye.common.exception.Custom.BasicException
-import org.jy.jamye.common.io.ResponseDto
 import org.springframework.beans.TypeMismatchException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.web.ErrorResponse
 import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -48,12 +45,12 @@ class ExceptionHandler {
     }
 
     @ExceptionHandler(BasicException::class)
-    fun basicException(ex: BasicException): ResponseEntity<ErrorResponseDto> {
+    fun basicException(e: BasicException): ResponseEntity<ErrorResponseDto> {
         return ResponseEntity(ErrorResponseDto(
-            status = ex.status.value(),
-            error = ex.status.reasonPhrase,
-            message = ex.errorCode.message
-        ), ex.status)
+            status = e.status.value(),
+            error = e.status.reasonPhrase,
+            message = e.errorCode.message
+        ), e.status)
     }
 
     @ExceptionHandler(BadCredentialsException::class
@@ -63,5 +60,13 @@ class ExceptionHandler {
             status = HttpStatus.FORBIDDEN.value(),
             message = e.message
         ), HttpStatus.FORBIDDEN)
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun exception(e: Exception): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity(ErrorResponseDto(
+            status = HttpStatus.BAD_REQUEST.value(),
+            message = e.message
+        ), HttpStatus.BAD_REQUEST)
     }
 }

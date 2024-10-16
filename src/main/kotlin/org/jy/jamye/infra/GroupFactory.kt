@@ -2,8 +2,8 @@ package org.jy.jamye.infra
 
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
-import org.jy.jamye.common.exception.Custom.AlreadyJoinedGroupException
-import org.jy.jamye.common.exception.Custom.DuplicateGroupNicknameException
+import org.jy.jamye.common.exception.AlreadyJoinedGroupException
+import org.jy.jamye.common.exception.DuplicateGroupNicknameException
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
 import org.jy.jamye.domain.model.GroupUser

@@ -3,7 +3,7 @@ package org.jy.jamye.application.dto
 import org.jy.jamye.domain.model.Grade
 import java.time.LocalDateTime
 
-class UserInGroupDto (
+data class UserInGroupDto (
     val userSequence: Long,
     val groupSequence: Long,
     val grade: Grade,

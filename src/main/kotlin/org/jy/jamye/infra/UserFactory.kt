@@ -1,8 +1,8 @@
 package org.jy.jamye.infra
 
 import org.jy.jamye.application.dto.UserDto
-import org.jy.jamye.common.exception.Custom.AlreadyRegisteredIdException
-import org.jy.jamye.common.exception.Custom.DuplicateEmailException
+import org.jy.jamye.common.exception.AlreadyRegisteredIdException
+import org.jy.jamye.common.exception.DuplicateEmailException
 import org.jy.jamye.domain.model.Role
 import org.jy.jamye.domain.model.User
 import org.slf4j.Logger

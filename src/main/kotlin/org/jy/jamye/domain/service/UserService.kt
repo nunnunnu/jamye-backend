@@ -4,7 +4,7 @@ import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
-import org.jy.jamye.common.exception.Custom.PasswordErrorException
+import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
 import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.UserFactory

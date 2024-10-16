@@ -1,15 +1,12 @@
-package org.jy.jamye.common.exception.Custom
+package org.jy.jamye.common.exception
 
-import org.jy.jamye.common.exception.ErrorCode
 import org.springframework.http.HttpStatus
 
-// 공통 CustomException 클래스
 open class BasicException(val errorCode: ErrorCode, detailMessage: String?) : RuntimeException(errorCode.message + if (detailMessage != null) ": $detailMessage" else ""){
     val status: HttpStatus
         get() = errorCode.status
 }
 
-// 각 에러에 대한 CustomException
 class PasswordErrorException(detailMessage: String? = null) : BasicException(ErrorCode.PASSWORD_ERROR, detailMessage)
 
 class AlreadyJoinedGroupException(detailMessage: String? = null) : BasicException(ErrorCode.ALREADY_JOINED_GROUP, detailMessage)

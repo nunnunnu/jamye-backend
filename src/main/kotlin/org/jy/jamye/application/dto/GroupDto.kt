@@ -2,7 +2,7 @@ package org.jy.jamye.application.dto
 
 import java.time.LocalDateTime
 
-class GroupDto(
+data class GroupDto(
     var name: String,
     var imageUrl: String? = null,
     var description: String? = null,
