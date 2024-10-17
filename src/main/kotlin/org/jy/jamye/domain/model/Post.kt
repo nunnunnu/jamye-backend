@@ -11,6 +11,8 @@ import java.time.LocalDateTime
 class Post(
     @Column(name = "title")
     var title: String,
+    @Column(name = "group_seq")
+    var groupSequence: Long,
     @Column(name = "create_ui_seq")
     @CreatedBy
     val createUserSequence: Long,

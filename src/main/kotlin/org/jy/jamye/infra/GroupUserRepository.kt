@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.transaction.annotation.Transactional
+import java.util.Optional
 
 interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     @EntityGraph(attributePaths = ["group"])
@@ -20,4 +21,6 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     @Modifying
     @Query("delete from GroupUser group where group.groupSequence = :groupSequence")
     fun deleteByGroup(groupSequence: Long)
+
+    fun findByGroupSequenceAndUserSequence(groupSequence: Long, userSequence: Long): Optional<GroupUser>
 }
