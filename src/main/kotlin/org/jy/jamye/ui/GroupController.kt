@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession
 import org.jy.jamye.application.GroupApplicationService
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.http.HttpStatus
@@ -53,7 +54,7 @@ class GroupController(private val groupService: GroupApplicationService, private
     ): ResponseDto<Long> {
         val groupSequence: Long? = session.getAttribute(data.inviteCode) as Long?
         if (groupSequence == null || groupSequence != data.groupSequence) {
-            throw IllegalArgumentException("정상적인 초대코드가 아님")
+            throw InvalidInviteCodeException()
         }
         val userInGroupSequence = groupService.inviteGroupUser(user.username, data)
         return ResponseDto(data = userInGroupSequence, status = HttpStatus.OK)

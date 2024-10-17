@@ -2,6 +2,8 @@ package org.jy.jamye.infra
 
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.common.exception.AlreadyJoinedGroupException
+import org.jy.jamye.common.exception.DuplicateGroupNicknameException
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
 import org.jy.jamye.domain.model.GroupUser
@@ -22,7 +24,7 @@ class GroupFactory(
         group: Group
     ): GroupUser {
         if(groupUserRepository.existsByUserSequenceAndGroupSequence(userSequence, groupSequence))
-            throw IllegalArgumentException("Group user already exists")
+            throw AlreadyJoinedGroupException()
 
         return GroupUser(
             userSequence = userSequence,
@@ -37,10 +39,10 @@ class GroupFactory(
     : GroupUser {
         val groupSequence = group.sequence!!
         if(groupUserRepository.existsByGroupSequenceAndNickname(groupSequence, nickName)) {
-            throw IllegalArgumentException("Group nickname already exists")
+            throw DuplicateGroupNicknameException()
         }
         if(groupUserRepository.existsByUserSequenceAndGroupSequence(userSequence, groupSequence)) {
-            throw IllegalArgumentException("Group user already exists")
+            throw AlreadyJoinedGroupException()
         }
 
         return GroupUser(

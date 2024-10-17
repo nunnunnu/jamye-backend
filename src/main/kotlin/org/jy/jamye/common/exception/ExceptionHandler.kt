@@ -3,7 +3,6 @@ package org.jy.jamye.common.exception
 import com.fasterxml.jackson.core.JsonParseException
 import jakarta.persistence.EntityNotFoundException
 import org.hibernate.exception.ConstraintViolationException
-import org.jy.jamye.common.io.ResponseDto
 import org.springframework.beans.TypeMismatchException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -38,17 +37,36 @@ class ExceptionHandler {
         UnsatisfiedServletRequestParameterException::class,
         HttpRequestMethodNotSupportedException::class
     )
-    fun handleException(e: Exception): ResponseEntity<ResponseDto<Nothing>> {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(ResponseDto(message = e.message, status = HttpStatus.BAD_REQUEST))
+    fun handleException(e: Exception): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity(ErrorResponseDto(
+            status = HttpStatus.BAD_REQUEST.value(),
+            message = e.message
+        ), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(BasicException::class)
+    fun basicException(e: BasicException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity(ErrorResponseDto(
+            status = e.status.value(),
+            error = e.status.reasonPhrase,
+            message = e.errorCode.message
+        ), e.status)
     }
 
     @ExceptionHandler(BadCredentialsException::class
     )
-    fun authExceptionHandler(e: Exception): ResponseEntity<ResponseDto<Nothing>> {
-        return ResponseEntity
-            .status(HttpStatus.FORBIDDEN)
-            .body(ResponseDto(message = e.message, status = HttpStatus.FORBIDDEN))
+    fun authExceptionHandler(e: Exception): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity(ErrorResponseDto(
+            status = HttpStatus.FORBIDDEN.value(),
+            message = e.message
+        ), HttpStatus.FORBIDDEN)
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun exception(e: Exception): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity(ErrorResponseDto(
+            status = HttpStatus.BAD_REQUEST.value(),
+            message = e.message
+        ), HttpStatus.BAD_REQUEST)
     }
 }
