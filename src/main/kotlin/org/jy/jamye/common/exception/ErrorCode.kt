@@ -9,5 +9,6 @@ enum class ErrorCode(val status: HttpStatus, val message: String) {
     MEMBER_NOT_IN_GROUP(HttpStatus.NOT_FOUND, "그룹에 존재하지 않는 회원입니다."),
     ALREADY_REGISTERED_ID(HttpStatus.CONFLICT, "이미 가입된 아이디입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 가입된 이메일입니다."),
-    INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, "존재하지 않는 초대코드입니다.");
+    INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, "존재하지 않는 초대코드입니다."),
+    GROUP_DELETION_PERMISSION(HttpStatus.FORBIDDEN, "그룹 개설자만 그룹을 삭제 가능합니다.");
 }

@@ -2,7 +2,12 @@ package org.jy.jamye.common.exception
 
 import org.springframework.http.HttpStatus
 
-open class BasicException(val errorCode: ErrorCode, detailMessage: String?) : RuntimeException(errorCode.message + if (detailMessage != null) ": $detailMessage" else ""){
+open class BasicException(
+    val errorCode: ErrorCode,
+    detailMessage: String?
+) : RuntimeException(
+    if (detailMessage != null) "${errorCode.message}: $detailMessage" else errorCode.message
+) {
     val status: HttpStatus
         get() = errorCode.status
 }
@@ -20,3 +25,5 @@ class AlreadyRegisteredIdException(detailMessage: String? = null) : BasicExcepti
 class DuplicateEmailException(detailMessage: String? = null) : BasicException(ErrorCode.DUPLICATE_EMAIL, detailMessage)
 
 class InvalidInviteCodeException(detailMessage: String? = null) : BasicException(ErrorCode.INVALID_INVITE_CODE, detailMessage)
+
+class GroupDeletionPermissionException(detailMessage: String? = null) : BasicException(ErrorCode.GROUP_DELETION_PERMISSION, detailMessage)

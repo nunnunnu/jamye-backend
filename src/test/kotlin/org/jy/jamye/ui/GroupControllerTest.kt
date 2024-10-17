@@ -8,10 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserInGroupDto
-import org.jy.jamye.common.exception.AlreadyJoinedGroupException
-import org.jy.jamye.common.exception.DuplicateGroupNicknameException
-import org.jy.jamye.common.exception.InvalidInviteCodeException
-import org.jy.jamye.common.exception.MemberNotInGroupException
+import org.jy.jamye.common.exception.*
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
 import org.jy.jamye.domain.model.User
@@ -123,7 +120,7 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
             )
         )
 
-        assertThatThrownBy { groupController.getGroup(setupGroup!!.sequence!!, user = setupUser!!) }
+        assertThatThrownBy { groupController.getGroup(setupGroup!!.sequence!!, user = save) }
             .isInstanceOf(MemberNotInGroupException::class.java)
             .hasMessageContaining("그룹에 존재하지 않는 회원입니다.")
     }
@@ -250,8 +247,8 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
             )
         )
         assertThatThrownBy { groupController.deleteGroup(save, groupSequence)
-        }.isInstanceOf(BadCredentialsException::class.java)
-            .hasMessageContaining("그룹 개설자만 그룹을 삭제가능합니다")
+        }.isInstanceOf(GroupDeletionPermissionException::class.java)
+            .hasMessageContaining("그룹 개설자만 그룹을 삭제 가능합니다.")
     }
 
 
