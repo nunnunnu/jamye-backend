@@ -6,6 +6,8 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.jy.jamye.application.dto.UserDto
+import org.jy.jamye.common.exception.AlreadyRegisteredIdException
+import org.jy.jamye.common.exception.DuplicateEmailException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -44,22 +46,19 @@ class UserFactoryTest @Autowired constructor(var userFactory: UserFactory, val u
     @Test
     @DisplayName("유저 save 실패 - 중복 ID")
     fun createUserDuplicateId() {
-        assertThatThrownBy {
-            assertThat(userFactory.create(
-                UserDto(id = testId, email = "test2@email.com", password = "test")));
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("이미 등록된 아이디입니다.")
+        assertThatThrownBy { userFactory
+            .create(UserDto(id = testId, email = "test2@email.com", password = "test"))
+        }.isInstanceOf(AlreadyRegisteredIdException::class.java)
+            .hasMessageContaining("이미 가입된 아이디입니다.")
     }
 
     @Test
     @DisplayName("유저 save 실패 - 중복 이메일")
     fun createUserDuplicateEmail() {
-        assertThatThrownBy {
-            userFactory.create(
-                UserDto(id = "test3", email = testEmail, password = "test")
-            )
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("이미 등록된 이메일입니다.")
+        assertThatThrownBy { userFactory.create(
+                UserDto(id = "test3", email = testEmail, password = "test"))
+        }.isInstanceOf(DuplicateEmailException::class.java)
+            .hasMessageContaining("이미 가입된 이메일입니다.")
     }
 
 }

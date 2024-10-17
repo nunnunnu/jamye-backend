@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
+import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
 import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.UserFactory
@@ -68,7 +69,7 @@ class UserService(
     fun deleteUser(id: String, password: String) {
         val user = getUserByIdOrThrow(id)
         if (!passwordEncoder.matches(password, user.password)) {
-            throw IllegalArgumentException("비밀번호 오류")
+            throw PasswordErrorException()
         }
         userRepo.deleteById(user.sequence!!)
     }

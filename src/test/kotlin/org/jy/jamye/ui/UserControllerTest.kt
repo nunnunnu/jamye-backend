@@ -8,6 +8,9 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.jy.jamye.application.dto.UserDto
+import org.jy.jamye.common.exception.AlreadyRegisteredIdException
+import org.jy.jamye.common.exception.DuplicateEmailException
+import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.domain.model.Role
 import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.UserFactory
@@ -60,28 +63,25 @@ class UserControllerTest @Autowired constructor(
     fun 회원가입_실패_중복ID() {
         val data = UserPostDto(id = testId, email = "test3@email.com", password = "testtest")
 
-        assertThatThrownBy {
-            assertThat(userController.createUser(data))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("이미 등록된 아이디입니다.")
+        assertThatThrownBy { userController.createUser(data)
+        }.isInstanceOf(AlreadyRegisteredIdException::class.java)
+            .hasMessageContaining("이미 가입된 아이디입니다.")
     }
 
     @Test
-    @DisplayName("유저 생성 api 테스트 - 실패: 중복 ID")
+    @DisplayName("유저 생성 api 테스트 - 실패: 중복 이메일")
     fun 회원가입_실패_중복이메일() {
         val data = UserPostDto(id = "testId4", email = testEmail, password = "testtest")
 
-        assertThatThrownBy {
-            assertThat(userController.createUser(data))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("이미 등록된 이메일입니다.")
+        assertThatThrownBy { userController.createUser(data)
+        }.isInstanceOf(DuplicateEmailException::class.java)
+            .hasMessageContaining("이미 가입된 이메일입니다.")
     }
 
     @Test
     @DisplayName("유저 생성 api 테스트 - 실패: 이메일 형식 에러")
     fun 회원가입_실패_이메일형식_에러() {
-        assertThatThrownBy {
-            assertThat(UserPostDto(id = "testId4", email = "sj", password = "testtest"))
+        assertThatThrownBy { UserPostDto(id = "testId4", email = "sj", password = "testtest")
         }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("Invalid email format")
     }
@@ -89,8 +89,7 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("유저 생성 api 테스트 - 실패: 이메일 형식 에러")
     fun 회원가입_실패_비밀번호자리수_에러() {
-        assertThatThrownBy {
-            assertThat(UserPostDto(id = "testId4", email = "testEmail@mail.com", password = "test"))
+        assertThatThrownBy { UserPostDto(id = "testId4", email = "testEmail@mail.com", password = "test")
         }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("Password must be at least 8 characters long")
     }
@@ -99,8 +98,7 @@ class UserControllerTest @Autowired constructor(
     @DisplayName("유저 생성 api 테스트 - 실패: 아이디 입력X")
     fun 회원가입_실패_아이디_입력X() {
         val user = UserPostDto(id = "", email = "testEmail@mail.com", password = "testtest")
-        assertThatThrownBy {
-            assertThat(userController.createUser(user))
+        assertThatThrownBy { userController.createUser(user)
         }.isInstanceOf(ConstraintViolationException::class.java)
             .hasMessageContaining("아이디는 필수입니다.")
     }
@@ -126,8 +124,7 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("로그인 실패 - ID 오류")
     fun 로그인_실패_잘못된_ID() {
-        assertThatThrownBy {
-            assertThat(userController.login(LoginPostDto(id = "없는ID", password = testPassword)))
+        assertThatThrownBy { userController.login(LoginPostDto(id = "없는ID", password = testPassword))
         }.isInstanceOf(BadCredentialsException::class.java)
             .hasMessageContaining("로그인 정보를 다시 확인해주세요")
     }
@@ -135,8 +132,7 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("로그인 실패 - ID 오류")
     fun 로그인_실패_잘못된_비밀번호() {
-        assertThatThrownBy {
-            assertThat(userController.login(LoginPostDto(id = testId, password = "잘못된비밀번호")))
+        assertThatThrownBy { userController.login(LoginPostDto(id = testId, password = "잘못된비밀번호"))
         }.isInstanceOf(BadCredentialsException::class.java)
             .hasMessageContaining("로그인 정보를 다시 확인해주세요")
     }
@@ -156,8 +152,7 @@ class UserControllerTest @Autowired constructor(
     @DisplayName("회원정보 조회 - 실패")
     fun 회원정보_조회_실패_번호없음() {
         val errorUser = User(userId = "error", email = testEmail, password = testPassword, role = Role.ROLE_USER)
-        assertThatThrownBy {
-            assertThat(userController.getUser(errorUser))
+        assertThatThrownBy { userController.getUser(errorUser)
         }.isInstanceOf(EntityNotFoundException::class.java)
             .hasMessageContaining("없는 유저 번호를 입력하셨습니다.")
     }
@@ -202,8 +197,7 @@ class UserControllerTest @Autowired constructor(
     fun 회원정보_수정_실패_이메일형식에러() {
         val updateEmail = "update2email.com"
 
-        assertThatThrownBy {
-            assertThat(UserUpdateDto(email = updateEmail, oldPassword = testPassword))
+        assertThatThrownBy { UserUpdateDto(email = updateEmail, oldPassword = testPassword)
         }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("Invalid email format")
     }
@@ -228,8 +222,7 @@ class UserControllerTest @Autowired constructor(
     @DisplayName("회원정보 수정 실패 - 비밀번호자리수에러")
     fun 회원정보_수정_실패_비밀번호_자리수에러() {
         val newPassword = "aaaa"
-        assertThatThrownBy {
-            assertThat(UserUpdateDto(oldPassword = testPassword, newPassword = newPassword))
+        assertThatThrownBy { UserUpdateDto(oldPassword = testPassword, newPassword = newPassword)
         }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("Password must be at least 8 characters long")
     }
@@ -240,8 +233,7 @@ class UserControllerTest @Autowired constructor(
         val response = userController.deleteUser(setupUser!!, UserPasswordDto(testPassword))
         assertThat(response.status).isEqualTo(HttpStatus.OK)
 
-        assertThatThrownBy {
-            assertThat(userController.getUser(setupUser!!))
+        assertThatThrownBy { userController.getUser(setupUser!!)
         }.isInstanceOf(EntityNotFoundException::class.java)
             .hasMessageContaining("없는 유저 번호를 입력하셨습니다.")
     }
@@ -249,10 +241,9 @@ class UserControllerTest @Autowired constructor(
     @Test
     @DisplayName("회원 정보 삭제 - 실패")
     fun 회원정보삭제_실패() {
-        assertThatThrownBy {
-            assertThat(userController.deleteUser(setupUser!!, UserPasswordDto("잘못된비밀번호")))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("비밀번호 오류")
+        assertThatThrownBy { userController.deleteUser(setupUser!!, UserPasswordDto("잘못된비밀번호"))
+        }.isInstanceOf(PasswordErrorException::class.java)
+            .hasMessageContaining("비밀번호가 일치하지 않습니다.")
 
         val response = userController.getUser(setupUser!!)
         assertThat(response.status).isEqualTo(HttpStatus.OK)

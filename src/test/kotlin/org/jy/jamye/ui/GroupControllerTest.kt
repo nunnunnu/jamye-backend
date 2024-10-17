@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.common.exception.*
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
 import org.jy.jamye.domain.model.User
@@ -44,12 +45,10 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
     fun setup() {
         val user = userFactory.create(UserDto(id = "testId", email = "testEmail@email.com", password = "testPassword"))
 
-        userRepo.save(user)
-        setupUser = user
+        setupUser = userRepo.save(user)
 
         val group = groupFactory.createGroup(userSequence = user.sequence!!, GroupDto(name = name, description = description))
-        groupRepository.save(group)
-        setupGroup = group
+        setupGroup = groupRepository.save(group)
 
         val groupUser = groupFactory.createGroupMasterConnection(
             groupSequence = group.sequence!!,
@@ -110,6 +109,23 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
     }
 
     @Test
+    fun getGroup_fail() {
+        val save = userRepo.save(
+            userFactory.create(
+                UserDto(
+                    id = "saveId",
+                    email = "saveEmail@email.com",
+                    password = "testPassword"
+                )
+            )
+        )
+
+        assertThatThrownBy { groupController.getGroup(setupGroup!!.sequence!!, user = save) }
+            .isInstanceOf(MemberNotInGroupException::class.java)
+            .hasMessageContaining("그룹에 존재하지 않는 회원입니다.")
+    }
+
+    @Test
     fun inviteGroup() {
         val response = groupController.inviteGroupCode(setupUser!!, setupGroup!!.sequence!!)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -118,8 +134,7 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
 
     @Test
     fun inviteGroup_fail() {
-        assertThatThrownBy {
-            assertThat(groupController.inviteGroupCode(setupUser!!, 0L))
+        assertThatThrownBy { groupController.inviteGroupCode(setupUser!!, 0L)
         }.isInstanceOf(BadCredentialsException::class.java)
             .hasMessageContaining("Group user does not exist")
     }
@@ -159,43 +174,40 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
                 )
             )
         )
-        assertThatThrownBy {
-            assertThat(groupController.inviteGroupUser(save,
+        assertThatThrownBy { groupController.inviteGroupUser(save,
                 GroupPostDto.Invite(
                     groupSequence = setupGroup!!.sequence!!,
                     nickName = masterNickName,
                     inviteCode = setupInviteCode!!
-                )))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("Group nickname already exists")
+                ))
+        }.isInstanceOf(DuplicateGroupNicknameException::class.java)
+            .hasMessageContaining("이미 그룹에 등록된 닉네임입니다.")
 
     }
 
     @Test
     fun inviteUser_fail_user() {
-        assertThatThrownBy {
-            assertThat(groupController.inviteGroupUser(setupUser!!,
+        assertThatThrownBy { groupController.inviteGroupUser(setupUser!!,
                 GroupPostDto.Invite(
                     groupSequence = setupGroup!!.sequence!!,
                     nickName = "sd",
                     inviteCode = setupInviteCode!!
-                )))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("Group user already exists")
+                ))
+        }.isInstanceOf(AlreadyJoinedGroupException::class.java)
+            .hasMessageContaining("이미 그룹에 가입된 상태입니다.")
 
     }
 
     @Test
     fun inviteUser_fail_invite_code() {
-        assertThatThrownBy {
-            assertThat(groupController.inviteGroupUser(setupUser!!,
+        assertThatThrownBy { groupController.inviteGroupUser(setupUser!!,
                 GroupPostDto.Invite(
                     groupSequence = setupGroup!!.sequence!!,
                     nickName = "sld",
                     inviteCode = "잘못된초대코드"
-                )))
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("정상적인 초대코드가 아님")
+                ))
+        }.isInstanceOf(InvalidInviteCodeException::class.java)
+            .hasMessageContaining("존재하지 않는 초대코드입니다.")
 
     }
 
@@ -234,10 +246,9 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
                 inviteCode = setupInviteCode!!
             )
         )
-        assertThatThrownBy {
-            assertThat(groupController.deleteGroup(save, groupSequence))
-        }.isInstanceOf(BadCredentialsException::class.java)
-            .hasMessageContaining("그룹 개설자만 그룹을 삭제가능합니다")
+        assertThatThrownBy { groupController.deleteGroup(save, groupSequence)
+        }.isInstanceOf(GroupDeletionPermissionException::class.java)
+            .hasMessageContaining("그룹 개설자만 그룹을 삭제 가능합니다.")
     }
 
 

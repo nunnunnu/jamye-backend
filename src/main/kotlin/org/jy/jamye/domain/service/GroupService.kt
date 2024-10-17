@@ -3,6 +3,8 @@ package org.jy.jamye.domain.service
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.common.exception.GroupDeletionPermissionException
+import org.jy.jamye.common.exception.MemberNotInGroupException
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
 import org.jy.jamye.infra.GroupFactory
@@ -59,7 +61,7 @@ class GroupService(
         val usersInGroup = groupUserRepo.findAllByGroupSequence(groupSequence)
         val filter = usersInGroup.filter { it.userSequence == userSequence }
 
-        if(filter.isEmpty()) throw IllegalArgumentException()
+        if(filter.isEmpty()) throw MemberNotInGroupException()
 
         val group = groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
 
@@ -112,7 +114,7 @@ class GroupService(
 
     fun deleteGroup(userSequence: Long, groupSequence: Long) {
         if (!userIsMaster(userSequence, groupSequence)) {
-            throw BadCredentialsException("그룹 개설자만 그룹을 삭제가능합니다")
+            throw GroupDeletionPermissionException()
         }
         groupRepo.deleteById(groupSequence)
         groupUserRepo.deleteByGroup(groupSequence)
