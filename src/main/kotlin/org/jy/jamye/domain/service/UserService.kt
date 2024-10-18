@@ -71,7 +71,21 @@ class UserService(
         if (!passwordEncoder.matches(password, user.password)) {
             throw PasswordErrorException()
         }
+        //todo: 소속그룹 master 등급일때 그룹 삭제여부, 글 삭제여부 결정 필요
         userRepo.deleteById(user.sequence!!)
+    }
+
+    fun getUsers(userSeqs: List<Long>): Map<Long, UserDto> {
+        val users = userRepo.findAllById(userSeqs)
+        return users.associate {it -> it.sequence!! to UserDto(
+                sequence = it.sequence,
+                id = it.userId,
+                email = it.email,
+                updateDate = it.updateDate,
+                createDate = it.createDate
+            )
+        }
+
     }
 
 }
