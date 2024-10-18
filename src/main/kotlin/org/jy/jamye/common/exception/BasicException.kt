@@ -27,3 +27,5 @@ class DuplicateEmailException(detailMessage: String? = null) : BasicException(Er
 class InvalidInviteCodeException(detailMessage: String? = null) : BasicException(ErrorCode.INVALID_INVITE_CODE, detailMessage)
 
 class GroupDeletionPermissionException(detailMessage: String? = null) : BasicException(ErrorCode.GROUP_DELETION_PERMISSION, detailMessage)
+
+class PostAccessDeniedException(detailMessage: String? = null) : BasicException(ErrorCode.POST_ACCESS_DENIED, detailMessage)

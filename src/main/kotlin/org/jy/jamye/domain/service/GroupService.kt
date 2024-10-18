@@ -90,7 +90,7 @@ class GroupService(
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "_" + UUID.randomUUID() + "_" + groupSequence
     }
 
-    private fun userInGroupCheckOrThrow(userSequence: Long, groupSequence: Long) {
+    fun userInGroupCheckOrThrow(userSequence: Long, groupSequence: Long) {
         if (!groupUserRepo.existsByUserSequenceAndGroupSequence(userSequence, groupSequence)) {
             throw BadCredentialsException("Group user does not exist")
         }
@@ -125,4 +125,21 @@ class GroupService(
     private fun userIsMaster(userSequence: Long, groupSequence: Long): Boolean {
         return groupUserRepo.existsByUserSequenceAndGroupSequenceAndGrade(userSequence, groupSequence, Grade.MASTER)
     }
+
+    fun groupUserInfo(groupSequence: Long, userSequence: Long): UserInGroupDto? {
+        return groupUserRepo.findByGroupSequenceAndUserSequence(groupSequence, userSequence)
+            .orElse(null)?.let { userInfo ->
+                UserInGroupDto(
+                    userSequence = userInfo.userSequence,
+                    groupSequence = userInfo.groupSequence,
+                    groupUserSequence = userInfo.groupUserSequence!!,
+                    nickname = userInfo.nickname,
+                    imageUrl = userInfo.imageUrl,
+                    grade = userInfo.grade,
+                    createDate = userInfo.createDate,
+                    updateDate = userInfo.updateDate
+                )
+            }
+    }
 }
+
