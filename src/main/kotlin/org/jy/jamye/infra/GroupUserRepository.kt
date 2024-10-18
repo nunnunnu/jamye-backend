@@ -23,4 +23,5 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     fun deleteByGroup(groupSequence: Long)
 
     fun findByGroupSequenceAndUserSequence(groupSequence: Long, userSequence: Long): Optional<GroupUser>
+    fun findByGroupSequenceAndUserSequenceIn(groupSeq: Long, userSeqs: List<Long>): List<GroupUser>
 }

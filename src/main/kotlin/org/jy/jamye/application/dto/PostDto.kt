@@ -12,4 +12,15 @@ data class PostDto(
     var updateDate: LocalDateTime? = null
 ) {
     var createdUserNickName: String? = null
+
+    data class Detail (
+        var postSequence: Long? = null,
+        val title: String,
+        val groupSequence: Long,
+        val createdUserSequence: Long,
+        var createDate: LocalDateTime? = null,
+        var updateDate: LocalDateTime? = null,
+        var createdUserNickName: String? = null,
+        val isViewable: Boolean,
+            )
 }
