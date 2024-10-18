@@ -4,12 +4,12 @@ import org.springframework.data.annotation.CreatedBy
 import java.time.LocalDateTime
 
 data class PostDto(
-    val postSequence: Long,
+    var postSequence: Long? = null,
     val title: String,
     val groupSequence: Long,
     val createdUserSequence: Long,
-    val createDate: LocalDateTime,
-    val updateDate: LocalDateTime
+    var createDate: LocalDateTime? = null,
+    var updateDate: LocalDateTime? = null
 ) {
     var createdUserNickName: String? = null
 }

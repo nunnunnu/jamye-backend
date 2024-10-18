@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class PostService(private val postRepository: PostRepository, private val userGroupPostRepository: UserGroupPostRepository) {
     fun getPost(groupSequence: Long, postSequence: Long, userSequence: Long): PostDto {
-        if(!userGroupPostRepository.existsByGroupSequenceAndPostSequenceAndUserSequence(userSequence, groupSequence, postSequence)) {
+        if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
             throw PostAccessDeniedException()
         }
         val post = getPostOrThrow(groupSequence, postSequence)

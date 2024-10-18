@@ -127,20 +127,19 @@ class GroupService(
     }
 
     fun groupUserInfo(groupSequence: Long, userSequence: Long): UserInGroupDto? {
-        val user =
-            groupUserRepo.findByGroupSequenceAndUserSequence(groupSequence, userSequence)
-        if(user.isEmpty) return null
-        else {
-            val userInfo = user.get()
-            return UserInGroupDto( userSequence = userInfo.userSequence,
-                groupSequence = userInfo.groupSequence,
-                groupUserSequence = userInfo.groupUserSequence!!,
-                nickname = userInfo.nickname,
-                imageUrl = userInfo.imageUrl,
-                grade = userInfo.grade,
-                createDate = userInfo.createDate,
-                updateDate = userInfo.updateDate)
-        }
-
+        return groupUserRepo.findByGroupSequenceAndUserSequence(groupSequence, userSequence)
+            .orElse(null)?.let { userInfo ->
+                UserInGroupDto(
+                    userSequence = userInfo.userSequence,
+                    groupSequence = userInfo.groupSequence,
+                    groupUserSequence = userInfo.groupUserSequence!!,
+                    nickname = userInfo.nickname,
+                    imageUrl = userInfo.imageUrl,
+                    grade = userInfo.grade,
+                    createDate = userInfo.createDate,
+                    updateDate = userInfo.updateDate
+                )
+            }
     }
 }
+
