@@ -23,4 +23,10 @@ class PostController(
         val post = postService.getPost(groupSequence, postSequence, user.username)
         return ResponseDto(data = post, status = HttpStatus.OK)
     }
+
+    @GetMapping("/{groupSequence}")
+    fun getPosts(@PathVariable("groupSequence") groupSequence: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<List<PostDto.Detail>> {
+        val posts = postService.getPosts(user.username, groupSequence)
+        return ResponseDto(data = posts, status = HttpStatus.OK)
+    }
 }

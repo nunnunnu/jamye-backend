@@ -25,4 +25,14 @@ class PostApplicationService(private val postService: PostService, private val u
         return post
     }
 
+    fun getPosts(userId: String, groupSequence: Long) : List<PostDto.Detail> {
+        val user = userService.getUser(id = userId)
+        groupService.userInGroupCheckOrThrow(userSequence = user.sequence!!, groupSequence = groupSequence)
+        val posts = postService.getPosts(user.sequence, groupSequence)
+        val userInfoMap = groupService.getGroupInUsersNickName(groupSequence, posts.map { it.createdUserSequence })
+
+        posts.forEach { it.createdUserNickName = userInfoMap[it.createdUserSequence] }
+        return posts
+    }
+
 }

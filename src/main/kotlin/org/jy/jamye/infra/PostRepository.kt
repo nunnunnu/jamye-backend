@@ -6,5 +6,6 @@ import java.util.Optional
 
 interface PostRepository: JpaRepository<Post, Long> {
     fun findByGroupSequenceAndPostSequence(groupSequence: Long, postSequence: Long): Optional<Post>
+    fun findByGroupSequence(groupSequence: Long): List<Post>
 
 }

@@ -141,5 +141,12 @@ class GroupService(
                 )
             }
     }
+
+    fun getGroupInUsersNickName(groupSeq: Long, userSeqs: List<Long>): Map<Long, String> {
+        val groupUsers =
+            groupUserRepo.findByGroupSequenceAndUserSequenceIn(groupSeq, userSeqs)
+        return groupUsers.associate { user -> user.userSequence to user.nickname }
+
+    }
 }
 

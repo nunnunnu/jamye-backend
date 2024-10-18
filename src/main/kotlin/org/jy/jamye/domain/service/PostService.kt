@@ -28,4 +28,22 @@ class PostService(private val postRepository: PostRepository, private val userGr
     private fun getPostOrThrow(groupSequence: Long, postSequence: Long): Post {
         return postRepository.findByGroupSequenceAndPostSequence(groupSequence, postSequence).orElseThrow { throw EntityNotFoundException("잘못된 게시글 번호입니다.") }
     }
+
+    fun getPosts(userSeq: Long, groupSeq: Long): List<PostDto.Detail> {
+        val posts = postRepository.findByGroupSequence(groupSeq)
+
+        val isViewable =
+            userGroupPostRepository.findPostSeqByGroupSequenceAndUserSequence(groupSeq, userSeq)
+
+        return posts.map {
+            PostDto.Detail(groupSequence = it.groupSequence,
+                postSequence = it.postSequence!!,
+                createdUserSequence = it.createUserSequence,
+                title = it.title,
+                createDate = it.createDate,
+                updateDate = it.updateDate,
+                isViewable = isViewable.contains(it.postSequence)
+            )
+        }
+    }
 }
