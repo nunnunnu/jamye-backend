@@ -49,6 +49,10 @@ dependencies {
 
     //validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.apache.commons:commons-pool2:2.12.0'
 }
 
 kotlin {
