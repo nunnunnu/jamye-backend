@@ -1,20 +1,24 @@
 package org.jy.jamye.ui
 
+import jakarta.persistence.EntityManager
 import jakarta.persistence.EntityNotFoundException
+import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
 import jakarta.validation.ConstraintViolationException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserDto
+import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.exception.AlreadyRegisteredIdException
 import org.jy.jamye.common.exception.DuplicateEmailException
 import org.jy.jamye.common.exception.PasswordErrorException
+import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Role
 import org.jy.jamye.domain.model.User
-import org.jy.jamye.infra.UserFactory
-import org.jy.jamye.infra.UserRepository
+import org.jy.jamye.infra.*
 import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.ui.post.LoginPostDto
 import org.jy.jamye.ui.post.UserPasswordDto
@@ -32,7 +36,12 @@ class UserControllerTest @Autowired constructor(
     var userController: UserController,
     var userFactory: UserFactory,
     var userRepo: UserRepository,
-    var jwtTokenProvider: JwtTokenProvider
+    var jwtTokenProvider: JwtTokenProvider,
+    val groupUserRepository: GroupUserRepository,
+    val groupRepository: GroupRepository,
+    val groupFactory: GroupFactory,
+    @PersistenceContext
+    private val entityManager: EntityManager // EntityManager 주입
 ) {
     private var testId = "setupId"
     private var testEmail = "setupEmail@email.com"
@@ -236,6 +245,7 @@ class UserControllerTest @Autowired constructor(
         assertThatThrownBy { userController.getUser(setupUser!!)
         }.isInstanceOf(EntityNotFoundException::class.java)
             .hasMessageContaining("없는 유저 번호를 입력하셨습니다.")
+
     }
 
     @Test
@@ -248,5 +258,34 @@ class UserControllerTest @Autowired constructor(
         val response = userController.getUser(setupUser!!)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         assertThat(response.data).isNotNull
+    }
+
+    @Test
+    @DisplayName("회원 정보 삭제 - 성공")
+    fun 회원정보삭제_성공_등급자동양도() {
+        var user = userRepo.save(userFactory.create(UserDto(id = "grade", password = "testtest", email = "email@email.com")))
+        val group = groupFactory.createGroup(userSequence = user.sequence!!, GroupDto(name = "name", description = "description"))
+        groupRepository.save(group)
+
+        val masterUser = groupFactory.createGroupMasterConnection(
+            groupSequence = group.sequence!!,
+            userSequence = user.sequence!!, masterUserInfo = UserInGroupDto.Simple(nickname = "masterNickName"), group = group
+        )
+        val normalUser = groupFactory.createGroupNormalUser(
+            group = group,
+            userSequence = setupUser!!.sequence!!, nickName = "normal", profileImageUrl = null
+        )
+        groupUserRepository.save(masterUser)
+        groupUserRepository.save(normalUser)
+
+        userController.deleteUser(user, UserPasswordDto(password = "testtest"))
+
+        assertThatThrownBy { userController.getUser(user)
+        }.isInstanceOf(EntityNotFoundException::class.java)
+            .hasMessageContaining("없는 유저 번호를 입력하셨습니다.")
+        entityManager.clear()
+        val findUser = groupUserRepository.findByUserSequence(setupUser!!.sequence!!)
+        assertThat(findUser.grade).isEqualTo(Grade.MASTER)
+
     }
 }

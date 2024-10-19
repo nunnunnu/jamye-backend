@@ -16,12 +16,34 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     fun existsByUserSequenceAndGroupSequence(userSequence: Long, groupSequence: Long): Boolean
     fun existsByGroupSequenceAndNickname(groupSequence: Long, nickName: String): Boolean
     fun existsByUserSequenceAndGroupSequenceAndGrade(userSequence: Long, groupSequence: Long, grade: Grade): Boolean
+    fun findByGroupSequenceAndUserSequence(groupSequence: Long, userSequence: Long): Optional<GroupUser>
+    fun findByGroupSequenceAndUserSequenceIn(groupSeq: Long, userSeqs: List<Long>): List<GroupUser>
+    fun findAllByUserSequenceAndGrade(userSeq: Long, grade: Grade): List<GroupUser>
 
     @Transactional
     @Modifying
     @Query("delete from GroupUser group where group.groupSequence = :groupSequence")
     fun deleteByGroup(groupSequence: Long)
 
-    fun findByGroupSequenceAndUserSequence(groupSequence: Long, userSequence: Long): Optional<GroupUser>
-    fun findByGroupSequenceAndUserSequenceIn(groupSeq: Long, userSeqs: List<Long>): List<GroupUser>
+    @Transactional
+    @Modifying
+    @Query("""
+       UPDATE GroupUser gu
+            SET gu.grade = 'MASTER'
+            WHERE gu.groupUserSequence IN (:groupUserSeqs) 
+    """)
+    fun assignMasterToOldestUser(groupUserSeqs: List<Long>)
+    fun findByUserSequence(sequence: Long): GroupUser
+
+    @Query("""
+            SELECT gu 
+            FROM GroupUser gu 
+            WHERE gu.createDate = (
+                SELECT MIN(g.createDate) 
+                FROM GroupUser g 
+                WHERE g.groupSequence = gu.groupSequence
+            ) 
+            AND gu.groupSequence IN :groupSeqs
+    """)
+    fun findByGroupOldestUser(groupSeqs: List<Long>): List<GroupUser>
 }
