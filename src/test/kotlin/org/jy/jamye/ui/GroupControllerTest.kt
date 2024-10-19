@@ -2,12 +2,14 @@ package org.jy.jamye.ui
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.BeforeEach
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.*
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
@@ -32,7 +34,8 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
                                       val userFactory: UserFactory,
                                       val groupUserRepository: GroupUserRepository,
                                       val groupRepository: GroupRepository,
-                                      val groupFactory: GroupFactory) {
+                                      val groupFactory: GroupFactory,
+    val redisClient: RedisClient) {
 
     private var setupUser: User? = null
     val name = "testGroup"
@@ -40,6 +43,7 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
     val masterNickName = "히히"
     var setupGroup: Group? = null
     var setupInviteCode: String? = null
+    var inviteCodes = mutableSetOf<String>()
 
     @BeforeEach
     fun setup() {
@@ -57,7 +61,14 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
         groupUserRepository.save(groupUser)
 
         setupInviteCode = groupController.inviteGroupCode(user, group.sequence!!).data
+        inviteCodes.add(setupInviteCode!!)
     }
+
+    @AfterEach
+    fun inviteCodeDelete() {
+        redisClient.deleteKeys(inviteCodes)
+    }
+
     @Test
     fun groups() {
         val response = groupController.groups(user = setupUser!!)
@@ -130,6 +141,8 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
         val response = groupController.inviteGroupCode(setupUser!!, setupGroup!!.sequence!!)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         assertThat(response.data).isNotNull
+        inviteCodes.add(response.data!!)
+
     }
 
     @Test
