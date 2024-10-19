@@ -26,4 +26,6 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
         inviteCodes.forEach { redisTemplate.delete(it) }
 
     }
+
+
 }

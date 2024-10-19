@@ -112,17 +112,7 @@ class GroupService(
         return groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
     }
 
-    fun deleteGroup(userSequence: Long, groupSequence: Long) {
-        if (!userIsMaster(userSequence, groupSequence)) {
-            throw GroupDeletionPermissionException()
-        }
-        groupRepo.deleteById(groupSequence)
-        groupUserRepo.deleteByGroup(groupSequence)
-
-        //todo: 게시글 삭제 여부 결정 필요
-    }
-
-    private fun userIsMaster(userSequence: Long, groupSequence: Long): Boolean {
+    fun userIsMaster(userSequence: Long, groupSequence: Long): Boolean {
         return groupUserRepo.existsByUserSequenceAndGroupSequenceAndGrade(userSequence, groupSequence, Grade.MASTER)
     }
 
