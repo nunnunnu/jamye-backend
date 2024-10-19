@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "gi_ui_con")
-class GroupUser (
+open class GroupUser (
     @Column(name = "ui_seq", nullable = false)
     val userSequence: Long,
     @Column(name = "gi_seq", nullable = false)
@@ -26,6 +26,7 @@ class GroupUser (
     @UpdateTimestamp
     val updateDate: LocalDateTime = LocalDateTime.now(),
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "gi_ui_seq")
     val groupUserSequence: Long? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gi_seq", updatable = false, insertable = false)

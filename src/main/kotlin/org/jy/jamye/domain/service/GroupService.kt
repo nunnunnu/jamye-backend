@@ -148,5 +148,17 @@ class GroupService(
         return groupUsers.associate { user -> user.userSequence to user.nickname }
 
     }
+
+    fun autoTransferMasterPrivileges(userSeq: Long) {
+        val masterInfo = groupUserRepo.findAllByUserSequenceAndGrade(userSeq, Grade.MASTER)
+        val groupSeqs = masterInfo.map { it.groupSequence }
+        groupUserRepo.deleteAllById(masterInfo.map { it.groupUserSequence })
+
+        val groupOldestUser = groupUserRepo.findByGroupOldestUser(groupSeqs)
+        if (groupOldestUser.isNotEmpty()) {
+            groupUserRepo.assignMasterToOldestUser(groupOldestUser.map { it.groupUserSequence!! })
+            groupUserRepo.flush()
+        }
+    }
 }
 

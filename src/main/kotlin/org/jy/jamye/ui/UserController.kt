@@ -1,6 +1,7 @@
 package org.jy.jamye.ui
 
 import jakarta.validation.Valid
+import org.jy.jamye.application.UserApplicationService
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/user")
 @Validated
 class UserController(
-    private val userService: UserService
+    private val userService: UserService, private val userAppService: UserApplicationService
 ) {
     @PostMapping("/join")
     fun createUser(@Valid @RequestBody data: UserPostDto) : ResponseDto<Long> {
@@ -49,7 +50,7 @@ class UserController(
 
     @PostMapping
     fun deleteUser(@AuthenticationPrincipal user: UserDetails, @RequestBody password: UserPasswordDto) : ResponseDto<Nothing> {
-        userService.deleteUser(user.username, password.password)
+        userAppService.deleteUser(user.username, password.password)
         return ResponseDto(status = HttpStatus.OK)
     }
 
