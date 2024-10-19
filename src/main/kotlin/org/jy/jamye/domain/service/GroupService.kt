@@ -87,7 +87,7 @@ class GroupService(
     @Transactional(readOnly = true)
     fun inviteCodePublish(userSequence: Long, groupSequence: Long): String {
         userInGroupCheckOrThrow(userSequence, groupSequence)
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "_" + UUID.randomUUID() + "_" + groupSequence
+        return "INVITE_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "_" + UUID.randomUUID()
     }
 
     fun userInGroupCheckOrThrow(userSequence: Long, groupSequence: Long) {
