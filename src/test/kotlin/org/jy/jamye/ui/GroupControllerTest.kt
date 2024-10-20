@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional
 import kotlin.test.fail
 
 @SpringBootTest
-@Transactional
+//@Transactional
 class GroupControllerTest @Autowired constructor(val groupController: GroupController,
                                       val userRepo: UserRepository,
                                       val userFactory: UserFactory,
@@ -76,8 +76,8 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
         val deleteVoteMap: MutableMap<Long, DeleteVote> = if (redisClient.getValue("deleteVotes").isNullOrBlank()) HashMap()
         else mapper.readValue(redisClient.getValue("deleteVotes"), object : TypeReference<MutableMap<Long, DeleteVote>>() {})
         deleteVoteMap.remove(setupGroup!!.sequence)
-        val jsonString = mapper.writeValueAsString(deleteVoteMap)
-        redisClient.setValue("deleteVotes", jsonString)
+//        val jsonString = mapper.writeValueAsString(deleteVoteMap)
+//        redisClient.setValue("deleteVotes", jsonString)
 
     }
 

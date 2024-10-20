@@ -4,8 +4,6 @@ import org.jy.jamye.application.GroupApplicationService
 import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
-import org.jy.jamye.common.client.RedisClient
-import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.http.HttpStatus
@@ -59,7 +57,7 @@ class GroupController(private val groupService: GroupApplicationService) {
 
     @DeleteMapping("/{groupSeq}")
     fun deleteGroup(@AuthenticationPrincipal user: UserDetails, @PathVariable("groupSeq") groupSeq: Long): ResponseDto<Nothing> {
-        val userSeq = groupService.deleteGroup(user.username, groupSeq)
+        groupService.deleteGroup(user.username, groupSeq)
 
         return ResponseDto(data = null, status = HttpStatus.OK)
     }

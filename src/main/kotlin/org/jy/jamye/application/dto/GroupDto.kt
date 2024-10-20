@@ -32,7 +32,7 @@ data class GroupDto(
 }
 
 data class DeleteVote(
-    var startDate: String,
+    var startDateTime: String,
     var standardVoteCount: Long,
     var agreeUserSeqs: Set<Long> = setOf<Long>(),
     var disagreeUserSeqs: Set<Long> = setOf<Long>(),
@@ -40,11 +40,11 @@ data class DeleteVote(
 ): Serializable {
 
     fun startDateAsLocalDateTime(): LocalDateTime {
-        return LocalDateTime.parse(startDate)  // String을 LocalDateTime으로 변환
+        return LocalDateTime.parse(startDateTime)  // String을 LocalDateTime으로 변환
     }
 
     constructor() : this(
-        startDate = LocalDateTime.now().toString(),  // 기본 값으로 현재 시간을 사용하거나 적절한 기본 값을 설정
+        startDateTime = LocalDateTime.now().toString(),  // 기본 값으로 현재 시간을 사용하거나 적절한 기본 값을 설정
         standardVoteCount = 0,
         agreeUserSeqs = setOf(),
         disagreeUserSeqs = setOf(),
