@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import java.util.Optional
 
 interface GroupUserRepository: JpaRepository<GroupUser, Long> {
@@ -46,4 +47,15 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
             AND gu.groupSequence IN :groupSeqs
     """)
     fun findByGroupOldestUser(groupSeqs: List<Long>): List<GroupUser>
+    fun countByGroupSequenceAndCreateDateGreaterThan(groupSequence: Long, createDate: LocalDateTime): Long
+    fun deleteAllByGroupSequence(groupSeq: Long)
+    fun deleteAllByGroupSequenceAndUserSequenceIn(groupSeq: Long, deleteAgree: Set<Long>)
+    @Query("""
+       SELECT g.userSequence
+       FROM GroupUser g
+       WHERE g.groupSequence = :groupSeq
+        AND g.userSequence IN (:userSeqs)
+        AND g.grade = 'MASTER'
+    """)
+    fun findGroupMasterSeq(groupSeq: Long, userSeqs: Set<Long>): Long
 }

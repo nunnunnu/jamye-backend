@@ -16,9 +16,9 @@ spring:
     redis:
       host: localhost
       port: 6379
-
 jwt:
   secretKey: fajldfklsdjfeijcnklcnsdknclnsdkncsldnckasdcnl
 logging:
   level:
     root: info
+

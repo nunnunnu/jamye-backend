@@ -1,6 +1,5 @@
 package org.jy.jamye.ui
 
-import jakarta.persistence.EntityNotFoundException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -70,14 +69,14 @@ class PostControllerTest @Autowired constructor(
                 )
             )
         )
-        userGroupPostRepository.save(UserGroupPost(groupSequence = setupGroup!!.sequence!!, userSequence = setupUser!!.sequence!!, postSequence = setupPost!!.postSequence!!))
+        userGroupPostRepository.save(UserGroupPost(groupSequence = setupGroup!!.sequence!!, userSequence = setupUser!!.sequence!!, postSequence = setupPost!!.postSeq!!))
     }
 
     @Test
     fun getPost_success() {
         val response = postController.getPost(
             groupSequence = setupGroup!!.sequence!!,
-            postSequence = setupPost!!.postSequence!!,
+            postSequence = setupPost!!.postSeq!!,
             user = setupUser!!
         )
 
@@ -95,7 +94,7 @@ class PostControllerTest @Autowired constructor(
         assertThatThrownBy{
             postController.getPost(
                 groupSequence = setupGroup!!.sequence!!,
-                postSequence = setupPost!!.postSequence!!,
+                postSequence = setupPost!!.postSeq!!,
                 user = groupUser!!
             )
         }.isInstanceOf(PostAccessDeniedException::class.java)
@@ -113,7 +112,7 @@ class PostControllerTest @Autowired constructor(
                 ))
             )
         )
-        assertThatThrownBy { postController.getPost(user = save, groupSequence = setupGroup!!.sequence!!, postSequence = setupPost!!.postSequence!!) }
+        assertThatThrownBy { postController.getPost(user = save, groupSequence = setupGroup!!.sequence!!, postSequence = setupPost!!.postSeq!!) }
             .isInstanceOf(BadCredentialsException::class.java)
             .hasMessageContaining("Group user does not exist")
     }

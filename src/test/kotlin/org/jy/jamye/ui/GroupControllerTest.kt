@@ -1,11 +1,14 @@
 package org.jy.jamye.ui
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.BeforeEach
+import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserInGroupDto
@@ -28,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional
 import kotlin.test.fail
 
 @SpringBootTest
-@Transactional
+//@Transactional
 class GroupControllerTest @Autowired constructor(val groupController: GroupController,
                                       val userRepo: UserRepository,
                                       val userFactory: UserFactory,
@@ -67,6 +70,15 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
     @AfterEach
     fun inviteCodeDelete() {
         redisClient.deleteKeys(inviteCodes)
+
+
+        val mapper = ObjectMapper()
+        val deleteVoteMap: MutableMap<Long, DeleteVote> = if (redisClient.getValue("deleteVotes").isNullOrBlank()) HashMap()
+        else mapper.readValue(redisClient.getValue("deleteVotes"), object : TypeReference<MutableMap<Long, DeleteVote>>() {})
+        deleteVoteMap.remove(setupGroup!!.sequence)
+//        val jsonString = mapper.writeValueAsString(deleteVoteMap)
+//        redisClient.setValue("deleteVotes", jsonString)
+
     }
 
     @Test
@@ -230,13 +242,6 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
         val response = groupController.deleteGroup(setupUser!!, groupSequence)
 
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-
-        if (!groupRepository.findById(groupSequence).isEmpty) {
-            fail()
-        }
-        if(groupUserRepository.findAllByGroupSequence(groupSequence).isNotEmpty()) {
-            fail()
-        }
     }
 
     @Test
