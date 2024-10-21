@@ -45,5 +45,15 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
         redisTemplate.opsForValue().set("deleteVotes", jsonString)
     }
 
+    fun setValueObjectExpireDay(key: String, value: String, expireTime: Long) {
+        redisTemplate.opsForValue().set(key, value, expireTime, TimeUnit.DAYS)
+    }
 
+    fun reVoteCheck(key: String): Boolean{
+        val result = redisTemplate.hasKey(key)
+        if(result) {
+            redisTemplate.opsForValue().getAndDelete(key)
+        }
+        return result
+    }
 }

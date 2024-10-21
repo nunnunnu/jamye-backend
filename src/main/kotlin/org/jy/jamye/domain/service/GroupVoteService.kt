@@ -15,8 +15,7 @@ import java.util.*
 @Service
 class GroupVoteService(
     private val schedulerFactoryBean: SchedulerFactoryBean,
-    private val redisClient: RedisClient,
-    private val groupVoteRepository: GroupVoteRepository
+    private val redisClient: RedisClient
 ) {
 
     fun scheduleVoteEndJob(voteId: Long, endDateTime: LocalDateTime) {
@@ -45,15 +44,11 @@ class GroupVoteService(
 
     @PostConstruct
     fun scheduleInit() {
-        val totalSchedule = groupVoteRepository.findAll()
-        totalSchedule.forEach { scheduleVoteEndJob(it.groupVoteSeq!!,
-            if (it.endDateTime.isBefore(LocalDateTime.now())) LocalDateTime.now().plusMinutes(1) else it.endDateTime) }
+        val deleteVoteMap = redisClient.getDeleteVoteMap()
+        deleteVoteMap.entries.forEach { (key, value) ->
+            val endDateTime = value.endDateAsLocalDateTime()
+            scheduleVoteEndJob(key,
+            if (endDateTime.isBefore(LocalDateTime.now())) LocalDateTime.now().plusMinutes(1) else endDateTime) }
 
     }
-
-    fun saveVoteSchedule(groupSeq: Long, endDateTime: LocalDateTime): Long {
-        val save = groupVoteRepository.save(GroupVote(groupSeq = groupSeq, endDateTime = endDateTime))
-        return save.groupVoteSeq!!
-    }
-
 }

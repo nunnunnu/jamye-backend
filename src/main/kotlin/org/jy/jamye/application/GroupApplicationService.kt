@@ -65,17 +65,17 @@ class GroupApplicationService(private val userService: UserService,
             val voteAbleNumber =
                 groupUserRepository.countByGroupSequenceAndCreateDateGreaterThan(groupSeq, now().minusDays(7))
 
+            val endDateTime = now().plusMinutes(1)
             val deleteVote = DeleteVote(
                 startDateTime = now().toString(),
+                endDateTime = endDateTime.toString(),
                 standardVoteCount = voteAbleNumber,
                 agreeUserSeqs = setOf(user.sequence),
                 disagreeUserSeqs = setOf(),
-                hasRevoted = false
+                hasRevoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
             )
             deleteVoteMap[groupSeq] = deleteVote
-            val endDateTime = now().plusMinutes(1)
-            val voteId = groupVoteService.saveVoteSchedule(groupSeq, endDateTime)
-            groupVoteService.scheduleVoteEndJob(voteId, endDateTime = endDateTime)
+            groupVoteService.scheduleVoteEndJob(groupSeq, endDateTime = endDateTime)
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
 
