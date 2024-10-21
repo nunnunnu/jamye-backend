@@ -35,8 +35,8 @@ data class DeleteVote(
     var startDateTime: String,
     var endDateTime: String,
     var standardVoteCount: Long,
-    var agreeUserSeqs: Set<Long> = setOf<Long>(),
-    var disagreeUserSeqs: Set<Long> = setOf<Long>(),
+    var agreeUserSeqs: MutableSet<Long> = mutableSetOf(),
+    var disagreeUserSeqs: MutableSet<Long> = mutableSetOf<Long>(),
     var hasRevoted: Boolean
 ): Serializable {
 
@@ -52,8 +52,8 @@ data class DeleteVote(
         startDateTime = LocalDateTime.now().toString(),  // 기본 값으로 현재 시간을 사용하거나 적절한 기본 값을 설정
         endDateTime = LocalDateTime.now().plusDays(7).toString(),  // 기본 값으로 현재 시간을 사용하거나 적절한 기본 값을 설정
         standardVoteCount = 0,
-        agreeUserSeqs = setOf(),
-        disagreeUserSeqs = setOf(),
+        agreeUserSeqs = mutableSetOf(),
+        disagreeUserSeqs = mutableSetOf(),
         hasRevoted = false
     )
 }
