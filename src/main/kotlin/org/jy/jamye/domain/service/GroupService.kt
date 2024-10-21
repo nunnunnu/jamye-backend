@@ -1,9 +1,9 @@
 package org.jy.jamye.domain.service
 
 import jakarta.persistence.EntityNotFoundException
+import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
-import org.jy.jamye.common.exception.GroupDeletionPermissionException
 import org.jy.jamye.common.exception.MemberNotInGroupException
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
@@ -11,6 +11,8 @@ import org.jy.jamye.infra.GroupFactory
 import org.jy.jamye.infra.GroupRepository
 import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,6 +26,8 @@ class GroupService(
     private val groupUserRepo: GroupUserRepository,
     private val groupFactory: GroupFactory
 ) {
+
+    var log: Logger = LoggerFactory.getLogger(GroupService::class.java)
     @Transactional(readOnly = true)
     fun getGroupInUser(userSequence: Long): List<GroupDto.UserInfo> {
         val groupConnection = groupUserRepo.findAllByUserSequence(userSequence)
@@ -112,17 +116,7 @@ class GroupService(
         return groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
     }
 
-    fun deleteGroup(userSequence: Long, groupSequence: Long) {
-        if (!userIsMaster(userSequence, groupSequence)) {
-            throw GroupDeletionPermissionException()
-        }
-        groupRepo.deleteById(groupSequence)
-        groupUserRepo.deleteByGroup(groupSequence)
-
-        //todo: 게시글 삭제 여부 결정 필요
-    }
-
-    private fun userIsMaster(userSequence: Long, groupSequence: Long): Boolean {
+    fun userIsMaster(userSequence: Long, groupSequence: Long): Boolean {
         return groupUserRepo.existsByUserSequenceAndGroupSequenceAndGrade(userSequence, groupSequence, Grade.MASTER)
     }
 
@@ -159,6 +153,18 @@ class GroupService(
             groupUserRepo.assignMasterToOldestUser(groupOldestUser.map { it.groupUserSequence!! })
             groupUserRepo.flush()
         }
+    }
+
+    fun deleteGroup(groupSeq: Long, voteInfo: DeleteVote) {
+        log.info("---{}번 그룹 삭제 유저 과반수 동의---", groupSeq)
+        groupUserRepo.deleteAllByGroupSequence(groupSeq)
+        groupRepo.deleteById(groupSeq)
+    }
+
+    fun deleteUsers(groupSeq: Long, deleteAgree: Set<Long>) {
+        val masterSeq = groupUserRepo.findGroupMasterSeq(groupSeq, deleteAgree)
+        groupUserRepo.deleteAllByGroupSequenceAndUserSequenceIn(groupSeq, deleteAgree)
+        autoTransferMasterPrivileges(masterSeq)
     }
 }
 

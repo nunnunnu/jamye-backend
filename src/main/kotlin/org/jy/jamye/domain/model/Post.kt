@@ -8,14 +8,14 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "post_info")
-class Post(
+open class Post(
     @Column(name = "title")
     var title: String,
     @Column(name = "group_seq")
-    var groupSequence: Long,
-    @Column(name = "create_ui_seq")
+    var groupSeq: Long,
+    @Column(name = "ui_seq")
     @CreatedBy
-    val createUserSequence: Long,
+    val userSeq: Long,
     @Column(name = "create_date")
     @CreationTimestamp
     val createDate: LocalDateTime = LocalDateTime.now(),
@@ -24,6 +24,6 @@ class Post(
     val updateDate: LocalDateTime = LocalDateTime.now(),
     @Column(name = "pi_seq")
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var postSequence: Long? = null
+    var postSeq: Long? = null
 ) {
 }

@@ -2,7 +2,6 @@ package org.jy.jamye.infra
 
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.domain.model.Post
-import org.jy.jamye.domain.service.PostService
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,8 +16,8 @@ class PostFactory(
             throw IllegalStateException("글 작성 권한없음")
         }
         return Post(title = data.title,
-            createUserSequence = data.createdUserSequence,
-            groupSequence = data.groupSequence)
+            userSeq = data.createdUserSequence,
+            groupSeq = data.groupSequence)
     }
 
 }

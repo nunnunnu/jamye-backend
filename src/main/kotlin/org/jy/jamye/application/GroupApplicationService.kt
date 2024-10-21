@@ -1,15 +1,26 @@
 package org.jy.jamye.application
 
+import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.common.client.RedisClient
+import org.jy.jamye.common.exception.GroupDeletionPermissionException
+import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.domain.service.GroupService
+import org.jy.jamye.domain.service.GroupVoteService
 import org.jy.jamye.domain.service.UserService
+import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime.now
 
 @Service
-class GroupApplicationService(private val userService: UserService, private val groupService: GroupService) {
+class GroupApplicationService(private val userService: UserService,
+                              private val groupService: GroupService,
+                              private val groupUserRepository: GroupUserRepository,
+                              private val redisClient: RedisClient,
+    private val groupVoteService: GroupVoteService
+) {
     fun getGroupsInUser(id: String): List<GroupDto.UserInfo> {
         val user = userService.getUser(id)
         return groupService.getGroupInUser(user.sequence!!)
@@ -27,17 +38,46 @@ class GroupApplicationService(private val userService: UserService, private val 
 
     fun inviteGroupCode(userId: String, groupSeq: Long) : String{
         val user = userService.getUser(userId)
-        return groupService.inviteCodePublish(user.sequence!!, groupSeq)
+        val groupInviteCode = groupService.inviteCodePublish(user.sequence!!, groupSeq)
+        redisClient.setValueAndExpireTimeMinutes(groupInviteCode, groupSeq.toString(), 60)
+        return groupInviteCode
     }
 
     fun inviteGroupUser(userId: String, data: GroupPostDto.Invite): Long {
+        val groupSeq = redisClient.getAndDelete(data.inviteCode)
+        if (groupSeq == null || groupSeq != data.groupSequence.toString()) {
+            throw InvalidInviteCodeException()
+        }
         val user = userService.getUser(userId)
         return groupService.inviteUser(user.sequence!!, data)
     }
 
-    fun deleteGroup(id: String, groupSequence: Long) {
+    fun deleteGroup(id: String, groupSeq: Long) {
         val user = userService.getUser(id)
-        groupService.deleteGroup(user.sequence!!, groupSequence)
+        if (!groupService.userIsMaster(user.sequence!!, groupSeq)) {
+            throw GroupDeletionPermissionException()
+        }
+        val deleteVoteMap = redisClient.getDeleteVoteMap()
+
+        if (deleteVoteMap.containsKey(groupSeq)) {
+            throw InvalidInviteCodeException("이미 투표진행중입니다")
+        } else {
+            val voteAbleNumber =
+                groupUserRepository.countByGroupSequenceAndCreateDateGreaterThan(groupSeq, now().minusDays(7))
+
+            val endDateTime = now().plusMinutes(1)
+            val deleteVote = DeleteVote(
+                startDateTime = now().toString(),
+                endDateTime = endDateTime.toString(),
+                standardVoteCount = voteAbleNumber,
+                agreeUserSeqs = setOf(user.sequence),
+                disagreeUserSeqs = setOf(),
+                hasRevoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
+            )
+            deleteVoteMap[groupSeq] = deleteVote
+            groupVoteService.scheduleVoteEndJob(groupSeq, endDateTime = endDateTime)
+        }
+        redisClient.setValueObject("deleteVotes", deleteVoteMap)
 
     }
 }
