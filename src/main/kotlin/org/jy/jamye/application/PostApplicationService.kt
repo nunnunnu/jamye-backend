@@ -1,17 +1,19 @@
 package org.jy.jamye.application
 
 import org.jy.jamye.application.dto.PostDto
+import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.PostService
 import org.jy.jamye.domain.service.UserService
 import org.springframework.stereotype.Service
 
 @Service
-class PostApplicationService(private val postService: PostService, private val userService: UserService, private val groupService: GroupService) {
+class PostApplicationService(private val postService: PostService, private val userService: UserService, private val groupService: GroupService, private val redisClient: RedisClient) {
     fun getPost(groupSequence: Long, postSequence: Long, userId: String): PostDto {
         val user = userService.getUser(id = userId)
         groupService.userInGroupCheckOrThrow(userSequence = user.sequence!!, groupSequence = groupSequence)
 
+        postService.postCheck(groupSequence, postSequence, user.sequence)
         val post = postService.getPost(
             groupSequence = groupSequence,
             postSequence = postSequence,
@@ -33,6 +35,27 @@ class PostApplicationService(private val postService: PostService, private val u
 
         posts.forEach { it.createdUserNickName = userInfoMap[it.createdUserSequence] }
         return posts
+    }
+
+    fun postLuckyDraw(groupSeq: Long, userId: String): PostDto {
+        val luckyDrawMap = redisClient.getLuckyDrawMap()
+        val user = userService.getUser(id = userId)
+        val userSeq = user.sequence!!
+        val count = luckyDrawMap.getOrDefault(userSeq, 0)
+        if(count >= 2) {
+            throw IllegalArgumentException("뽑기는 하루에 2번까지 가능합니다.")
+        }
+
+        val luckyDrawSeq = postService.luckyDraw(groupSeq, userSeq)
+        val result =
+            postService.getPost(groupSequence = groupSeq, userSequence = userSeq, postSequence = luckyDrawSeq)
+        val createUserInfo =
+            groupService.groupUserInfo(groupSequence = groupSeq, userSequence = result.createdUserSequence)
+        if(createUserInfo!=null) {
+            result.createdUserNickName = createUserInfo.nickname
+        }
+
+        return result
     }
 
 }

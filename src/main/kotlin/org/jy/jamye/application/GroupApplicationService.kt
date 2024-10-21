@@ -70,8 +70,8 @@ class GroupApplicationService(private val userService: UserService,
                 startDateTime = now().toString(),
                 endDateTime = endDateTime.toString(),
                 standardVoteCount = voteAbleNumber,
-                agreeUserSeqs = setOf(user.sequence),
-                disagreeUserSeqs = setOf(),
+                agreeUserSeqs = mutableSetOf(user.sequence),
+                disagreeUserSeqs = mutableSetOf(),
                 hasRevoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
             )
             deleteVoteMap[groupSeq] = deleteVote
@@ -79,5 +79,21 @@ class GroupApplicationService(private val userService: UserService,
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
 
+    }
+
+    fun deleteGroupVote(userId: String, type: String, groupSeq: Long) {
+        val user = userService.getUser(userId)
+        val deleteVoteMap = redisClient.getDeleteVoteMap()
+        val deleteVote = deleteVoteMap[groupSeq]
+        deleteVote?.let {
+            val userSeq = user.sequence!!
+
+            if(it.agreeUserSeqs.contains(userSeq) || it.disagreeUserSeqs.contains(userSeq)) {
+                throw IllegalArgumentException("이미 투표에 참여하셨습니다.")
+            }
+            if(type == "agree") it.agreeUserSeqs.add(userSeq)
+            else it.disagreeUserSeqs.add(userSeq)
+        }
+        redisClient.setValueObject("deleteVotes", deleteVoteMap)
     }
 }

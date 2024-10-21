@@ -10,10 +10,13 @@ import org.springframework.stereotype.Service
 
 @Service
 class PostService(private val postRepository: PostRepository, private val userGroupPostRepository: UserGroupPostRepository) {
-    fun getPost(groupSequence: Long, postSequence: Long, userSequence: Long): PostDto {
+    fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
         if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
             throw PostAccessDeniedException()
         }
+    }
+
+    fun getPost(groupSequence: Long, postSequence: Long, userSequence: Long): PostDto {
         val post = getPostOrThrow(groupSequence, postSequence)
         //todo: 게시글 detail 구현 필요
         return PostDto(groupSequence = post.groupSeq,
@@ -57,5 +60,13 @@ class PostService(private val postRepository: PostRepository, private val userGr
         postRepository.deleteByUserSeqInAndGroupSeq(agreeUserSeqs, groupSeq)
         userGroupPostRepository.deleteByGroupSequenceAndUserSequenceIn(groupSeq, agreeUserSeqs)
 
+    }
+
+    fun luckyDraw(groupSeq: Long, userSeq: Long): Long {
+        val postSeqs: MutableList<Long> = postRepository.countAllByAbleDrawPool(groupSeq, userSeq)
+
+        val pickPostSeq = postSeqs[(Math.random() * postSeqs.size).toInt()]
+
+        return pickPostSeq
     }
 }

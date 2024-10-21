@@ -59,7 +59,17 @@ class GroupController(private val groupService: GroupApplicationService) {
     fun deleteGroup(@AuthenticationPrincipal user: UserDetails, @PathVariable("groupSeq") groupSeq: Long): ResponseDto<Nothing> {
         groupService.deleteGroup(user.username, groupSeq)
 
-        return ResponseDto(data = null, status = HttpStatus.OK)
+        return ResponseDto(status = HttpStatus.OK)
+    }
+
+    @PostMapping("/vote/{type}/{groupSeq}")
+    fun groupDeleteVote(
+        @AuthenticationPrincipal user: UserDetails,
+        @PathVariable("type") type: String,
+        @PathVariable("groupSeq") groupSeq: Long)
+    : ResponseDto<Nothing> {
+        groupService.deleteGroupVote(user.username, type, groupSeq)
+        return ResponseDto(status = HttpStatus.OK)
     }
 
 }
