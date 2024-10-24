@@ -27,8 +27,14 @@ data class GroupDto(
         val createDate: LocalDateTime? = null,
         val updateDate: LocalDateTime? = null,
         var groupSequence: Long? = null,
-        var userNickName: String
+        var userNickName: String,
+        val totalUsers: Long
     )
+    interface GroupTotalUser {
+        val groupSeq: Long
+        val totalUser: Long
+    }
+
 }
 
 data class DeleteVote(

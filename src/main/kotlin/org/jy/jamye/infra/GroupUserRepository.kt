@@ -1,5 +1,6 @@
 package org.jy.jamye.infra
 
+import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.GroupUser
 import org.springframework.data.jpa.repository.EntityGraph
@@ -58,4 +59,10 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
         AND g.grade = 'MASTER'
     """)
     fun findGroupMasterSeq(groupSeq: Long, userSeqs: Set<Long>): Long
+    @Query("""
+        SELECT g.groupSequence as groupSeq, count(g.userSequence) as totalUser
+        FROM GroupUser g
+        GROUP BY g.groupSequence
+    """)
+    fun countGroupInUser(map: List<Long>): List<GroupDto.GroupTotalUser>
 }

@@ -31,10 +31,12 @@ class GroupService(
     @Transactional(readOnly = true)
     fun getGroupInUser(userSequence: Long): List<GroupDto.UserInfo> {
         val groupConnection = groupUserRepo.findAllByUserSequence(userSequence)
+        val totalUserCount = groupUserRepo.countGroupInUser(groupConnection.map { it.groupSequence }).associate { group -> group.groupSeq to group.totalUser }
         return groupConnection.map {
             val group = it.group
             GroupDto.UserInfo(
-                groupSequence = group.sequence, name = group.name, description = group.description, createDate = group.createDate, updateDate = group.updateDate, userNickName = it.nickname
+                groupSequence = group.sequence, name = group.name, description = group.description, createDate = group.createDate, updateDate = group.updateDate, userNickName = it.nickname,
+                totalUsers = totalUserCount.getOrDefault(group.sequence, 0)
             )
         }
     }
