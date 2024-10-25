@@ -24,7 +24,7 @@ class SecurityConfig(private val jwtFilter: JwtFilter) {
         http
             .authorizeHttpRequests { authorizeRequests ->
                 authorizeRequests
-                    .requestMatchers("/api/user/login", "/api/user/join", "/v3/api-docs/**", "/", "/error").permitAll()
+                    .requestMatchers("/api/user/login", "/api/user/join", "/v3/api-docs/**", "/", "/error", "/api/user/check/**").permitAll()
                     .anyRequest().hasAnyRole("USER")
             }
             .csrf { csrf: CsrfConfigurer<HttpSecurity> -> csrf.disable() }

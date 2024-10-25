@@ -54,4 +54,12 @@ class UserController(
         return ResponseDto(status = HttpStatus.OK)
     }
 
+    @GetMapping("/check/id/{id}")
+    fun duplicateIdCheck(@PathVariable id: String) : ResponseDto<Boolean> {
+        return ResponseDto(data = userAppService.duplicateIdCheck(id), status = HttpStatus.OK)
+    }
+    @GetMapping("/check/email/{email}")
+    fun duplicateEmailCheck(@PathVariable email: String) : ResponseDto<Boolean> {
+        return ResponseDto(data = userAppService.duplicateEmailCheck(email), status = HttpStatus.OK)
+    }
 }
