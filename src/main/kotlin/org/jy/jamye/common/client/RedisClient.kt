@@ -65,4 +65,8 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
         }
         return result
     }
+
+    fun hasKey(key: String): Boolean{
+        return redisTemplate.hasKey(key)
+    }
 }
