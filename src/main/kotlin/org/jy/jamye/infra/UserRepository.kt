@@ -12,4 +12,5 @@ interface UserRepository : JpaRepository<User, Long> {
     fun existsByUserId(id: String): Boolean
     @Meta(comment = "ID로 유저 정보 조회")
     fun findByUserId(id: String): Optional<User>
+    fun findByUserIdAndEmail(userId: String, email: String): Optional<User>
 }

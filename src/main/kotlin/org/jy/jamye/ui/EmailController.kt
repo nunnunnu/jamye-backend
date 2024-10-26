@@ -1,9 +1,16 @@
 package org.jy.jamye.ui
 
+import org.jy.jamye.application.EmailApplicationService
 import org.jy.jamye.application.dto.EmailDto
 import org.jy.jamye.common.io.ResponseDto
+import org.jy.jamye.common.listener.EmailEvent
 import org.jy.jamye.domain.service.EmailService
+import org.jy.jamye.ui.post.FindPassword
+import org.jy.jamye.ui.post.UserPostDto
+import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,12 +20,16 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/email")
-class EmailController(private val emailService: EmailService) {
+class EmailController(private val emailService: EmailService, private val emailAppService: EmailApplicationService,
+                      private val publisher: ApplicationEventPublisher
+) {
+    val log = LoggerFactory.getLogger(this.javaClass)
     //인증 번호 전송
     @PostMapping("/send")
     fun sendEmail(@RequestParam email: String): ResponseDto<EmailDto> {
         //todo: 이벤트 적용필요
-        emailService.sendCodeToEmail(email)
+        val event = EmailEvent(email = email)
+        publisher.publishEvent(event)
         return ResponseDto(status = HttpStatus.OK)
     }
 
@@ -27,5 +38,11 @@ class EmailController(private val emailService: EmailService) {
     fun verifyEmail(@RequestBody requestDto: EmailDto): ResponseDto<Boolean> {
         val isVerified: Boolean = emailService.verifyCode(requestDto.email, requestDto.verifyCode)
         return ResponseDto(status = HttpStatus.OK, data = isVerified)
+    }
+
+    @GetMapping("/password")
+    fun findPassword(@RequestBody data: FindPassword):ResponseDto<Nothing> {
+        emailAppService.findUserAndSendEmail(data.id, data.email)
+        return ResponseDto(status = HttpStatus.OK)
     }
 }

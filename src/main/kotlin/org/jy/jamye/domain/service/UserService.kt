@@ -6,6 +6,7 @@ import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
+import org.jy.jamye.common.util.StringUtils.generateRandomCode
 import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.UserFactory
 import org.jy.jamye.infra.UserRepository
@@ -85,6 +86,13 @@ class UserService(
             )
         }
 
+    }
+
+    fun userUpdateRandomPassword(id: String, email: String, randomPassword: String): String {
+        val user = userRepo.findByUserIdAndEmail(id, email).orElseThrow { throw EntityNotFoundException() }
+        val encodePassword = passwordEncoder.encode(randomPassword)
+        user.updateUserInfo(encodePassword = encodePassword)
+        return randomPassword
     }
 
 }
