@@ -10,6 +10,7 @@ data class UserPostDto (
     @field:NotBlank(message = "비밀번호는 필수입니다.")
     val password: String
 ){
+
     init {
         require(email.matches(Regex("^[A-Za-z0-9+_.-]+@(.+)$"))) { "Invalid email format" }
         require(password.length >= 8) { "Password must be at least 8 characters long" }
@@ -35,5 +36,12 @@ data class UserUpdateDto(
 data class UserPasswordDto(
     val password: String
 )
+
+class FindPassword(
+    val email: String,
+    val id: String
+) {
+
+}
 
 

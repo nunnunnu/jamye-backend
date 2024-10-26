@@ -43,7 +43,7 @@ class User(
         return this.userId
     }
 
-    fun updateUserInfo(email: String?, encodePassword: String?) {
+    fun updateUserInfo(email: String? = null, encodePassword: String? = null) {
         email?.let {
             this.email = it
         }
