@@ -55,6 +55,13 @@ class GroupController(private val groupService: GroupApplicationService) {
         return ResponseDto(data = userInGroupSequence, status = HttpStatus.OK)
     }
 
+    @GetMapping("/group-info/{inviteCode}")
+    fun inviteGroupInfo(@AuthenticationPrincipal user: UserDetails, @PathVariable inviteCode: String): ResponseDto<GroupDto> {
+        val group = groupService.getInviteGroup(user.username, inviteCode)
+        return ResponseDto(data = group, status = HttpStatus.OK)
+    }
+
+
     @DeleteMapping("/{groupSeq}")
     fun deleteGroup(@AuthenticationPrincipal user: UserDetails, @PathVariable("groupSeq") groupSeq: Long): ResponseDto<Nothing> {
         groupService.deleteGroup(user.username, groupSeq)
