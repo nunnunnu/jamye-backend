@@ -1,5 +1,6 @@
 package org.jy.jamye.application
 
+import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
@@ -14,6 +15,7 @@ import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime.now
 
+@Suppress("CAST_NEVER_SUCCEEDS")
 @Service
 class GroupApplicationService(private val userService: UserService,
                               private val groupService: GroupService,
@@ -95,5 +97,12 @@ class GroupApplicationService(private val userService: UserService,
             else it.disagreeUserSeqs.add(userSeq)
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
+    }
+
+    fun getInviteGroup(userId: String, inviteCode: String): GroupDto {
+        val user = userService.getUser(userId)
+        val groupSeq = redisClient.getValue(inviteCode) ?: throw EntityNotFoundException("그룹 정보를 찾을 수 없습니다.")
+        return groupService.getInviteGroupInfo(user.sequence!!, groupSeq.toLong())
+
     }
 }

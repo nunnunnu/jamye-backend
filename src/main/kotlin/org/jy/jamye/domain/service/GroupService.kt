@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.common.exception.AlreadyJoinedGroupException
 import org.jy.jamye.common.exception.MemberNotInGroupException
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
@@ -167,6 +168,17 @@ class GroupService(
         val masterSeq = groupUserRepo.findGroupMasterSeq(groupSeq, deleteAgree)
         groupUserRepo.deleteAllByGroupSequenceAndUserSequenceIn(groupSeq, deleteAgree)
         autoTransferMasterPrivileges(masterSeq)
+    }
+
+    fun getInviteGroupInfo(userSeq: Long, groupSeq: Long) : GroupDto {
+        val usersInGroup = groupUserRepo.findAllByGroupSequence(groupSeq)
+        val filter = usersInGroup.filter { it.userSequence == userSeq }
+        if(filter.isNotEmpty()) {
+            throw AlreadyJoinedGroupException()
+        }
+        val group = groupRepo.findById(groupSeq).orElseThrow{ throw EntityNotFoundException() }
+        return GroupDto(name = group.name, description = group.description, imageUrl = group.imageUrl)
+
     }
 }
 
