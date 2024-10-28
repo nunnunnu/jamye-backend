@@ -177,7 +177,7 @@ class GroupService(
             throw AlreadyJoinedGroupException()
         }
         val group = groupRepo.findById(groupSeq).orElseThrow{ throw EntityNotFoundException() }
-        return GroupDto(name = group.name, description = group.description, imageUrl = group.imageUrl)
+        return GroupDto(name = group.name, description = group.description, imageUrl = group.imageUrl, groupSequence = group.sequence)
 
     }
 }
