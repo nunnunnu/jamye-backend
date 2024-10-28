@@ -18,6 +18,7 @@ data class GroupDto(
         val createDate: LocalDateTime,
         val updateDate: LocalDateTime,
         var groupSequence: Long,
+        val isMaster: Boolean? = null,
         val users: List<UserInGroupDto>? = listOf()
     )
     data class UserInfo(

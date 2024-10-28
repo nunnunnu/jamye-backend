@@ -8,6 +8,7 @@ import org.jy.jamye.common.exception.AlreadyJoinedGroupException
 import org.jy.jamye.common.exception.MemberNotInGroupException
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
+import org.jy.jamye.domain.model.GroupUser
 import org.jy.jamye.infra.GroupFactory
 import org.jy.jamye.infra.GroupRepository
 import org.jy.jamye.infra.GroupUserRepository
@@ -70,6 +71,8 @@ class GroupService(
 
         if(filter.isEmpty()) throw MemberNotInGroupException()
 
+        val masterInfo = usersInGroup.first { it.grade == Grade.MASTER }
+
         val group = groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
 
         return GroupDto.Detail(
@@ -79,7 +82,9 @@ class GroupService(
             imageUrl = group.imageUrl,
             createDate = group.createDate,
             updateDate = group.updateDate,
-            users = usersInGroup.map { it -> UserInGroupDto(
+            isMaster = masterInfo.userSequence == userSequence,
+            users = usersInGroup.map {
+                UserInGroupDto(
                 userSequence = it.userSequence,
                 groupSequence = it.groupSequence,
                 groupUserSequence = it.groupUserSequence!!,
