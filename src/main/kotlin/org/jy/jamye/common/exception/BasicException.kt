@@ -29,3 +29,5 @@ class InvalidInviteCodeException(detailMessage: String? = null) : BasicException
 class GroupDeletionPermissionException(detailMessage: String? = null) : BasicException(ErrorCode.GROUP_DELETION_PERMISSION, detailMessage)
 
 class PostAccessDeniedException(detailMessage: String? = null) : BasicException(ErrorCode.POST_ACCESS_DENIED, detailMessage)
+
+class AlreadyDeleteVoting(detailMessage: String? = null) : BasicException(ErrorCode.ALREADY_DELETE_VOTE, detailMessage)

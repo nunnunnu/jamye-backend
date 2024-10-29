@@ -5,6 +5,7 @@ import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.client.RedisClient
+import org.jy.jamye.common.exception.AlreadyDeleteVoting
 import org.jy.jamye.common.exception.GroupDeletionPermissionException
 import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.domain.service.GroupService
@@ -62,7 +63,7 @@ class GroupApplicationService(private val userService: UserService,
         val deleteVoteMap = redisClient.getDeleteVoteMap()
 
         if (deleteVoteMap.containsKey(groupSeq)) {
-            throw InvalidInviteCodeException("이미 투표진행중입니다")
+            throw AlreadyDeleteVoting()
         } else {
             val voteAbleNumber =
                 groupUserRepository.countByGroupSequenceAndCreateDateGreaterThan(groupSeq, now().minusDays(7))
@@ -77,7 +78,11 @@ class GroupApplicationService(private val userService: UserService,
                 hasRevoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
             )
             deleteVoteMap[groupSeq] = deleteVote
-            groupVoteService.scheduleVoteEndJob(groupSeq, endDateTime = endDateTime)
+            try {
+                groupVoteService.scheduleVoteEndJob(groupSeq, endDateTime = endDateTime)
+            } catch (e: Exception) {
+               e.printStackTrace()
+            }
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
 
