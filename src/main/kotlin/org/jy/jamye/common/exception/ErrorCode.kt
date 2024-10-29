@@ -11,5 +11,6 @@ enum class ErrorCode(val status: HttpStatus, val message: String) {
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 가입된 이메일입니다."),
     INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, "존재하지 않는 초대코드입니다."),
     GROUP_DELETION_PERMISSION(HttpStatus.FORBIDDEN, "그룹 개설자만 그룹을 삭제 가능합니다."),
-    POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "보유하지않은 게시글입니다.");
+    POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "보유하지않은 게시글입니다."),
+    ALREADY_DELETE_VOTE(HttpStatus.BAD_REQUEST, "이미 삭제 투표 진행중인 그룹입니다.");
 }

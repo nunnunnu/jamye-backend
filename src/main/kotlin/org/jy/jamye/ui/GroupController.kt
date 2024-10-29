@@ -40,7 +40,7 @@ class GroupController(private val groupService: GroupApplicationService) {
         return ResponseDto(data = result, status = HttpStatus.OK)
     }
 
-    @PostMapping("/{groupSeq}/invite")
+    @GetMapping("/invite/{groupSeq}")
     fun inviteGroupCode(@AuthenticationPrincipal user: UserDetails, @PathVariable groupSeq: Long): ResponseDto<String> {
         val groupInviteCode: String = groupService.inviteGroupCode(user.username, groupSeq)
         return ResponseDto(data = groupInviteCode, status = HttpStatus.OK)
