@@ -49,7 +49,11 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     """)
     fun findByGroupOldestUser(groupSeqs: List<Long>): List<GroupUser>
     fun countByGroupSequenceAndCreateDateGreaterThan(groupSequence: Long, createDate: LocalDateTime): Long
+    @Modifying
+    @Transactional
     fun deleteAllByGroupSequence(groupSeq: Long)
+    @Modifying
+    @Transactional
     fun deleteAllByGroupSequenceAndUserSequenceIn(groupSeq: Long, deleteAgree: Set<Long>)
     @Query("""
        SELECT g.userSequence
