@@ -6,7 +6,6 @@ import com.google.cloud.vision.v1.Image
 import com.google.cloud.vision.v1.ImageAnnotatorClient
 import com.google.protobuf.ByteString
 import org.jy.jamye.application.dto.PostDto
-import org.jy.jamye.common.util.StringUtils
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
@@ -15,7 +14,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 @Service
@@ -74,7 +72,7 @@ class VisionService {
                         }
                     }
                 }.maxOrNull() ?: 0
-
+                var isReply = false
                 res.fullTextAnnotation.pagesList.forEach { page ->
                     page.blocksList.forEach { block ->
                         block.paragraphsList.forEach { paragraph ->
@@ -93,21 +91,36 @@ class VisionService {
                             }
 
                             val messagePost = messageMap[sequence]
-                            if (messagePost == null) {
-                                messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser)
-                            } else if (lineText.isNotBlank() && !org.h2.util.StringUtils.isNumber(lineText) && !lineText.contains("오전") && !lineText.contains("오후")) {
-                                if (isRightmost && ((currentUser == null && sequence != 1L) || (currentUser != null))) {
-                                    sequence++
-                                    currentUser = null
-                                    messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser, message = mutableListOf(lineText), myMessage = true)
-                                } else {
-                                    messagePost.message.add(lineText)
+                            if(lineText.endsWith("에게 답장")) {
+                                isReply = true
+                            } else {
+                                if (messagePost == null) {
+                                    messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser)
+                                } else if (lineText.isNotBlank() && !org.h2.util.StringUtils.isNumber(lineText) && !lineText.contains("오전") && !lineText.contains("오후")) {
+                                    if (isRightmost && ((currentUser == null && sequence != 1L) || (currentUser != null))) {
+                                        sequence++
+                                        currentUser = null
+                                        if (isReply) {
+                                            messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser, message = mutableListOf(), myMessage = true, replyMessage = lineText, isReply = true)
+                                            isReply = false
+                                        } else {
+                                            messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser, message = mutableListOf(lineText), myMessage = true)
+                                        }
+                                    } else {
+                                        if(isReply){
+                                            messagePost.isReply = true
+                                            messagePost.replyMessage = lineText
+                                            isReply = false
+                                        } else {
+                                            messagePost.message.add(lineText)
+                                        }
+                                    }
+                                } else if (lineText.contains("오전") || lineText.contains("오후")) {
+                                    messagePost.sendDate = lineText
                                 }
-
-                            } else if (lineText.contains("오전") || lineText.contains("오후")) {
-                                messagePost.sendDate = lineText
                             }
-                        }
+                            }
+
                     }
                 }
 
@@ -115,8 +128,8 @@ class VisionService {
                     val messages = value.message
                     messages.forEachIndexed { index, it ->
                         run {
-                            val messages = res.fullTextAnnotation.text.split("\n")
-                            for (message in messages) {
+                            val originMessage = res.fullTextAnnotation.text.split("\n")
+                            for (message in originMessage) {
                                 val replace = it.replace(" ", "")
                                 if (replace.length > 5 && message.replace(" ", "").contains(replace.substring(1 until replace.length - 1))) {
                                     value.message[index] = message

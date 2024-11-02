@@ -26,7 +26,9 @@ data class PostDto(
         val sendUser: String? = null,
         var message: MutableList<String> = mutableListOf(),
         var sendDate: String? = null,
-        val myMessage: Boolean? = null
+        val myMessage: Boolean? = null,
+        var isReply: Boolean? = false,
+        var replyMessage: String? = null,
     ) {
         constructor(sendUser: String?) : this(
             sendUser = sendUser,
