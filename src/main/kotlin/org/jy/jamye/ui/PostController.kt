@@ -36,13 +36,11 @@ class PostController(
     }
 
     @PostMapping("/message-text")
-    fun extractText(@RequestParam image: MultipartFile): String {
-        return try {
-            val saveFile = visionService.saveFile(image)
-            visionService.extractTextFromImageUrl(saveFile!!)
-        } catch (e: Exception) {
-            //e.printStackTrace();
-            "Failed to extract text: " + e.message
-        }
+    fun extractText(@RequestParam image: MultipartFile, @RequestParam sendUser: Set<String>): MutableList<PostDto.MessagePost>? {
+        val saveFile = visionService.saveFile(image)
+
+        return visionService.extractTextFromImageUrl(saveFile!!, sendUser)
+
+
     }
 }

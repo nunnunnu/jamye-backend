@@ -1,6 +1,5 @@
 package org.jy.jamye.application.dto
 
-import org.springframework.data.annotation.CreatedBy
 import java.time.LocalDateTime
 
 data class PostDto(
@@ -23,4 +22,20 @@ data class PostDto(
         var createdUserNickName: String? = null,
         val isViewable: Boolean,
             )
+    data class MessagePost(
+        val sendUser: String? = null,
+        var message: MutableList<String> = mutableListOf(),
+        var sendDate: String? = null,
+        val myMessage: Boolean? = null
+    ) {
+        constructor(sendUser: String?) : this(
+            sendUser = sendUser,
+            message = mutableListOf(),
+            myMessage = if(sendUser == null) true else false
+        ) {
+
+        }
+
+
+    }
 }
