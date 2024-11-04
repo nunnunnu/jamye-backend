@@ -9,13 +9,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @RestController
 @RequestMapping("/api/post")
 class PostController(
     private val postService: PostApplicationService, private val visionService: VisionService
 ) {
+    var log: Logger = LoggerFactory.getLogger(PostController::class.java.name)
     @GetMapping("/{groupSequence}/{postSequence}")
     fun getPost(@PathVariable("groupSequence") groupSequence: Long, @PathVariable("postSequence") postSequence: Long, @AuthenticationPrincipal user: UserDetails):
             ResponseDto<PostDto> {
@@ -36,10 +38,11 @@ class PostController(
     }
 
     @PostMapping("/message-text")
-    fun extractText(@RequestParam image: MultipartFile, @RequestParam sendUser: Set<String>): MutableList<PostDto.MessagePost>? {
+    fun extractText(@RequestParam image: MultipartFile, @RequestParam sendUser: Set<String>): ResponseDto<MutableList<PostDto.MessagePost>> {
+        log.info(sendUser.toString())
         val saveFile = visionService.saveFile(image)
 
-        return visionService.extractTextFromImageUrl(saveFile!!, sendUser)
+        return ResponseDto(data = visionService.extractTextFromImageUrl(saveFile!!, sendUser), status = HttpStatus.OK)
 
 
     }
