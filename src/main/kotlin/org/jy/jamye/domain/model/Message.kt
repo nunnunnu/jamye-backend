@@ -7,8 +7,8 @@ import java.time.LocalDateTime
 @Table(name = "pi_msg")
 @DiscriminatorValue("MSG")
 open class Message(
-    @Column(name = "pi-dtl")
-    var detail: String,
+    @Column(name = "pi_cont")
+    var content: String,
     @Column(name = "nickName")
     var nickName: String?,
     @Column(name = "gu_seq")

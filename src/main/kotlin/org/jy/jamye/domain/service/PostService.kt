@@ -3,13 +3,19 @@ package org.jy.jamye.domain.service
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.exception.PostAccessDeniedException
+import org.jy.jamye.domain.model.Message
 import org.jy.jamye.domain.model.Post
-import org.jy.jamye.infra.PostRepository
-import org.jy.jamye.infra.UserGroupPostRepository
+import org.jy.jamye.infra.*
 import org.springframework.stereotype.Service
 
 @Service
-class PostService(private val postRepository: PostRepository, private val userGroupPostRepository: UserGroupPostRepository) {
+class PostService(
+    private val postRepository: PostRepository,
+    private val userGroupPostRepository: UserGroupPostRepository,
+    private val postFactory: PostFactory,
+    private val messageRepository: MessageRepository,
+    private val boardRepository: BoardRepository
+) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
         if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
             throw PostAccessDeniedException()
@@ -68,5 +74,16 @@ class PostService(private val postRepository: PostRepository, private val userGr
         val pickPostSeq = postSeqs[(Math.random() * postSeqs.size).toInt()]
 
         return pickPostSeq
+    }
+
+    fun createPostMessageType(data: PostDto, content: List<PostDto.MessagePost>, sequence: Long): Long {
+        val post = postFactory.createPost(data)
+        val messages: MutableList<Message> = mutableListOf()
+        content.forEach { messages.addAll(postFactory.createPostMessageType(it)) }
+
+        postRepository.save(post)
+        messageRepository.saveAll(messages)
+
+        return post.postSeq!!
     }
 }
