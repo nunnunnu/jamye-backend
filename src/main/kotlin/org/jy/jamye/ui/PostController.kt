@@ -4,6 +4,7 @@ import org.jy.jamye.application.PostApplicationService
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.service.VisionService
+import org.jy.jamye.ui.post.PostCreateMessageDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -39,11 +40,22 @@ class PostController(
 
     @PostMapping("/message-text")
     fun extractText(@RequestParam image: MultipartFile, @RequestParam sendUser: Set<String>): ResponseDto<MutableList<PostDto.MessagePost>> {
-        log.info(sendUser.toString())
         val saveFile = visionService.saveFile(image)
 
         return ResponseDto(data = visionService.extractTextFromImageUrl(saveFile!!, sendUser), status = HttpStatus.OK)
+    }
 
-
+    @PostMapping("/message")
+    fun createPost(@AuthenticationPrincipal user: UserDetails, data: PostCreateMessageDto<PostCreateMessageDto.Message>): ResponseDto<Long> {
+        val postSeq = postService.createPostMessage(userId = user.username, post = PostDto(
+            title = data.title,
+            groupSequence = data.groupSeq),
+            content = data.content.map {
+                PostDto.MessagePost(
+            message = mutableListOf(it.content),
+            sendDate = it.sendDate.toString(),
+            myMessage = it.sendUserNickName == null)}
+        )
+        return ResponseDto(data = postSeq, status = HttpStatus.OK)
     }
 }

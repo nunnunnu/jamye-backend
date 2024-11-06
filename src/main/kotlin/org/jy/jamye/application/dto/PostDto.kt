@@ -6,9 +6,9 @@ data class PostDto(
     var postSequence: Long? = null,
     val title: String,
     val groupSequence: Long,
-    val createdUserSequence: Long,
+    val createdUserSequence: Long? = null,
     var createDate: LocalDateTime? = null,
-    var updateDate: LocalDateTime? = null
+    var updateDate: LocalDateTime? = null,
 ) {
     var createdUserNickName: String? = null
 
@@ -24,6 +24,7 @@ data class PostDto(
             )
     data class MessagePost(
         val sendUser: String? = null,
+        val sendUserInGroupSeq: Long? = null,
         var message: MutableList<String> = mutableListOf(),
         var sendDate: String? = null,
         val myMessage: Boolean? = null,

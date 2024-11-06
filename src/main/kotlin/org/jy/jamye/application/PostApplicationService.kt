@@ -20,7 +20,7 @@ class PostApplicationService(private val postService: PostService, private val u
             userSequence = user.sequence
         )
         val createUserInfo =
-            groupService.groupUserInfo(groupSequence = groupSequence, userSequence = post.createdUserSequence)
+            groupService.groupUserInfo(groupSequence = groupSequence, userSequence = post.createdUserSequence!!)
         if(createUserInfo!=null) {
             post.createdUserNickName = createUserInfo.nickname
         }
@@ -50,12 +50,20 @@ class PostApplicationService(private val postService: PostService, private val u
         val result =
             postService.getPost(groupSequence = groupSeq, userSequence = userSeq, postSequence = luckyDrawSeq)
         val createUserInfo =
-            groupService.groupUserInfo(groupSequence = groupSeq, userSequence = result.createdUserSequence)
+            groupService.groupUserInfo(groupSequence = groupSeq, userSequence = result.createdUserSequence!!)
         if(createUserInfo!=null) {
             result.createdUserNickName = createUserInfo.nickname
         }
 
         return result
+    }
+
+    fun createPostMessage(userId: String, post: PostDto, content: List<PostDto.MessagePost>): Long {
+        val user = userService.getUser(userId)
+        val sendUserSeqs: Set<Long> = content.filter { it.sendUserInGroupSeq != null }.map { it.sendUserInGroupSeq!! }.toSet()
+        groupService.usersInGroupCheckOrThrow(sendUserSeqs, post.groupSequence)
+
+        return postService.createPostMessageType(post, content, user.sequence!!)
     }
 
 }

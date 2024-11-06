@@ -69,4 +69,5 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
         GROUP BY g.groupSequence
     """)
     fun countGroupInUser(map: List<Long>): List<GroupDto.GroupTotalUser>
+    fun countByUserSequenceInAndGroupSequence(userSeqs: Set<Long>, groupSequence: Long): Int
 }

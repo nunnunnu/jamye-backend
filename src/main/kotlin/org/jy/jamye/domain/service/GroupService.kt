@@ -8,7 +8,6 @@ import org.jy.jamye.common.exception.AlreadyJoinedGroupException
 import org.jy.jamye.common.exception.MemberNotInGroupException
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
-import org.jy.jamye.domain.model.GroupUser
 import org.jy.jamye.infra.GroupFactory
 import org.jy.jamye.infra.GroupRepository
 import org.jy.jamye.infra.GroupUserRepository
@@ -104,6 +103,13 @@ class GroupService(
 
     fun userInGroupCheckOrThrow(userSequence: Long, groupSequence: Long) {
         if (!groupUserRepo.existsByUserSequenceAndGroupSequence(userSequence, groupSequence)) {
+            throw BadCredentialsException("Group user does not exist")
+        }
+    }
+
+    fun usersInGroupCheckOrThrow(usersSeqInGroup: Set<Long>, groupSequence: Long) {
+        val userInGroupCount = groupUserRepo.countByUserSequenceInAndGroupSequence(usersSeqInGroup, groupSequence)
+        if (userInGroupCount != usersSeqInGroup.size) {
             throw BadCredentialsException("Group user does not exist")
         }
     }
