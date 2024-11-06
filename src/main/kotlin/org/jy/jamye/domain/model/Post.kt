@@ -8,6 +8,8 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "post_info")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name="pi_type")
 open class Post(
     @Column(name = "title")
     var title: String,
