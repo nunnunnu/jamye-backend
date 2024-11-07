@@ -24,6 +24,8 @@ open class Post(
     @Column(name = "update_date")
     @UpdateTimestamp
     val updateDate: LocalDateTime = LocalDateTime.now(),
+    @Column(name="pi_type", insertable = false, updatable = false)
+    val piType: PostType,
     @Column(name = "pi_seq")
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var postSeq: Long? = null

@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "user_info")
-class User(
+open class User(
     @Column(name = "id", nullable = false)
     val userId: String,
     @Column(name = "email", nullable = false)

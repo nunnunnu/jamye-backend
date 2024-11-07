@@ -21,7 +21,7 @@ class PostController(
     var log: Logger = LoggerFactory.getLogger(PostController::class.java.name)
     @GetMapping("/{groupSequence}/{postSequence}")
     fun getPost(@PathVariable("groupSequence") groupSequence: Long, @PathVariable("postSequence") postSequence: Long, @AuthenticationPrincipal user: UserDetails):
-            ResponseDto<PostDto> {
+            ResponseDto<PostDto.PostContent<Any>> {
         val post = postService.getPost(groupSequence, postSequence, user.username)
         return ResponseDto(data = post, status = HttpStatus.OK)
     }
@@ -46,7 +46,7 @@ class PostController(
     }
 
     @PostMapping("/message")
-    fun createPost(@AuthenticationPrincipal user: UserDetails, data: PostCreateMessageDto<PostCreateMessageDto.Message>): ResponseDto<Long> {
+    fun createPostMessageType(@AuthenticationPrincipal user: UserDetails, data: PostCreateMessageDto<List<PostCreateMessageDto.Message>>): ResponseDto<Long> {
         val postSeq = postService.createPostMessage(userId = user.username, post = PostDto(
             title = data.title,
             groupSequence = data.groupSeq),
@@ -55,6 +55,16 @@ class PostController(
             message = mutableListOf(it.content),
             sendDate = it.sendDate.toString(),
             myMessage = it.sendUserNickName == null)}
+        )
+        return ResponseDto(data = postSeq, status = HttpStatus.OK)
+    }
+
+    @PostMapping("/board")
+    fun createPostBoardType(@AuthenticationPrincipal user: UserDetails, data: PostCreateMessageDto<PostCreateMessageDto.Board>): ResponseDto<Long> {
+        val postSeq = postService.createPostBoard(userId = user.username, post = PostDto(
+            title = data.title,
+            groupSequence = data.groupSeq),
+            content = PostDto.BoardPost(content = data.content.content)
         )
         return ResponseDto(data = postSeq, status = HttpStatus.OK)
     }

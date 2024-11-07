@@ -8,6 +8,8 @@ import jakarta.persistence.*
 open class Board(
     @Column(name = "dtl")
     var detail: String,
+    @Column(name = "pi_seq")
+    var postSeq: Long,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bi_seq")
     var boardSeq: Long? = null

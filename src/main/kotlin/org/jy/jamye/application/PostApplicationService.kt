@@ -9,18 +9,17 @@ import org.springframework.stereotype.Service
 
 @Service
 class PostApplicationService(private val postService: PostService, private val userService: UserService, private val groupService: GroupService, private val redisClient: RedisClient) {
-    fun getPost(groupSequence: Long, postSequence: Long, userId: String): PostDto {
+    fun getPost(groupSequence: Long, postSequence: Long, userId: String): PostDto.PostContent<Any> {
         val user = userService.getUser(id = userId)
         groupService.userInGroupCheckOrThrow(userSequence = user.sequence!!, groupSequence = groupSequence)
 
         postService.postCheck(groupSequence, postSequence, user.sequence)
         val post = postService.getPost(
             groupSequence = groupSequence,
-            postSequence = postSequence,
-            userSequence = user.sequence
+            postSequence = postSequence
         )
         val createUserInfo =
-            groupService.groupUserInfo(groupSequence = groupSequence, userSequence = post.createdUserSequence!!)
+            groupService.groupUserInfo(groupSequence = groupSequence, userSequence = post.createdUserSequence)
         if(createUserInfo!=null) {
             post.createdUserNickName = createUserInfo.nickname
         }
@@ -48,7 +47,7 @@ class PostApplicationService(private val postService: PostService, private val u
 
         val luckyDrawSeq = postService.luckyDraw(groupSeq, userSeq)
         val result =
-            postService.getPost(groupSequence = groupSeq, userSequence = userSeq, postSequence = luckyDrawSeq)
+            postService.getPostTitle(groupSeq = groupSeq, postSeq = luckyDrawSeq)
         val createUserInfo =
             groupService.groupUserInfo(groupSequence = groupSeq, userSequence = result.createdUserSequence!!)
         if(createUserInfo!=null) {
@@ -64,6 +63,11 @@ class PostApplicationService(private val postService: PostService, private val u
         groupService.usersInGroupCheckOrThrow(sendUserSeqs, post.groupSequence)
 
         return postService.createPostMessageType(post, content, user.sequence!!)
+    }
+
+    fun createPostBoard(userId: String, post: PostDto, content: PostDto.BoardPost): Long {
+        val user = userService.getUser(userId)
+        return postService.createPostBoardType(user.sequence!!, post, content)
     }
 
 }
