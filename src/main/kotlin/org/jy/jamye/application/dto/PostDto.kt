@@ -1,5 +1,6 @@
 package org.jy.jamye.application.dto
 
+import org.jy.jamye.domain.model.PostType
 import java.time.LocalDateTime
 
 data class PostDto(
@@ -34,11 +35,26 @@ data class PostDto(
         constructor(sendUser: String?) : this(
             sendUser = sendUser,
             message = mutableListOf(),
-            myMessage = if(sendUser == null) true else false
+            myMessage = if (sendUser == null) true else false
         ) {
 
         }
-
-
     }
+    data class BoardPost(
+        val content: String,
+    )
+
+    data class PostContent<T> (
+        var postSequence: Long,
+        val title: String,
+        val groupSequence: Long,
+        val createdUserSequence: Long,
+        var createdUserNickName: String? = null,
+        var createDate: LocalDateTime,
+        var updateDate: LocalDateTime,
+        val postType: PostType,
+        val content: T
+    )
+
+
 }

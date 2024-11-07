@@ -5,6 +5,7 @@ import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.exception.PostAccessDeniedException
 import org.jy.jamye.domain.model.Message
 import org.jy.jamye.domain.model.Post
+import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.infra.*
 import org.springframework.stereotype.Service
 
@@ -22,16 +23,40 @@ class PostService(
         }
     }
 
-    fun getPost(groupSequence: Long, postSequence: Long, userSequence: Long): PostDto {
-        val post = getPostOrThrow(groupSequence, postSequence)
-        //todo: 게시글 detail 구현 필요
-        return PostDto(groupSequence = post.groupSeq,
+    fun getPostTitle(groupSeq: Long, postSeq: Long): PostDto {
+        val post = getPostOrThrow(groupSeq, postSeq)
+        return PostDto(
+            groupSequence = post.groupSeq,
             postSequence = post.postSeq!!,
             createdUserSequence = post.userSeq,
             title = post.title,
             createDate = post.createDate,
             updateDate = post.updateDate
+        )
+    }
+
+    fun getPost(groupSequence: Long, postSequence: Long): PostDto.PostContent<Any> {
+        val post = getPostOrThrow(groupSequence, postSequence)
+        val result = PostDto.PostContent<Any>(
+            groupSequence = post.groupSeq,
+            postSequence = post.postSeq!!,
+            createdUserSequence = post.userSeq,
+            title = post.title,
+            createDate = post.createDate,
+            updateDate = post.updateDate,
+            postType = post.piType,
+            content = if (post.piType == PostType.MSG) messageRepository.findAllByPostSeq(postSequence).map {
+                PostDto.MessagePost(
+                    sendUserInGroupSeq = it.groupUserSequence,
+                    message = mutableListOf(it.content),
+                    sendDate = it.sendDate.toString(),
+                    myMessage = it.nickName == null
+                )
+            } else PostDto.BoardPost(
+                    content = boardRepository.findByPostSeq(postSequence).detail
+                )
             )
+        return result
     }
 
     private fun getPostOrThrow(groupSequence: Long, postSequence: Long): Post {
@@ -77,13 +102,22 @@ class PostService(
     }
 
     fun createPostMessageType(data: PostDto, content: List<PostDto.MessagePost>, sequence: Long): Long {
-        val post = postFactory.createPost(data)
-        val messages: MutableList<Message> = mutableListOf()
-        content.forEach { messages.addAll(postFactory.createPostMessageType(it)) }
-
+        val post = postFactory.createPost(data, PostType.MSG)
         postRepository.save(post)
+        val messages: MutableList<Message> = mutableListOf()
+        content.forEach { messages.addAll(postFactory.createPostMessageType(it, post.postSeq!!)) }
+
+
         messageRepository.saveAll(messages)
 
+        return post.postSeq!!
+    }
+
+    fun createPostBoardType(sequence: Long, data: PostDto, detailContent: PostDto.BoardPost): Long {
+        val post = postFactory.createPost(data, PostType.BOR)
+        postRepository.save(post)
+        val content = postFactory.createPostBoardType(detailContent, post.postSeq!!)
+        boardRepository.save(content)
         return post.postSeq!!
     }
 }

@@ -6,7 +6,7 @@ class PostCreateMessageDto<T>(
     val title: String,
     val createUserSeq: Long,
     val groupSeq: Long,
-    val content: List<T>
+    val content: T
 ) {
     data class Message(
         val content: String,

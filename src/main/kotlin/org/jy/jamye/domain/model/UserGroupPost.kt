@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "ui_pi_con")
-class UserGroupPost (
+open class UserGroupPost (
     @Column(name = "ui_seq")
     val userSequence: Long,
     @Column(name = "gi_seq")

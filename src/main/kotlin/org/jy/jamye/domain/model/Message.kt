@@ -8,13 +8,15 @@ import java.time.LocalDateTime
 @DiscriminatorValue("MSG")
 open class Message(
     @Column(name = "pi_cont")
-    var content: String,
+    val content: String,
     @Column(name = "nickName")
     var nickName: String?,
     @Column(name = "gu_seq")
     var groupUserSequence: Long?,
     @Column(name = "send_date")
     var sendDate: LocalDateTime? = null,
+    @Column(name = "pi_seq")
+    var postSeq: Long,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mi_seq")
     var messageSeq: Long? = null
