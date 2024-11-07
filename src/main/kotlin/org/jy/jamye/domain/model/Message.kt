@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "pi_msg")
 @DiscriminatorValue("MSG")
-open class Message(
+class Message(
     @Column(name = "pi_cont")
     val content: String,
     @Column(name = "nickName")

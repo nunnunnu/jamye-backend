@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "gi_ui_con")
-open class GroupUser (
+class GroupUser (
     @Column(name = "ui_seq", nullable = false)
     val userSequence: Long,
     @Column(name = "gi_seq", nullable = false)
@@ -32,4 +32,8 @@ open class GroupUser (
     @JoinColumn(name = "gi_seq", updatable = false, insertable = false)
     val group: Group
     ){
+}
+
+enum class Grade {
+    MASTER, NORMAL
 }

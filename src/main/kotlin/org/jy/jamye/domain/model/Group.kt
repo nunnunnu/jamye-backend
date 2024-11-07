@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "group_info")
-open class Group (
+class Group (
     @Column(name = "name", nullable = false)
     var name: String,
     @Column(name = "img_url")

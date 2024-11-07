@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "gi_vote")
-open class GroupVote(
+class GroupVote(
     @Column(name = "end_date_time")
     val endDateTime: LocalDateTime = LocalDateTime.now().plusDays(7),
     @Column(name = "gi_seq")
