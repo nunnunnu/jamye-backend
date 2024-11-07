@@ -72,7 +72,7 @@ class UserService(
             throw PasswordErrorException()
         }
         userRepo.deleteById(user.sequence!!)
-        return user.sequence
+        return user.sequence!!
     }
 
     fun getUsers(userSeqs: List<Long>): Map<Long, UserDto> {

@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "user_info")
-open class User(
+class User(
     @Column(name = "id", nullable = false)
     val userId: String,
     @Column(name = "email", nullable = false)
@@ -51,4 +51,9 @@ open class User(
             this.password = it
         }
     }
+}
+
+
+enum class Role {
+    ROLE_USER
 }

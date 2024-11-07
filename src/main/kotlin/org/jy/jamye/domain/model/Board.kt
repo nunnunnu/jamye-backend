@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "pi_bi")
 @DiscriminatorValue("BOR")
-open class Board(
+class Board(
     @Column(name = "dtl")
     var detail: String,
     @Column(name = "pi_seq")

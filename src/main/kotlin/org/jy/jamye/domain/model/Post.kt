@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 @Table(name = "post_info")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name="pi_type")
-open class Post(
+class Post(
     @Column(name = "title")
     var title: String,
     @Column(name = "group_seq")
@@ -30,4 +30,8 @@ open class Post(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var postSeq: Long? = null
 ) {
+}
+
+enum class PostType() {
+    MSG, BOR
 }
