@@ -113,7 +113,7 @@ class PostService(
         return post.postSeq!!
     }
 
-    fun createPostBoardType(sequence: Long, data: PostDto, detailContent: PostDto.BoardPost): Long {
+    fun createPostBoardType(userSeq: Long, data: PostDto, detailContent: PostDto.BoardPost): Long {
         val post = postFactory.createPost(data, PostType.BOR)
         postRepository.save(post)
         val content = postFactory.createPostBoardType(detailContent, post.postSeq!!)

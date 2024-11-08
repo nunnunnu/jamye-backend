@@ -2,9 +2,8 @@ package org.jy.jamye.ui.post
 
 import java.time.LocalDateTime
 
-class PostCreateMessageDto<T>(
+class PostCreateDto<T>(
     val title: String,
-    val createUserSeq: Long,
     val groupSeq: Long,
     val content: T
 ) {

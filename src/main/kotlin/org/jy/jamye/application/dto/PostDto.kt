@@ -7,7 +7,7 @@ data class PostDto(
     var postSequence: Long? = null,
     val title: String,
     val groupSequence: Long,
-    val createdUserSequence: Long? = null,
+    var createdUserSequence: Long? = null,
     var createDate: LocalDateTime? = null,
     var updateDate: LocalDateTime? = null,
 ) {
