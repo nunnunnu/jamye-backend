@@ -67,7 +67,8 @@ class PostApplicationService(private val postService: PostService, private val u
 
     fun createPostBoard(userId: String, post: PostDto, content: PostDto.BoardPost): Long {
         val user = userService.getUser(userId)
-        return postService.createPostBoardType(user.sequence!!, post, content)
+        post.createdUserSequence = user.sequence!!
+        return postService.createPostBoardType(user.sequence, post, content)
     }
 
 }
