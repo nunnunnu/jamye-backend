@@ -46,9 +46,10 @@ class PostService(
             updateDate = post.updateDate,
             postType = post.piType,
             content = if (post.piType == PostType.MSG) messageRepository.findAllByPostSeq(postSequence).map {
+                var seq = 0L
                 PostDto.MessagePost(
                     sendUserInGroupSeq = it.groupUserSequence,
-                    message = mutableListOf(it.content),
+                    message = mutableListOf(PostDto.MessageSequence(++seq, it.content)),
                     sendDate = it.sendDate.toString(),
                     myMessage = it.nickName == null
                 )

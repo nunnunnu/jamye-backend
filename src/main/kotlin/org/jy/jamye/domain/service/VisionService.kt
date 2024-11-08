@@ -36,7 +36,7 @@ class VisionService {
     }
 
     @Throws(Exception::class)
-    fun extractTextFromImageUrl(imgFilePath: String, sendUser: Set<String>): MutableList<PostDto.MessagePost>? {
+    fun extractTextFromImageUrl(imgFilePath: String, sendUser: Set<String>): MutableMap<Long, PostDto.MessagePost>? {
 
         val path: Path = Paths.get(imgFilePath)
         val data: ByteArray = Files.readAllBytes(path)
@@ -49,7 +49,7 @@ class VisionService {
             .setImage(img)
             .build()
         val requests: MutableList<AnnotateImageRequest> = mutableListOf(request)
-        val result: MutableList<PostDto.MessagePost> = mutableListOf()
+        val result: MutableMap<Long, PostDto.MessagePost> = mutableMapOf()
 
         ImageAnnotatorClient.create().use { client ->
             val response = client.batchAnnotateImages(requests)
@@ -104,7 +104,9 @@ class VisionService {
                                             messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser, message = mutableListOf(), myMessage = true, replyMessage = lineText, isReply = true)
                                             isReply = false
                                         } else {
-                                            messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser, message = mutableListOf(lineText), myMessage = true)
+                                            val last = if (messagePost.message.isEmpty()) 1 else messagePost.message.last().seq + 1
+                                            messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser, message = mutableListOf(
+                                                PostDto.MessageSequence(last, lineText)), myMessage = true)
                                         }
                                     } else {
                                         if(isReply){
@@ -112,32 +114,32 @@ class VisionService {
                                             messagePost.replyMessage = lineText
                                             isReply = false
                                         } else {
-                                            messagePost.message.add(lineText)
+                                            val last = if (messagePost.message.isEmpty()) 1 else messagePost.message.last().seq + 1
+                                            messagePost.message.add(PostDto.MessageSequence(last, lineText))
                                         }
                                     }
                                 } else if (lineText.contains("오전") || lineText.contains("오후")) {
                                     messagePost.sendDate = lineText
                                 }
                             }
-                            }
+                        }
 
                     }
                 }
-
                 messageMap.entries.forEach { (key, value) ->
                     val messages = value.message
                     messages.forEachIndexed { index, it ->
                         run {
                             val originMessage = res.fullTextAnnotation.text.split("\n")
                             for (message in originMessage) {
-                                val replace = it.replace(" ", "")
+                                val replace = it.message.replace(" ", "")
                                 if (replace.length > 5 && message.replace(" ", "").contains(replace.substring(1 until replace.length - 1))) {
-                                    value.message[index] = message
+                                    value.message[index] = PostDto.MessageSequence(it.seq, message)
                                 }
                             }
                         }
                     }
-                    result.add(value)
+                    result[key] = value
                 }
             }
 
