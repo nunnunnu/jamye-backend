@@ -27,7 +27,7 @@ class PostFactory(
     fun createPostMessageType(data: PostDto.MessagePost, postSeq: Long): List<Message> {
         val messages = data.message.map {
             Message(
-                content = it,
+                content = it.message,
                 nickName = data.sendUser,
                 groupUserSequence = data.sendUserInGroupSeq,
                 postSeq = postSeq

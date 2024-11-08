@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.math.sqrt
 
 @RestController
 @RequestMapping("/api/post")
@@ -39,7 +40,7 @@ class PostController(
     }
 
     @PostMapping("/message-text")
-    fun extractText(@RequestParam image: MultipartFile, @RequestParam sendUser: Set<String>): ResponseDto<MutableList<PostDto.MessagePost>> {
+    fun extractText(@RequestParam image: MultipartFile, @RequestParam sendUser: Set<String>): ResponseDto< MutableMap<Long, PostDto.MessagePost>> {
         val saveFile = visionService.saveFile(image)
 
         return ResponseDto(data = visionService.extractTextFromImageUrl(saveFile!!, sendUser), status = HttpStatus.OK)
@@ -51,10 +52,12 @@ class PostController(
             title = data.title,
             groupSequence = data.groupSeq),
             content = data.content.map {
+                var seq = 0L
                 PostDto.MessagePost(
-            message = mutableListOf(it.content),
+            message = mutableListOf(PostDto.MessageSequence(++seq, it.content)),
             sendDate = it.sendDate.toString(),
-            myMessage = it.sendUserNickName == null)}
+            myMessage = it.sendUserNickName == null)
+            }
         )
         return ResponseDto(data = postSeq, status = HttpStatus.OK)
     }
