@@ -19,7 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
-@Transactional
+//@Transactional
 class PostControllerTest @Autowired constructor(
     private val postController: PostController,
     private val postRepository: PostRepository,
@@ -42,7 +42,7 @@ class PostControllerTest @Autowired constructor(
     private var setupGroup: Group? = null
     private var setupPost: Post? = null
     @BeforeEach
-//    @Transactional
+    @Transactional
     fun init() {
         setupUser = userRepository.save(userFactory.create((UserDto(id = testId, email = testEmail, password = testPassword))))
         groupUser = userRepository.save(userFactory.create((UserDto(id = "testIdtest", email = "setupEmail2@email.com", password = testPassword))))
@@ -147,30 +147,31 @@ class PostControllerTest @Autowired constructor(
             PostCreateDto(
                 title = title,
                 groupSeq = setupGroup!!.sequence!!,
-                content = mutableMapOf(1L to
-                        PostDto.MessagePost(
-                            sendUser = sendUserNickName,
-                            message = mutableListOf(
-                                PostDto.MessageSequence(seq = 1L, message = "firstMessageFromFirstUser"),
-                                PostDto.MessageSequence(seq = 2L, message = "twoMessageFromFirstUser"),
-                                PostDto.MessageSequence(seq = 3L, message = "threeMessageFromFirstUser")
-                            ),
-                            sendDate = "오전 11:20",
-                        ),
+                content = mutableMapOf(
                     2L to PostDto.MessagePost(
                         sendUser = sendUserNickName2,
                         message = mutableListOf(
-                            PostDto.MessageSequence(seq = 1L, message = "firstMessageFromSecondUser"),
                             PostDto.MessageSequence(seq = 2L, message = "twoMessageFromSecondUser"),
+                            PostDto.MessageSequence(seq = 1L, message = "firstMessageFromSecondUser"),
                             PostDto.MessageSequence(seq = 3L, message = "threeMessageFromSecondUser")
                         ),
                         sendDate = "오전 11:21",
                     ),
+                    1L to PostDto.MessagePost(
+                            sendUser = sendUserNickName,
+                            message = mutableListOf(
+                                PostDto.MessageSequence(seq = 3L, message = "threeMessageFromFirstUser"),
+                                PostDto.MessageSequence(seq = 2L, message = "twoMessageFromFirstUser"),
+                                PostDto.MessageSequence(seq = 1L, message = "firstMessageFromFirstUser"),
+                            ),
+                            sendDate = "오전 11:20",
+                        ),
+
                     3L to PostDto.MessagePost(
                         message = mutableListOf(
                             PostDto.MessageSequence(seq = 1L, message = "firstMessageFromMyMessage"),
-                            PostDto.MessageSequence(seq = 2L, message = "twoMessageFromMyMessage"),
-                            PostDto.MessageSequence(seq = 3L, message = "threeMessageFromMyMessage")
+                            PostDto.MessageSequence(seq = 3L, message = "threeMessageFromMyMessage"),
+                            PostDto.MessageSequence(seq = 2L, message = "twoMessageFromMyMessage")
                         ),
                         sendDate = "오전 11:22"
                 )
