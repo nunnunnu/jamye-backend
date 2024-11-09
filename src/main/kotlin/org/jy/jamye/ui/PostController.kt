@@ -12,12 +12,15 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.math.sqrt
+import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration
+import java.util.*
 
 @RestController
 @RequestMapping("/api/post")
 class PostController(
-    private val postService: PostApplicationService, private val visionService: VisionService
+    private val postService: PostApplicationService,
+    private val visionService: VisionService,
+    private val validationAutoConfiguration: ValidationAutoConfiguration
 ) {
     var log: Logger = LoggerFactory.getLogger(PostController::class.java.name)
     @GetMapping("/{groupSequence}/{postSequence}")
@@ -49,9 +52,11 @@ class PostController(
     @PostMapping("/message")
     fun createPostMessageType(@AuthenticationPrincipal user: UserDetails, data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>)
     : ResponseDto<Long> {
+        val sortData = TreeMap(data.content)
         val contents: MutableList<PostDto.MessagePost> = mutableListOf()
         var seq = 0L
-        data.content.entries.forEach { (key, value) ->
+        sortData.entries.forEach { (key, value) ->
+            value.message.sortBy { it.seq }
             value.message.forEach {
                 contents.add(PostDto.MessagePost(
                     message = mutableListOf(PostDto.MessageSequence(++seq, it.message)),
