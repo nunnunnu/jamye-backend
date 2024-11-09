@@ -47,17 +47,24 @@ class PostController(
     }
 
     @PostMapping("/message")
-    fun createPostMessageType(@AuthenticationPrincipal user: UserDetails, data: PostCreateDto<List<PostCreateDto.Message>>): ResponseDto<Long> {
+    fun createPostMessageType(@AuthenticationPrincipal user: UserDetails, data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>)
+    : ResponseDto<Long> {
+        val contents: MutableList<PostDto.MessagePost> = mutableListOf()
+        var seq = 0L
+        data.content.entries.forEach { (key, value) ->
+            value.message.forEach {
+                contents.add(PostDto.MessagePost(
+                    message = mutableListOf(PostDto.MessageSequence(++seq, it.message)),
+                    sendDate = value.sendDate,
+                    sendUser = value.sendUser
+                ))
+            }
+
+        }
         val postSeq = postService.createPostMessage(userId = user.username, post = PostDto(
             title = data.title,
             groupSequence = data.groupSeq),
-            content = data.content.map {
-                var seq = 0L
-                PostDto.MessagePost(
-            message = mutableListOf(PostDto.MessageSequence(++seq, it.content)),
-            sendDate = it.sendDate.toString(),
-            myMessage = it.sendUserNickName == null)
-            }
+            content = contents
         )
         return ResponseDto(data = postSeq, status = HttpStatus.OK)
     }

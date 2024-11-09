@@ -14,11 +14,14 @@ class Message(
     @Column(name = "gu_seq")
     var groupUserSequence: Long?,
     @Column(name = "send_date")
-    var sendDate: LocalDateTime? = null,
-    @Column(name = "pi_seq")
-    var postSeq: Long,
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "mi_seq")
-    var messageSeq: Long? = null
-) {
+    var sendDate: String? = null,
+    @Column(name="num")
+    val orderNumber: Long,
+    title: String,
+    groupSeq: Long,
+    userSeq: Long,
+    createDate: LocalDateTime = LocalDateTime.now(),
+    updateDate: LocalDateTime = LocalDateTime.now(),
+    piType: PostType
+): Post(title, groupSeq, userSeq, createDate, updateDate, piType) {
 }

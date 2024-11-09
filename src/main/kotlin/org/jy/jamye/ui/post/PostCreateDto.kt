@@ -8,10 +8,11 @@ class PostCreateDto<T>(
     val content: T
 ) {
     data class Message(
+        val seq: Long,
         val content: String,
         val sendUserNickName: String? = null,
-        val sendUserInGroupSeq:Long?,
-        val sendDate: LocalDateTime?
+        val sendUserInGroupSeq:Long? = null,
+        val sendDate: LocalDateTime? = null
     )
 
     data class Board(
