@@ -1,6 +1,7 @@
 package org.jy.jamye.domain.model
 
 import jakarta.persistence.*
+import lombok.NoArgsConstructor
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import org.springframework.data.annotation.CreatedBy
@@ -10,6 +11,7 @@ import java.time.LocalDateTime
 @Table(name = "post_info")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name="pi_type")
+@NoArgsConstructor
 class Post(
     @Column(name = "title")
     var title: String,
@@ -25,6 +27,7 @@ class Post(
     @UpdateTimestamp
     val updateDate: LocalDateTime = LocalDateTime.now(),
     @Column(name="pi_type", insertable = false, updatable = false)
+    @Enumerated(value = EnumType.STRING)
     val piType: PostType,
     @Column(name = "pi_seq")
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +35,6 @@ class Post(
 ) {
 }
 
-enum class PostType() {
-    MSG, BOR
+enum class PostType(val koName: String) {
+    MSG("Message"), BOR("Board");
 }

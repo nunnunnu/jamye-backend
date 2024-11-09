@@ -42,6 +42,7 @@ class PostControllerTest @Autowired constructor(
     private var setupGroup: Group? = null
     private var setupPost: Post? = null
     @BeforeEach
+//    @Transactional
     fun init() {
         setupUser = userRepository.save(userFactory.create((UserDto(id = testId, email = testEmail, password = testPassword))))
         groupUser = userRepository.save(userFactory.create((UserDto(id = "testIdtest", email = "setupEmail2@email.com", password = testPassword))))
@@ -59,18 +60,13 @@ class PostControllerTest @Autowired constructor(
             userSequence = groupUser!!.sequence!!, nickName = "dd", profileImageUrl = null
         )
         groupUserRepository.save(normalUser)
-        setupPost = postRepository.save(
-            postFactory.createPost(
-                PostDto(
-                    title = title,
-                    createdUserSequence = setupUser!!.sequence!!,
-                    groupSequence = setupGroup!!.sequence!!
-                ),
-                PostType.BOR
-            )
-        )
-        boardRepository.save(
-            postFactory.createPostBoardType(PostDto.BoardPost(content = "test"), setupPost!!.postSeq!!)
+        setupPost = boardRepository.save(
+            postFactory.createPostBoardType(postData = PostDto(
+                title = title,
+                createdUserSequence = setupUser!!.sequence!!,
+                groupSequence = setupGroup!!.sequence!!
+            ),
+            detailContent = PostDto.BoardPost(content = "test"))
         )
 
         userGroupPostRepository.save(UserGroupPost(groupSequence = setupGroup!!.sequence!!, userSequence = setupUser!!.sequence!!, postSequence = setupPost!!.postSeq!!))
@@ -140,6 +136,48 @@ class PostControllerTest @Autowired constructor(
         val detailContent = boardRepository.findById(response.data!!)
         assertThat(findPost.title).isEqualTo(title)
         assertThat(detailContent.get().detail).isEqualTo(content)
+    }
+
+    @Test
+    fun createPostMessageType() {
+        val sendUserNickName = "first"
+        val sendUserNickName2 = "two"
+
+        var params: PostCreateDto<MutableMap<Long, PostDto.MessagePost>> =
+            PostCreateDto(
+                title = title,
+                groupSeq = setupGroup!!.sequence!!,
+                content = mutableMapOf(1L to
+                        PostDto.MessagePost(
+                            sendUser = sendUserNickName,
+                            message = mutableListOf(
+                                PostDto.MessageSequence(seq = 1L, message = "firstMessageFromFirstUser"),
+                                PostDto.MessageSequence(seq = 2L, message = "twoMessageFromFirstUser"),
+                                PostDto.MessageSequence(seq = 3L, message = "threeMessageFromFirstUser")
+                            ),
+                            sendDate = "오전 11:20",
+                        ),
+                    2L to PostDto.MessagePost(
+                        sendUser = sendUserNickName2,
+                        message = mutableListOf(
+                            PostDto.MessageSequence(seq = 1L, message = "firstMessageFromSecondUser"),
+                            PostDto.MessageSequence(seq = 2L, message = "twoMessageFromSecondUser"),
+                            PostDto.MessageSequence(seq = 3L, message = "threeMessageFromSecondUser")
+                        ),
+                        sendDate = "오전 11:21",
+                    ),
+                    3L to PostDto.MessagePost(
+                        message = mutableListOf(
+                            PostDto.MessageSequence(seq = 1L, message = "firstMessageFromMyMessage"),
+                            PostDto.MessageSequence(seq = 2L, message = "twoMessageFromMyMessage"),
+                            PostDto.MessageSequence(seq = 3L, message = "threeMessageFromMyMessage")
+                        ),
+                        sendDate = "오전 11:22"
+                )
+            )
+        )
+        val response = postController.createPostMessageType(user = setupUser!!, data = params)
+        println(response)
     }
 
 }

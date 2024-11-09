@@ -59,10 +59,11 @@ class PostApplicationService(private val postService: PostService, private val u
 
     fun createPostMessage(userId: String, post: PostDto, content: List<PostDto.MessagePost>): Long {
         val user = userService.getUser(userId)
+        post.createdUserSequence = user.sequence!!
         val sendUserSeqs: Set<Long> = content.filter { it.sendUserInGroupSeq != null }.map { it.sendUserInGroupSeq!! }.toSet()
         groupService.usersInGroupCheckOrThrow(sendUserSeqs, post.groupSequence)
 
-        return postService.createPostMessageType(post, content, user.sequence!!)
+        return postService.createPostMessageType(post, content, user.sequence)
     }
 
     fun createPostBoard(userId: String, post: PostDto, content: PostDto.BoardPost): Long {
