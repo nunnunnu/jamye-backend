@@ -101,12 +101,11 @@ class VisionService {
                                         sequence++
                                         currentUser = null
                                         if (isReply) {
-                                            messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser, message = mutableListOf(), myMessage = true, replyMessage = lineText, isReply = true)
+                                            messageMap[sequence] = PostDto.MessagePost(message = mutableListOf(), myMessage = true, replyMessage = lineText, isReply = true)
                                             isReply = false
                                         } else {
-                                            val last = if (messagePost.message.isEmpty()) 1 else messagePost.message.last().seq + 1
-                                            messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser, message = mutableListOf(
-                                                PostDto.MessageSequence(last, lineText)), myMessage = true)
+                                            messageMap[sequence] = PostDto.MessagePost(message = mutableListOf(
+                                                PostDto.MessageSequence(1L, lineText)), myMessage = true)
                                         }
                                     } else {
                                         if(isReply){
