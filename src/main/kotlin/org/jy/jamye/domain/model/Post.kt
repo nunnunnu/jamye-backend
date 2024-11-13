@@ -9,8 +9,6 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "post_info")
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name="pi_type")
 @NoArgsConstructor
 class Post(
     @Column(name = "title")
@@ -26,7 +24,7 @@ class Post(
     @Column(name = "update_date")
     @UpdateTimestamp
     val updateDate: LocalDateTime = LocalDateTime.now(),
-    @Column(name="pi_type", insertable = false, updatable = false)
+    @Column(name="pi_type")
     @Enumerated(value = EnumType.STRING)
     val piType: PostType,
     @Column(name = "pi_seq")

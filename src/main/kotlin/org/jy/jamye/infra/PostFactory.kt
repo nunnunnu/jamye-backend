@@ -14,10 +14,19 @@ class PostFactory(
     private val groupUserRepo: GroupUserRepository
 ) {
 
-    fun createPostMessageType(postData: PostDto, data: PostDto.MessagePost): List<Message> {
-        if(!groupUserRepo.existsByUserSequenceAndGroupSequence(postData.createdUserSequence!!, postData.groupSequence)) {
+    fun createPost(data: PostDto, type: PostType): Post {
+        if(!groupUserRepo.existsByUserSequenceAndGroupSequence(data.createdUserSequence!!, data.groupSequence)) {
             throw IllegalStateException("글 작성 권한없음")
         }
+        return Post(title = data.title,
+            userSeq = data.createdUserSequence!!,
+            groupSeq = data.groupSequence,
+            piType = type
+            )
+    }
+
+
+    fun createPostMessageType(data: PostDto.MessagePost, postSeq: Long): List<Message> {
         val messages = data.message.map {
             Message(
                 content = it.message,
@@ -25,25 +34,16 @@ class PostFactory(
                 groupUserSequence = data.sendUserInGroupSeq,
                 orderNumber = it.seq,
                 sendDate = data.sendDate,
-                title = postData.title,
-                userSeq = postData.createdUserSequence!!,
-                groupSeq = postData.groupSequence,
-                piType = PostType.MSG
+                postSeq = postSeq
             )
         }
         return messages
     }
 
-    fun createPostBoardType(detailContent: PostDto.BoardPost, postData: PostDto): Board {
-        if(!groupUserRepo.existsByUserSequenceAndGroupSequence(postData.createdUserSequence!!, postData.groupSequence)) {
-            throw IllegalStateException("글 작성 권한없음")
-        }
+    fun createPostBoardType(detailContent: PostDto.BoardPost, postSeq: Long): Board {
         return Board(
             detail = detailContent.content,
-            title = postData.title,
-            userSeq = postData.createdUserSequence!!,
-            groupSeq = postData.groupSequence,
-            piType = PostType.BOR)
+            postSeq = postSeq)
 
     }
 
