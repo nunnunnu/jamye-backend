@@ -5,15 +5,13 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "pi_bi")
-@DiscriminatorValue("BOR")
 class Board(
     @Column(name = "dtl")
     var detail: String,
-    title: String,
-    groupSeq: Long,
-    userSeq: Long,
-    createDate: LocalDateTime = LocalDateTime.now(),
-    updateDate: LocalDateTime = LocalDateTime.now(),
-    piType: PostType
-): Post(title, groupSeq, userSeq, createDate, updateDate, piType) {
+    @Column(name="pi_seq")
+    val postSeq: Long,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "bi_seq")
+    var boardSeq: Long? = null
+) {
 }

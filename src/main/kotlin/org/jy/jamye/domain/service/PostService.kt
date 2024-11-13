@@ -104,20 +104,19 @@ class PostService(
 
     fun createPostMessageType(data: PostDto, content: List<PostDto.MessagePost>, sequence: Long): Long {
         val messages: MutableList<Message> = mutableListOf()
-        content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postData = data)) }
-
+        val post = postFactory.createPost(data, PostType.MSG)
+        postRepository.save(post)
+        content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = post.postSeq!!)) }
 
         messageRepository.saveAll(messages)
-
-        val postSeq = messages.first().postSeq
-
-        return postSeq!!
+        return post.postSeq!!
     }
 
     fun createPostBoardType(userSeq: Long, data: PostDto, detailContent: PostDto.BoardPost): Long {
-
-        val content = postFactory.createPostBoardType(detailContent = detailContent, postData = data)
-        val save = boardRepository.save(content)
-        return save.postSeq!!
+        val post = postFactory.createPost(data, PostType.BOR)
+        postRepository.save(post)
+        val content = postFactory.createPostBoardType(detailContent = detailContent, postSeq = post.postSeq!!)
+        boardRepository.save(content)
+        return post.postSeq!!
     }
 }

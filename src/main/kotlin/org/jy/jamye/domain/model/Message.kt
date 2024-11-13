@@ -5,7 +5,6 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "pi_msg")
-@DiscriminatorValue("MSG")
 class Message(
     @Column(name = "pi_cont")
     val content: String,
@@ -17,11 +16,10 @@ class Message(
     var sendDate: String? = null,
     @Column(name="num")
     val orderNumber: Long,
-    title: String,
-    groupSeq: Long,
-    userSeq: Long,
-    createDate: LocalDateTime = LocalDateTime.now(),
-    updateDate: LocalDateTime = LocalDateTime.now(),
-    piType: PostType
-): Post(title, groupSeq, userSeq, createDate, updateDate, piType) {
+    @Column(name="pi_seq")
+    val postSeq: Long,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "mi_seq")
+    var messageSeq: Long? = null
+) {
 }

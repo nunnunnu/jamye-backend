@@ -50,8 +50,10 @@ class PostController(
     }
 
     @PostMapping("/message")
-    fun createPostMessageType(@AuthenticationPrincipal user: UserDetails, data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>)
-    : ResponseDto<Long> {
+    fun createPostMessageType(
+        @AuthenticationPrincipal user: UserDetails,
+        @RequestBody data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>
+    ): ResponseDto<Long> {
         val sortData = TreeMap(data.content)
         val contents: MutableList<PostDto.MessagePost> = mutableListOf()
         var seq = 0L
@@ -75,7 +77,7 @@ class PostController(
     }
 
     @PostMapping("/board")
-    fun createPostBoardType(@AuthenticationPrincipal user: UserDetails, data: PostCreateDto<PostCreateDto.Board>): ResponseDto<Long> {
+    fun createPostBoardType(@AuthenticationPrincipal user: UserDetails, @RequestBody data: PostCreateDto<PostCreateDto.Board>): ResponseDto<Long> {
         val postSeq = postService.createPostBoard(userId = user.username, post = PostDto(
             title = data.title,
             groupSequence = data.groupSeq),
