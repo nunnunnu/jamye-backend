@@ -1,7 +1,6 @@
 package org.jy.jamye.ui
 
 import org.jy.jamye.application.GroupApplicationService
-import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.io.ResponseDto
@@ -77,6 +76,12 @@ class GroupController(private val groupService: GroupApplicationService) {
     : ResponseDto<Nothing> {
         groupService.deleteGroupVote(user.username, type, groupSeq)
         return ResponseDto(status = HttpStatus.OK)
+    }
+
+    @GetMapping("/users/{groupSeq}")
+    fun getAllUsersInGroup(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<List<UserInGroupDto>> {
+        val usersInGroup = groupService.getUsersInGroup(groupSeq, user.username)
+        return ResponseDto(status = HttpStatus.OK, data = usersInGroup)
     }
 
 }
