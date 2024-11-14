@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 class PostApplicationService(private val postService: PostService, private val userService: UserService, private val groupService: GroupService, private val redisClient: RedisClient) {
     fun getPost(groupSequence: Long, postSequence: Long, userId: String): PostDto.PostContent<Any> {
         val user = userService.getUser(id = userId)
-        groupService.userInGroupCheckOrThrow(userSequence = user.sequence!!, groupSequence = groupSequence)
+        groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSequence)
 
         postService.postCheck(groupSequence, postSequence, user.sequence)
         val post = postService.getPost(
@@ -28,7 +28,7 @@ class PostApplicationService(private val postService: PostService, private val u
 
     fun getPosts(userId: String, groupSequence: Long) : List<PostDto.Detail> {
         val user = userService.getUser(id = userId)
-        groupService.userInGroupCheckOrThrow(userSequence = user.sequence!!, groupSequence = groupSequence)
+        groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSequence)
         val posts = postService.getPosts(user.sequence, groupSequence)
         val userInfoMap = groupService.getGroupInUsersNickName(groupSequence, posts.map { it.createdUserSequence })
 

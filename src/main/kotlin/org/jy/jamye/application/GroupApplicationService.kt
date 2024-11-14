@@ -110,4 +110,9 @@ class GroupApplicationService(private val userService: UserService,
         return groupService.getInviteGroupInfo(user.sequence!!, groupSeq.toLong())
 
     }
+
+    fun getUsersInGroup(groupSeq: Long, userId: String): List<UserInGroupDto> {
+        val user = userService.getUser(userId)
+        return groupService.getUsersInGroup(groupSeq, user.sequence!!)
+    }
 }

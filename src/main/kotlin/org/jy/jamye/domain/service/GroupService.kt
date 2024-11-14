@@ -101,8 +101,8 @@ class GroupService(
         return "INVITE_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "_" + UUID.randomUUID()
     }
 
-    fun userInGroupCheckOrThrow(userSequence: Long, groupSequence: Long) {
-        if (!groupUserRepo.existsByUserSequenceAndGroupSequence(userSequence, groupSequence)) {
+    fun userInGroupCheckOrThrow(userSeq: Long, groupSeq: Long) {
+        if (!groupUserRepo.existsByUserSequenceAndGroupSequence(userSeq, groupSeq)) {
             throw BadCredentialsException("Group user does not exist")
         }
     }
@@ -190,6 +190,21 @@ class GroupService(
         val group = groupRepo.findById(groupSeq).orElseThrow{ throw EntityNotFoundException() }
         return GroupDto(name = group.name, description = group.description, imageUrl = group.imageUrl, groupSequence = group.sequence)
 
+    }
+
+    fun getUsersInGroup(groupSeq: Long, userSeq: Long): List<UserInGroupDto> {
+        userInGroupCheckOrThrow(groupSeq = groupSeq, userSeq = userSeq)
+        val groupConnection = groupUserRepo.findAllByGroupSequence(groupSeq)
+        return groupConnection.map { it -> UserInGroupDto(
+            userSequence = it.userSequence,
+            groupSequence = it.groupSequence,
+            groupUserSequence = it.groupUserSequence!!,
+            nickname = it.nickname,
+            imageUrl = it.imageUrl,
+            grade = it.grade,
+            createDate = it.createDate,
+            updateDate = it.updateDate
+        ) }
     }
 }
 
