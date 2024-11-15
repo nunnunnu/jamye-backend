@@ -76,17 +76,28 @@ class VisionService {
                 res.fullTextAnnotation.pagesList.forEach { page ->
                     page.blocksList.forEach { block ->
                         block.paragraphsList.forEach { paragraph ->
-                            val lineText = paragraph.wordsList.joinToString(" ") { word ->
+                            var lineText = paragraph.wordsList.joinToString(" ") { word ->
                                 word.symbolsList.joinToString("") { it.text }
                             }
 
                             val lineRightX = paragraph.boundingBox.verticesList.maxOfOrNull { it.x } ?: 0
-                            val isRightmost = lineRightX >= maxRightX - 10  // 오른쪽 끝 기준 조정
-
-                            if (sendUser.map { it.replace(" ", "") }.contains(lineText.replace(" ", ""))) {
-                                currentUser = sendUser.first { it.replace(" ", "") == lineText.replace(" ", "") }
+                            val isRightmost = lineRightX >= maxRightX - 60  // 오른쪽 끝 기준 조정
+                            val spaceRemoveNickname = sendUser.map { it.replace(" ", "") }
+                            val spaceRemoveLineText = lineText.replace(" ", "")
+                            if (spaceRemoveNickname.contains(spaceRemoveLineText)) {
+                                currentUser = sendUser.first { it.replace(" ", "") == spaceRemoveLineText }
                                 sequence++
-                            } else if (sequence == 0L) {
+                            } else {
+                                for (it in spaceRemoveNickname) {
+                                    if (spaceRemoveLineText.startsWith(it)) {
+                                        currentUser = sendUser.first { nickName -> nickName.replace(" ", "") == it}
+                                        sequence++
+                                        lineText = spaceRemoveLineText.replace(it, "")
+                                        break
+                                    }
+                                }
+                            }
+                            if (sequence == 0L) {
                                 messageMap[++sequence] = PostDto.MessagePost(sendUser = currentUser)
                             }
 
