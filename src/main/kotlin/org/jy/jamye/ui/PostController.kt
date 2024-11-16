@@ -61,7 +61,13 @@ class PostController(
             value.message.sortBy { it.seq }
             value.message.forEach {
                 contents.add(PostDto.MessagePost(
-                    message = mutableListOf(PostDto.MessageSequence(++seq, it.message)),
+                    message = mutableListOf(PostDto.MessageSequence(
+                        seq = ++seq,
+                        message = it.message,
+                        isReply = it.isReply,
+                        replyMessage = it.replyMessage,
+                        replyTo = it.replyTo
+                    )),
                     sendDate = value.sendDate,
                     sendUser = value.sendUser
                 ))

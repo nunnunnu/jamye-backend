@@ -28,9 +28,7 @@ data class PostDto(
         val sendUserInGroupSeq: Long? = null,
         var message: MutableList<MessageSequence> = mutableListOf(),
         var sendDate: String? = null,
-        val myMessage: Boolean? = null,
-        var isReply: Boolean? = false,
-        var replyMessage: String? = null,
+        val myMessage: Boolean? = null
     ) {
         constructor(sendUser: String?) : this(
             sendUser = sendUser,
@@ -42,7 +40,10 @@ data class PostDto(
 
     data class MessageSequence (
         val seq: Long,
-        val message: String
+        var message: String? = null,
+        var isReply: Boolean? = false,
+        var replyMessage: String? = null,
+        var replyTo: String? = null,
     ) {
 
     }
