@@ -34,7 +34,9 @@ class PostFactory(
                 groupUserSequence = data.sendUserInGroupSeq,
                 orderNumber = it.seq,
                 sendDate = data.sendDate,
-                postSeq = postSeq
+                postSeq = postSeq,
+                replyTo = it.replyTo,
+                replyMessage = it.replyMessage
             )
         }
         return messages

@@ -6,6 +6,7 @@ import com.google.cloud.vision.v1.Image
 import com.google.cloud.vision.v1.ImageAnnotatorClient
 import com.google.protobuf.ByteString
 import org.jy.jamye.application.dto.PostDto
+import org.jy.jamye.application.dto.PostDto.*
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
@@ -36,7 +37,7 @@ class VisionService {
     }
 
     @Throws(Exception::class)
-    fun extractTextFromImageUrl(imgFilePath: String, sendUser: Set<String>): MutableMap<Long, PostDto.MessagePost>? {
+    fun extractTextFromImageUrl(imgFilePath: String, sendUser: Set<String>): MutableMap<Long, MessagePost>? {
 
         val path: Path = Paths.get(imgFilePath)
         val data: ByteArray = Files.readAllBytes(path)
@@ -49,7 +50,7 @@ class VisionService {
             .setImage(img)
             .build()
         val requests: MutableList<AnnotateImageRequest> = mutableListOf(request)
-        val result: MutableMap<Long, PostDto.MessagePost> = mutableMapOf()
+        val result: MutableMap<Long, MessagePost> = mutableMapOf()
 
         ImageAnnotatorClient.create().use { client ->
             val response = client.batchAnnotateImages(requests)
@@ -61,7 +62,7 @@ class VisionService {
                 }
 
                 var currentUser: String? = null
-                val messageMap: MutableMap<Long, PostDto.MessagePost> = mutableMapOf()
+                val messageMap: MutableMap<Long, MessagePost> = mutableMapOf()
                 var sequence = 0L
 
                 // 이미지 전체에서 가장 오른쪽 x좌표
@@ -73,6 +74,7 @@ class VisionService {
                     }
                 }.maxOrNull() ?: 0
                 var isReply = false
+                var replyTo = ""
                 res.fullTextAnnotation.pagesList.forEach { page ->
                     page.blocksList.forEach { block ->
                         block.paragraphsList.forEach { paragraph ->
@@ -89,7 +91,7 @@ class VisionService {
                                 sequence++
                             } else {
                                 for (it in spaceRemoveNickname) {
-                                    if (spaceRemoveLineText.startsWith(it)) {
+                                    if (!lineText.endsWith("에게 답장") && spaceRemoveLineText.startsWith(it)) {
                                         currentUser = sendUser.first { nickName -> nickName.replace(" ", "") == it}
                                         sequence++
                                         lineText = spaceRemoveLineText.replace(it, "")
@@ -98,34 +100,60 @@ class VisionService {
                                 }
                             }
                             if (sequence == 0L) {
-                                messageMap[++sequence] = PostDto.MessagePost(sendUser = currentUser)
+                                messageMap[++sequence] = MessagePost(sendUser = currentUser)
                             }
 
                             val messagePost = messageMap[sequence]
                             if(lineText.endsWith("에게 답장")) {
                                 isReply = true
+                                replyTo = lineText
                             } else {
+                                println(lineText)
+                                if(lineText.equals("오운완")) {
+                                    println(!lineText.contains("오전"))
+                                    println(!lineText.contains("오후"))
+                                    println(lineText.isNotBlank() && !org.h2.util.StringUtils.isNumber(lineText) && !lineText.contains("오전") && !lineText.contains("오후"))
+                                }
                                 if (messagePost == null) {
-                                    messageMap[sequence] = PostDto.MessagePost(sendUser = currentUser)
+                                    val currentUserMessage = MessagePost(sendUser = currentUser)
+                                    if(isReply) {
+                                        currentUserMessage.message.add(MessageSequence(1L, replyTo = lineText, isReply = true))
+                                    }
+                                    messageMap[sequence] = currentUserMessage
                                 } else if (lineText.isNotBlank() && !org.h2.util.StringUtils.isNumber(lineText) && !lineText.contains("오전") && !lineText.contains("오후")) {
                                     if (isRightmost && ((currentUser == null && sequence != 1L) || (currentUser != null))) {
                                         sequence++
                                         currentUser = null
                                         if (isReply) {
-                                            messageMap[sequence] = PostDto.MessagePost(message = mutableListOf(), myMessage = true, replyMessage = lineText, isReply = true)
+                                            messageMap[sequence] = MessagePost(message = mutableListOf(MessageSequence(seq = 1L, replyMessage = lineText, isReply = true, replyTo = replyTo)), myMessage = true)
+                                            replyTo = ""
                                             isReply = false
                                         } else {
-                                            messageMap[sequence] = PostDto.MessagePost(message = mutableListOf(
-                                                PostDto.MessageSequence(1L, lineText)), myMessage = true)
+                                            if(messagePost.message.isNotEmpty() && messagePost.message.last().isReply == true) {
+                                                messagePost.message.last().message = lineText
+                                            } else {
+                                                messageMap[sequence] = MessagePost(message = mutableListOf(
+                                                    MessageSequence(1L, lineText)
+                                                ), myMessage = true)
+                                            }
+
                                         }
                                     } else {
+                                        val last = if (messagePost.message.isEmpty()) 1 else messagePost.message.last().seq + 1
                                         if(isReply){
-                                            messagePost.isReply = true
-                                            messagePost.replyMessage = lineText
+                                            messagePost.message.add(MessageSequence(last, lineText, isReply = true, replyMessage = lineText))
                                             isReply = false
                                         } else {
-                                            val last = if (messagePost.message.isEmpty()) 1 else messagePost.message.last().seq + 1
-                                            messagePost.message.add(PostDto.MessageSequence(last, lineText))
+                                            if(messagePost.message.isNotEmpty() && messagePost.message.last().isReply == true) {
+                                                val message = messagePost.message.last()
+                                                if(message.replyMessage == null) {
+                                                    message.replyMessage = lineText
+                                                } else {
+                                                    message.message = lineText
+                                                }
+                                            } else {
+                                                messagePost.message.add(MessageSequence(last, lineText))
+                                            }
                                         }
                                     }
                                 } else if (lineText.contains("오전") || lineText.contains("오후")) {
@@ -142,10 +170,13 @@ class VisionService {
                         run {
                             val originMessage = res.fullTextAnnotation.text.split("\n")
                             for (message in originMessage) {
-                                val replace = it.message.replace(" ", "")
-                                if (replace.length > 5 && message.replace(" ", "").contains(replace.substring(1 until replace.length - 1))) {
-                                    value.message[index] = PostDto.MessageSequence(it.seq, message)
+                                if(it.message != null) {
+                                    val replace = it.message!!.replace(" ", "")
+                                    if (replace.length > 5 && message.replace(" ", "").contains(replace.substring(1 until replace.length - 1))) {
+                                        value.message[index] = MessageSequence(it.seq, message)
+                                    }
                                 }
+
                             }
                         }
                     }
