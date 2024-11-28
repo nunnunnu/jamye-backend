@@ -29,7 +29,7 @@ class VisionService {
         val uuid: String = UUID.randomUUID().toString() // 파일 식별자
         val extension = originalName!!.substring(originalName!!.lastIndexOf(".")) // 파일 확장자 추출
         val savedName = uuid + extension // 이미지 파일의 새로운 이름
-        val savedPath = DIR_PATH + savedName // 파일 경로
+        val savedPath = savedName // 파일 경로
 
         file.transferTo(File(savedPath)) // local에 파일 저장
 
@@ -39,7 +39,7 @@ class VisionService {
     @Throws(Exception::class)
     fun extractTextFromImageUrl(imgFilePath: String, sendUser: Set<String>): MutableMap<Long, MessagePost>? {
 
-        val path: Path = Paths.get(imgFilePath)
+        val path: Path = Paths.get(DIR_PATH + imgFilePath)
         val data: ByteArray = Files.readAllBytes(path)
         val imgBytes: ByteString = ByteString.copyFrom(data)
 
@@ -125,7 +125,8 @@ class VisionService {
                                         sequence++
                                         currentUser = null
                                         if (isReply) {
-                                            messageMap[sequence] = MessagePost(message = mutableListOf(MessageSequence(seq = 1L, replyMessage = lineText, isReply = true, replyTo = replyTo)), myMessage = true)
+                                            messageMap[sequence] = MessagePost(message = mutableListOf(MessageSequence(
+                                                seq = 1L, replyMessage = lineText, isReply = true, replyTo = replyTo)), myMessage = true)
                                             replyTo = ""
                                             isReply = false
                                         } else {

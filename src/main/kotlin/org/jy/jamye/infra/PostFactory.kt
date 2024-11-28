@@ -1,10 +1,7 @@
 package org.jy.jamye.infra
 
 import org.jy.jamye.application.dto.PostDto
-import org.jy.jamye.domain.model.Board
-import org.jy.jamye.domain.model.Message
-import org.jy.jamye.domain.model.Post
-import org.jy.jamye.domain.model.PostType
+import org.jy.jamye.domain.model.*
 import org.springframework.stereotype.Service
 
 @Service
@@ -36,7 +33,10 @@ class PostFactory(
                 sendDate = data.sendDate,
                 postSeq = postSeq,
                 replyTo = it.replyTo,
-                replyMessage = it.replyMessage
+                replyMessage = it.replyMessage,
+                messageImage = it.imageUri.map {
+                    MessageImage(imageUri = it)
+                }.toSet()
             )
         }
         return messages

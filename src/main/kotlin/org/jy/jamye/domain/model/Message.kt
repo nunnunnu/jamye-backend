@@ -22,6 +22,9 @@ class Message(
     val orderNumber: Long,
     @Column(name="pi_seq")
     val postSeq: Long,
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name="mi_seq")
+    val messageImage: Collection<MessageImage>,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mi_seq")
     var messageSeq: Long? = null
