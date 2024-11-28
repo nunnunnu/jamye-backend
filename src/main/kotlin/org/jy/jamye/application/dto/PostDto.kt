@@ -1,6 +1,7 @@
 package org.jy.jamye.application.dto
 
 import org.jy.jamye.domain.model.PostType
+import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 
 data class PostDto(
@@ -38,12 +39,14 @@ data class PostDto(
         }
     }
 
-    data class MessageSequence (
+    data class MessageSequence(
         val seq: Long,
         var message: String? = null,
         var isReply: Boolean? = false,
         var replyMessage: String? = null,
         var replyTo: String? = null,
+        val imageKey: Set<String> = setOf(),
+        val imageUri: Set<String> = setOf()
     ) {
 
     }

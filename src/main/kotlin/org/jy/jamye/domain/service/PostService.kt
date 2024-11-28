@@ -109,6 +109,7 @@ class PostService(
         content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = post.postSeq!!)) }
 
         messageRepository.saveAll(messages)
+
         return post.postSeq!!
     }
 

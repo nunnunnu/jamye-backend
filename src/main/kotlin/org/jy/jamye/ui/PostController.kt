@@ -52,9 +52,23 @@ class PostController(
     @PostMapping("/message")
     fun createPostMessageType(
         @AuthenticationPrincipal user: UserDetails,
+        @RequestParam imageMap: MutableMap<String, MultipartFile>,
         @RequestBody data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>
     ): ResponseDto<Long> {
         val sortData = TreeMap(data.content)
+        val imageUriMap = mutableMapOf<String, String>()
+        if(imageMap.isNotEmpty()) {
+            imageMap.forEach{(key, value) ->
+                run {
+                    val saveFile = visionService.saveFile(value)
+                    saveFile?.let {
+                        imageUriMap[key] = saveFile
+                    }
+                }
+            }
+
+        }
+
         val contents: MutableList<PostDto.MessagePost> = mutableListOf()
         var seq = 0L
         sortData.entries.forEach { (key, value) ->
@@ -66,7 +80,11 @@ class PostController(
                         message = it.message,
                         isReply = it.isReply,
                         replyMessage = it.replyMessage,
-                        replyTo = it.replyTo
+                        replyTo = it.replyTo,
+                        imageKey = it.imageKey,
+                        imageUri = if(it.imageKey.isNotEmpty())
+                            it.imageKey.map { imageUriMap.getOrDefault(it, "" /*수정 필요*/) }.toSet()
+                            else setOf()
                     )),
                     sendDate = value.sendDate,
                     sendUser = value.sendUser
