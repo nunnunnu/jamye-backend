@@ -22,7 +22,7 @@ class Message(
     val orderNumber: Long,
     @Column(name="pi_seq")
     val postSeq: Long,
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = [(CascadeType.ALL)])
     @JoinColumn(name="mi_seq")
     val messageImage: Collection<MessageImage>,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

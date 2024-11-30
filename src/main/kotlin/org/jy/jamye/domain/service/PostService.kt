@@ -15,7 +15,8 @@ class PostService(
     private val userGroupPostRepository: UserGroupPostRepository,
     private val postFactory: PostFactory,
     private val messageRepository: MessageRepository,
-    private val boardRepository: BoardRepository
+    private val boardRepository: BoardRepository,
+    private val messageImageRepository: MessageImageRepository
 ) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
         if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
@@ -109,6 +110,10 @@ class PostService(
         content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = post.postSeq!!)) }
 
         messageRepository.saveAll(messages)
+
+//        messages.forEach {
+//            messageImageRepository.saveAll(it.messageImage)
+//        }
 
         return post.postSeq!!
     }

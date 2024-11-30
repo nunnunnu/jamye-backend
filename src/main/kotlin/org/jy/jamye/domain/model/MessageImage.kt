@@ -3,7 +3,7 @@ package org.jy.jamye.domain.model
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "pi_msg")
+@Table(name = "pi_msg_img")
 class MessageImage(
     @Column(name = "mi_seq")
     val messageSeq: Long? = null,

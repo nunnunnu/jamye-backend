@@ -3,6 +3,8 @@ package org.jy.jamye.common.exception
 import com.fasterxml.jackson.core.JsonParseException
 import jakarta.persistence.EntityNotFoundException
 import org.hibernate.exception.ConstraintViolationException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.TypeMismatchException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 @RestControllerAdvice
 class ExceptionHandler {
+    val log: Logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
 
     @ExceptionHandler(IllegalArgumentException::class,
         MethodArgumentNotValidException::class,
@@ -38,6 +41,7 @@ class ExceptionHandler {
         HttpRequestMethodNotSupportedException::class
     )
     fun handleException(e: Exception): ResponseEntity<ErrorResponseDto> {
+        log.warn(e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.BAD_REQUEST.value(),
             message = e.message
@@ -46,6 +50,7 @@ class ExceptionHandler {
 
     @ExceptionHandler(BasicException::class)
     fun basicException(e: BasicException): ResponseEntity<ErrorResponseDto> {
+        log.warn(e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = e.status.value(),
             error = e.status.reasonPhrase,
@@ -56,6 +61,7 @@ class ExceptionHandler {
     @ExceptionHandler(BadCredentialsException::class
     )
     fun authExceptionHandler(e: Exception): ResponseEntity<ErrorResponseDto> {
+        log.warn(e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.FORBIDDEN.value(),
             message = e.message
@@ -64,6 +70,7 @@ class ExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun exception(e: Exception): ResponseEntity<ErrorResponseDto> {
+        log.warn(e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.BAD_REQUEST.value(),
             message = e.message
