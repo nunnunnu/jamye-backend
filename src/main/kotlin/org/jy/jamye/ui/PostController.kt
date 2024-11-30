@@ -19,8 +19,7 @@ import java.util.*
 @RequestMapping("/api/post")
 class PostController(
     private val postService: PostApplicationService,
-    private val visionService: VisionService,
-    private val validationAutoConfiguration: ValidationAutoConfiguration
+    private val visionService: VisionService
 ) {
     var log: Logger = LoggerFactory.getLogger(PostController::class.java.name)
     @GetMapping("/{groupSequence}/{postSequence}")
@@ -49,11 +48,11 @@ class PostController(
         return ResponseDto(data = visionService.extractTextFromImageUrl(saveFile!!, sendUser), status = HttpStatus.OK)
     }
 
-    @PostMapping("/message")
+    @PostMapping("/message", consumes = ["multipart/form-data"])
     fun createPostMessageType(
         @AuthenticationPrincipal user: UserDetails,
-        @RequestParam imageMap: MutableMap<String, MultipartFile>,
-        @RequestBody data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>
+        @RequestParam imageMap: Map<String, MultipartFile>,
+        @RequestPart data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>
     ): ResponseDto<Long> {
         val sortData = TreeMap(data.content)
         val imageUriMap = mutableMapOf<String, String>()

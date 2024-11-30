@@ -27,13 +27,13 @@ class VisionService {
 
         val originalName = file.originalFilename // 파일 원래 이름
         val uuid: String = UUID.randomUUID().toString() // 파일 식별자
-        val extension = originalName!!.substring(originalName!!.lastIndexOf(".")) // 파일 확장자 추출
+        val extension = originalName!!.substring(originalName.lastIndexOf(".")) // 파일 확장자 추출
         val savedName = uuid + extension // 이미지 파일의 새로운 이름
-        val savedPath = savedName // 파일 경로
+        val savedPath = DIR_PATH + savedName // 파일 경로
 
         file.transferTo(File(savedPath)) // local에 파일 저장
 
-        return savedPath
+        return savedName
     }
 
     @Throws(Exception::class)
