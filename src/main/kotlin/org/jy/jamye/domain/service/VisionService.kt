@@ -37,18 +37,15 @@ class VisionService {
     }
 
     @Throws(Exception::class)
-    fun extractTextFromImageUrl(imgFilePath: String, sendUser: Set<String>): MutableMap<Long, MessagePost>? {
-
-        val path: Path = Paths.get(DIR_PATH + imgFilePath)
-        val data: ByteArray = Files.readAllBytes(path)
-        val imgBytes: ByteString = ByteString.copyFrom(data)
-
-        val img: Image = Image.newBuilder().setContent(imgBytes).build()
+    fun extractTextFromImageUrl(image: MultipartFile, sendUser: Set<String>): MutableMap<Long, MessagePost>? {
+        val imgBytes = image.bytes
+        val img = Image.newBuilder().setContent(ByteString.copyFrom(imgBytes)).build()
         val feat = Feature.newBuilder().setType(Feature.Type.TEXT_DETECTION).build()
         val request = AnnotateImageRequest.newBuilder()
             .addFeatures(feat)
             .setImage(img)
             .build()
+
         val requests: MutableList<AnnotateImageRequest> = mutableListOf(request)
         val result: MutableMap<Long, MessagePost> = mutableMapOf()
 
