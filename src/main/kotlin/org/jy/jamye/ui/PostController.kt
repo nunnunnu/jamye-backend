@@ -53,18 +53,7 @@ class PostController(
         @RequestPart data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>
     ): ResponseDto<Long> {
         val sortData = TreeMap(data.content)
-        val imageUriMap = mutableMapOf<String, String>()
-        if(imageMap.isNotEmpty()) {
-            imageMap.forEach{(key, value) ->
-                run {
-                    val saveFile = visionService.saveFile(value)
-                    saveFile?.let {
-                        imageUriMap[key] = saveFile
-                    }
-                }
-            }
-
-        }
+        val imageUriMap = imageUriMap(imageMap)
 
         val contents: MutableList<PostDto.MessagePost> = mutableListOf()
         var seq = 0L
@@ -98,12 +87,32 @@ class PostController(
     }
 
     @PostMapping("/board")
-    fun createPostBoardType(@AuthenticationPrincipal user: UserDetails, @RequestBody data: PostCreateDto<PostCreateDto.Board>): ResponseDto<Long> {
+    fun createPostBoardType(@AuthenticationPrincipal user: UserDetails,
+                            @RequestParam imageMap: Map<String, MultipartFile>,
+                            @RequestPart data: PostCreateDto<PostCreateDto.Board>): ResponseDto<Long> {
+        val imageUriMap = imageUriMap(imageMap)
+
+        data.content.replaceUri(imageUriMap)
         val postSeq = postService.createPostBoard(userId = user.username, post = PostDto(
             title = data.title,
             groupSequence = data.groupSeq),
             content = PostDto.BoardPost(content = data.content.content)
         )
         return ResponseDto(data = postSeq, status = HttpStatus.OK)
+    }
+
+    private fun imageUriMap(imageMap: Map<String, MultipartFile>): MutableMap<String, String> {
+        val imageUriMap = mutableMapOf<String, String>()
+        if (imageMap.isNotEmpty()) {
+            imageMap.forEach { (key, value) ->
+                run {
+                    val saveFile = visionService.saveFile(value)
+                    saveFile?.let {
+                        imageUriMap[key] = saveFile
+                    }
+                }
+            }
+        }
+        return imageUriMap
     }
 }
