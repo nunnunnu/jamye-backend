@@ -18,8 +18,8 @@ spring:
       port: 6379
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 20MB
+      max-file-size: 22780600MB
+      max-request-size: 22780600MB
       enabled: true
   mail:
     host: smtp.gmail.com  # Gmail의 SMTP 서버 호스트
