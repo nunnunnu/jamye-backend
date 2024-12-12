@@ -16,12 +16,17 @@ data class PostCreateDto<T>(
     )
 
     data class Board(
-        val content: String
+        var content: String
     ) {
         fun replaceUri(imageUriMap: MutableMap<String, String>) {
-            imageUriMap.forEach { (t, u) ->  {
-                this.content.replace("<img src=\"${t}\" alt=\"image\" width=\"200\" height=\"auto\"/>", "<img src=\"${u}\" alt=\"image\" width=\"200\" height=\"auto\"/>")
-            }}
+            imageUriMap.forEach { (t, u) ->
+                println(this.content.contains(t))
+                run {
+                    this.content = this.content.replace(
+                        t, u
+                    )
+                }
+            }
 
 
         }
