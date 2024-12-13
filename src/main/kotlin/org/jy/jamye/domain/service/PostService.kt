@@ -16,7 +16,7 @@ class PostService(
     private val postFactory: PostFactory,
     private val messageRepository: MessageRepository,
     private val boardRepository: BoardRepository,
-    private val messageImageRepository: MessageImageRepository
+    private val messageImageRepository: MessageImageRepository,
 ) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
         if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
@@ -45,8 +45,8 @@ class PostService(
             title = post.title,
             createDate = post.createDate,
             updateDate = post.updateDate,
-            postType = post.piType,
-            content = if (post.piType == PostType.MSG) messageRepository.findAllByPostSeq(postSequence).map {
+            postType = post.postType,
+            content = if (post.postType == PostType.MSG) messageRepository.findAllByPostSeq(postSequence).map {
                 var seq = 0L
                 PostDto.MessagePost(
                     sendUserInGroupSeq = it.groupUserSequence,
@@ -76,6 +76,7 @@ class PostService(
                 postSequence = it.postSeq!!,
                 createdUserSequence = it.userSeq,
                 title = it.title,
+                postType = it.postType,
                 createDate = it.createDate,
                 updateDate = it.updateDate,
                 isViewable = isViewable.contains(it.postSeq)
@@ -103,7 +104,7 @@ class PostService(
         return pickPostSeq
     }
 
-    fun createPostMessageType(data: PostDto, content: List<PostDto.MessagePost>, sequence: Long): Long {
+    fun createPostMessageType(data: PostDto, content: List<PostDto.MessagePost>, userSeq: Long): Long {
         val messages: MutableList<Message> = mutableListOf()
         val post = postFactory.createPost(data, PostType.MSG)
         postRepository.save(post)
@@ -111,9 +112,10 @@ class PostService(
 
         messageRepository.saveAll(messages)
 
-//        messages.forEach {
-//            messageImageRepository.saveAll(it.messageImage)
-//        }
+        userGroupPostRepository.save(postFactory.createUserGroupFactory(
+            groupSeq = data.groupSequence,
+            userSeq = userSeq,
+            postSeq = post.postSeq!!))
 
         return post.postSeq!!
     }
@@ -123,6 +125,12 @@ class PostService(
         postRepository.save(post)
         val content = postFactory.createPostBoardType(detailContent = detailContent, postSeq = post.postSeq!!)
         boardRepository.save(content)
+
+        userGroupPostRepository.save(postFactory.createUserGroupFactory(
+            groupSeq = data.groupSequence,
+            userSeq = userSeq,
+            postSeq = post.postSeq!!))
+
         return post.postSeq!!
     }
 }

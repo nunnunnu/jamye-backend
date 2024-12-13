@@ -18,7 +18,7 @@ class PostFactory(
         return Post(title = data.title,
             userSeq = data.createdUserSequence!!,
             groupSeq = data.groupSequence,
-            piType = type
+            postType = type
             )
     }
 
@@ -47,6 +47,14 @@ class PostFactory(
             detail = detailContent.content,
             postSeq = postSeq)
 
+    }
+
+    fun createUserGroupFactory(groupSeq: Long, postSeq: Long, userSeq: Long): UserGroupPost {
+        return UserGroupPost(
+            groupSequence = groupSeq,
+            postSequence = postSeq,
+            userSequence = userSeq
+        )
     }
 
 }

@@ -17,6 +17,7 @@ data class PostDto(
     data class Detail (
         var postSequence: Long? = null,
         val title: String,
+        val postType: PostType,
         val groupSequence: Long,
         val createdUserSequence: Long,
         var createDate: LocalDateTime? = null,
