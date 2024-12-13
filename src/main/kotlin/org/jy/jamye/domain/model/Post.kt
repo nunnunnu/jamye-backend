@@ -26,7 +26,7 @@ class Post(
     val updateDate: LocalDateTime = LocalDateTime.now(),
     @Column(name="pi_type")
     @Enumerated(value = EnumType.STRING)
-    val piType: PostType,
+    val postType: PostType,
     @Column(name = "pi_seq")
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var postSeq: Long? = null
