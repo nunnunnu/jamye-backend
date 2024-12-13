@@ -46,19 +46,35 @@ class PostService(
             createDate = post.createDate,
             updateDate = post.updateDate,
             postType = post.postType,
-            content = if (post.postType == PostType.MSG) messageRepository.findAllByPostSeq(postSequence).map {
-                var seq = 0L
-                PostDto.MessagePost(
+            content = if (post.postType == PostType.MSG) getMessagePost(postSequence)
+                    else PostDto.BoardPost(
+                        content = boardRepository.findByPostSeq(postSequence).detail
+                    )
+            )
+        return result
+    }
+
+    private fun getMessagePost(postSeq: Long): MutableList<PostDto.MessagePost> {
+        val response = mutableListOf<PostDto.MessagePost>()
+        var messagePost: PostDto.MessagePost? = null
+        var seq = 0L
+        messageRepository.findAllByPostSeq(postSeq).forEach{
+            if(seq == 0L || messagePost == null || messagePost!!.sendUser != it.nickName) {
+                messagePost = PostDto.MessagePost(
+                    sendUser = it.nickName,
                     sendUserInGroupSeq = it.groupUserSequence,
                     message = mutableListOf(PostDto.MessageSequence(++seq, it.content)),
                     sendDate = it.sendDate.toString(),
                     myMessage = it.nickName == null
                 )
-            } else PostDto.BoardPost(
-                    content = boardRepository.findByPostSeq(postSequence).detail
-                )
-            )
-        return result
+                response.add(messagePost!!)
+            } else if(messagePost!!.sendUser == it.nickName) {
+                messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content))
+            }
+
+        }
+
+        return response
     }
 
     private fun getPostOrThrow(groupSequence: Long, postSequence: Long): Post {
