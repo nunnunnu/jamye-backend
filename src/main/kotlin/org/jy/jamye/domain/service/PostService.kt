@@ -54,9 +54,10 @@ class PostService(
         return result
     }
 
-    private fun getMessagePost(postSeq: Long): MutableList<PostDto.MessagePost> {
-        val response = mutableListOf<PostDto.MessagePost>()
+    private fun getMessagePost(postSeq: Long): MutableMap<Long, PostDto.MessagePost> {
+        val response = mutableMapOf<Long, PostDto.MessagePost>()
         var messagePost: PostDto.MessagePost? = null
+        var key = 1L
         var seq = 0L
         messageRepository.findAllByPostSeq(postSeq).forEach{
             if(seq == 0L || messagePost == null || messagePost!!.sendUser != it.nickName) {
@@ -67,7 +68,7 @@ class PostService(
                     sendDate = it.sendDate.toString(),
                     myMessage = it.nickName == null
                 )
-                response.add(messagePost!!)
+                response[key++] = messagePost!!
             } else if(messagePost!!.sendUser == it.nickName) {
                 messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content))
             }
