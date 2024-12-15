@@ -60,12 +60,16 @@ class PostControllerTest @Autowired constructor(
             userSequence = groupUser!!.sequence!!, nickName = "dd", profileImageUrl = null
         )
         groupUserRepository.save(normalUser)
-        setupPost = boardRepository.save(
-            postFactory.createPostBoardType(postData = PostDto(
+        setupPost = postRepository.save(postFactory.createPost(
+            data = PostDto(
                 title = title,
                 createdUserSequence = setupUser!!.sequence!!,
                 groupSequence = setupGroup!!.sequence!!
-            ),
+            ), type = PostType.BOR
+        ))
+
+        boardRepository.save(
+            postFactory.createPostBoardType(postSeq =  setupPost!!.postSeq!!,
             detailContent = PostDto.BoardPost(content = "test"))
         )
 
@@ -127,7 +131,7 @@ class PostControllerTest @Autowired constructor(
                 title = title,
                 content = PostCreateDto.Board(content = content),
                 groupSeq = setupGroup!!.sequence!!
-            )
+            ), imageMap = mutableMapOf()
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         assertThat(response.data).isNotNull
@@ -177,7 +181,7 @@ class PostControllerTest @Autowired constructor(
                 )
             )
         )
-        val response = postController.createPostMessageType(user = setupUser!!, data = params)
+        val response = postController.createPostMessageType(user = setupUser!!, data = params, imageMap = mutableMapOf())
         println(response)
     }
 
