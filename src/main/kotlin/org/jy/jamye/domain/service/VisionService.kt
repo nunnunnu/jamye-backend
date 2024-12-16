@@ -5,13 +5,19 @@ import com.google.cloud.vision.v1.Feature
 import com.google.cloud.vision.v1.Image
 import com.google.cloud.vision.v1.ImageAnnotatorClient
 import com.google.protobuf.ByteString
-import org.jy.jamye.application.dto.PostDto
+import io.opencensus.resource.Resource
+import jakarta.servlet.http.HttpServletRequest
 import org.jy.jamye.application.dto.PostDto.*
+import org.springframework.core.io.UrlResource
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.http.HttpHeaders;
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
+import java.net.URLEncoder
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -186,6 +192,51 @@ class VisionService {
         }
     }
 
+    @Throws(java.lang.Exception::class)
+    fun getImage(
+        @PathVariable uri: String,
+        request: HttpServletRequest,
+    ): ResponseEntity<UrlResource> {
+        val folderLocation: Path = Paths.get(DIR_PATH)
+        val filename: String = uri
 
+        val split = filename.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val ext = split[split.size - 1]
+        val exportName = "$uri.$ext"
+
+        val targetFile: Path = folderLocation.resolve(filename)
+
+        var r: UrlResource? = null
+        try {
+
+            r = UrlResource(targetFile.toUri())
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+
+        var contentType: String? = null
+        try {
+
+            contentType = request.servletContext.getMimeType(r!!.file.absolutePath)
+
+            if (contentType == null) {
+
+                contentType = "application/octet-stream"
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+        return ResponseEntity.ok()
+
+            .contentType(MediaType.parseMediaType(contentType!!))
+
+
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                ("attachment; filename=\"" + URLEncoder.encode(exportName, "UTF-8")).toString() + "\""
+            )
+            .body(r)
+
+    }
 
 }

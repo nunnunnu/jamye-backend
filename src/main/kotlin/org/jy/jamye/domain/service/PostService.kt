@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.exception.PostAccessDeniedException
 import org.jy.jamye.domain.model.Message
+import org.jy.jamye.domain.model.MessageImage
 import org.jy.jamye.domain.model.Post
 import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.infra.*
@@ -59,18 +60,27 @@ class PostService(
         var messagePost: PostDto.MessagePost? = null
         var key = 1L
         var seq = 0L
-        messageRepository.findAllByPostSeq(postSeq).forEach{
-            if(seq == 0L || messagePost == null || messagePost!!.sendUser != it.nickName) {
+        val messages = messageRepository.findAllByPostSeq(postSeq)
+        val imageUriMap: Map<Long?, Set<String>> = messageImageRepository.findByMessageSeqIn(messages.map { it.messageSeq!! }.toSet())
+            .groupBy{
+                it.messageSeq
+            }.mapValues { entry -> entry.value.map { it.imageUri }.toSet() }
+        messages.forEach{
+            if(seq == 0L || messagePost!!.sendUser != it.nickName) {
                 messagePost = PostDto.MessagePost(
                     sendUser = it.nickName,
                     sendUserInGroupSeq = it.groupUserSequence,
-                    message = mutableListOf(PostDto.MessageSequence(++seq, it.content)),
+                    message = mutableListOf(
+                        PostDto.MessageSequence(
+                            seq = ++seq,
+                            message = it.content,
+                            imageUri = imageUriMap.getOrDefault(it.messageSeq, setOf()))),
                     sendDate = it.sendDate.toString(),
                     myMessage = it.nickName == null
                 )
                 response[key++] = messagePost!!
             } else if(messagePost!!.sendUser == it.nickName) {
-                messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content))
+                messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content, imageUri = imageUriMap.getOrDefault(it.messageSeq, setOf())))
             }
 
         }
