@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration
 import java.util.*
 
 @RestController
@@ -114,5 +113,16 @@ class PostController(
             }
         }
         return imageUriMap
+    }
+
+    @PostMapping("/message/{groupSeq}/{postSeq}")
+    fun updateMessagePost(
+        @PathVariable groupSeq: Long,
+        @PathVariable postSeq: Long,
+        @AuthenticationPrincipal user: UserDetails,
+        @RequestBody data: PostDto.MessageNickName
+    ): ResponseDto<Long> {
+        postService.updateMessagePost(groupSeq, postSeq, user.username, data)
+        return ResponseDto(data = null, status = HttpStatus.OK)
     }
 }

@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.exception.PostAccessDeniedException
 import org.jy.jamye.domain.model.Message
-import org.jy.jamye.domain.model.MessageImage
 import org.jy.jamye.domain.model.Post
 import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.infra.*
@@ -18,6 +17,7 @@ class PostService(
     private val messageRepository: MessageRepository,
     private val boardRepository: BoardRepository,
     private val messageImageRepository: MessageImageRepository,
+    private val groupUserRepository: GroupUserRepository,
 ) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
         if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
@@ -55,16 +55,24 @@ class PostService(
         return result
     }
 
-    private fun getMessagePost(postSeq: Long): MutableMap<Long, PostDto.MessagePost> {
-        val response = mutableMapOf<Long, PostDto.MessagePost>()
+    private fun getMessagePost(postSeq: Long): PostDto.MessageNickName {
+        val messageResponse = mutableMapOf<Long, PostDto.MessagePost>()
         var messagePost: PostDto.MessagePost? = null
         var key = 1L
         var seq = 0L
-        val messages = messageRepository.findAllByPostSeq(postSeq)
+        val messages = messageRepository.findAllByPostSeqOrderByOrderNumber(postSeq)
         val imageUriMap: Map<Long?, Set<String>> = messageImageRepository.findByMessageSeqIn(messages.map { it.messageSeq!! }.toSet())
             .groupBy{
                 it.messageSeq
             }.mapValues { entry -> entry.value.map { it.imageUri }.toSet() }
+
+        //todo: 도메인 분리 필요
+        val groupUsers = groupUserRepository.findAllById(messages.map { it.groupUserSequence })
+        val groupUserInfo = groupUsers.associateBy { it.groupUserSequence }
+        val nickNameMap =
+            messages.filter { it.groupUserSequence != null && it.nickName != null }
+                .associate { it.nickName!! to groupUserInfo[it.groupUserSequence]!!.nickname }
+
         messages.forEach{
             if(seq == 0L || messagePost!!.sendUser != it.nickName) {
                 messagePost = PostDto.MessagePost(
@@ -74,18 +82,20 @@ class PostService(
                         PostDto.MessageSequence(
                             seq = ++seq,
                             message = it.content,
-                            imageUri = imageUriMap.getOrDefault(it.messageSeq, setOf()))),
+                            imageUri = imageUriMap.getOrDefault(it.messageSeq, setOf()),
+                            messageSeq = it.messageSeq)
+                    ),
                     sendDate = it.sendDate.toString(),
-                    myMessage = it.nickName == null
+                    myMessage = it.nickName == null,
                 )
-                response[key++] = messagePost!!
+                messageResponse[key++] = messagePost!!
             } else if(messagePost!!.sendUser == it.nickName) {
-                messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content, imageUri = imageUriMap.getOrDefault(it.messageSeq, setOf())))
+                messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content, imageUri = imageUriMap.getOrDefault(it.messageSeq, setOf()), messageSeq = it.messageSeq))
             }
 
         }
 
-        return response
+        return PostDto.MessageNickName(message = messageResponse, nickName = nickNameMap)
     }
 
     private fun getPostOrThrow(groupSequence: Long, postSequence: Long): Post {
@@ -132,12 +142,9 @@ class PostService(
     }
 
     fun createPostMessageType(data: PostDto, content: List<PostDto.MessagePost>, userSeq: Long): Long {
-        val messages: MutableList<Message> = mutableListOf()
         val post = postFactory.createPost(data, PostType.MSG)
         postRepository.save(post)
-        content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = post.postSeq!!)) }
-
-        messageRepository.saveAll(messages)
+        createMessage(content, post.postSeq!!)
 
         userGroupPostRepository.save(postFactory.createUserGroupFactory(
             groupSeq = data.groupSequence,
@@ -145,6 +152,16 @@ class PostService(
             postSeq = post.postSeq!!))
 
         return post.postSeq!!
+    }
+
+    private fun createMessage(
+        content: List<PostDto.MessagePost>,
+        postSeq: Long,
+    ) {
+        val messages: MutableList<Message> = mutableListOf()
+        content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = postSeq)) }
+
+        messageRepository.saveAll(messages)
     }
 
     fun createPostBoardType(userSeq: Long, data: PostDto, detailContent: PostDto.BoardPost): Long {
@@ -159,5 +176,52 @@ class PostService(
             postSeq = post.postSeq!!))
 
         return post.postSeq!!
+    }
+
+    fun updateAbleCheckOrThrow(groupSeq: Long, postSeq: Long, userSeq: Long) {
+        if(!postRepository.existsByGroupSeqAndPostSeqAndUserSeq(groupSeq, postSeq, userSeq)) {
+            throw EntityNotFoundException("본인 작성 게시글이 아닙니다")
+        }
+    }
+
+    fun postUpdate(groupSeq: Long, postSeq: Long, message: MutableCollection<PostDto.MessagePost>, nickName: Map<String, String>) {
+        val updateMessage = mutableListOf<PostDto.MessagePost>()
+        val createMessage = mutableListOf<PostDto.MessagePost>()
+        message.forEach {
+            val update = it.copy()
+            update.message = it.message.filter { msg -> msg.messageSeq != null }.toMutableList()
+            updateMessage.add(update)
+
+            val create = it.copy()
+            update.message = it.message.filter { msg -> msg.messageSeq == null }.toMutableList()
+            createMessage.add(create)
+
+        }
+
+        if(updateMessage.isNotEmpty()) {
+            val messageEntityMap: Map<Long, Message> =
+                messageRepository.findAllById(updateMessage.flatMap { it.message.map { it.messageSeq!! } })
+                    .map { it.messageSeq!! to it }.toMap()
+
+            updateMessage.forEach { it ->
+                run {
+                    it.message.forEach { msg ->
+                        messageEntityMap[msg.messageSeq]!!.update(
+                            content = msg.message,
+                            nickName = it.sendUser,
+                            groupUserSequence = it.sendUserInGroupSeq,
+                            replyTo = msg.replyTo,
+                            replyMessage = msg.replyMessage,
+                            orderNumber = msg.seq
+                        )
+                    }
+                }
+            }
+            messageRepository.saveAll(messageEntityMap.values)
+        }
+
+        if(createMessage.isNotEmpty()) {
+            createMessage(content = createMessage, postSeq = postSeq)
+        }
     }
 }
