@@ -72,4 +72,12 @@ class PostApplicationService(private val postService: PostService, private val u
         return postService.createPostBoardType(user.sequence, post, content)
     }
 
+    fun updateMessagePost(groupSeq: Long, postSeq: Long, userId: String, data: PostDto.MessageNickName) {
+        val user = userService.getUser(userId)
+        postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
+
+        postService.postUpdate(groupSeq, postSeq, data.message.values, data.nickName)
+
+    }
+
 }

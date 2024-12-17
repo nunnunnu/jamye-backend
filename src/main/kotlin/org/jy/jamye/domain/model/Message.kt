@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 @Table(name = "pi_msg")
 class Message(
     @Column(name = "pi_cont")
-    val content: String?,
+    var content: String?,
     @Column(name = "nickName")
     var nickName: String?,
     @Column(name = "gu_seq")
@@ -29,4 +29,29 @@ class Message(
     @Column(name = "mi_seq")
     var messageSeq: Long? = null
 ) {
+    fun update(
+        content: String?,
+        nickName: String?,
+        groupUserSequence: Long?,
+        replyTo: String?,
+        replyMessage: String?,
+        orderNumber: Long?
+        ) {
+        if (content != null) {
+            this.content = content
+        }
+        if (nickName != null) {
+            this.nickName = nickName
+        }
+        if (groupUserSequence != null) {
+            this.groupUserSequence = groupUserSequence
+        }
+        if (replyTo != null) {
+            this.replyTo = replyTo
+        }
+        if (replyMessage != null) {
+            this.replyMessage = replyMessage
+        }
+
+    }
 }

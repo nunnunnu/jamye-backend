@@ -20,5 +20,6 @@ interface PostRepository: JpaRepository<Post, Long> {
         WHERE u.userPostSequence IS NULL 
     """)
     fun countAllByAbleDrawPool(groupSeq: Long, userSeq: Long): MutableList<Long>
+    fun existsByGroupSeqAndPostSeqAndUserSeq(groupSeq: Long, postSeq: Long, userSeq: Long): Boolean
 
 }

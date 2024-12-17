@@ -1,7 +1,7 @@
 package org.jy.jamye.application.dto
 
+import org.jy.jamye.domain.model.GroupUser
 import org.jy.jamye.domain.model.PostType
-import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 
 data class PostDto(
@@ -47,7 +47,8 @@ data class PostDto(
         var replyMessage: String? = null,
         var replyTo: String? = null,
         val imageKey: Set<String> = setOf(),
-        val imageUri: Set<String> = setOf()
+        val imageUri: Set<String> = setOf(),
+        val messageSeq: Long? = null
     ) {
 
     }
@@ -67,5 +68,8 @@ data class PostDto(
         val content: T
     )
 
-
+    data class MessageNickName(
+        val message: MutableMap<Long, MessagePost>,
+        val nickName: Map<String, String> = mapOf()
+    )
 }
