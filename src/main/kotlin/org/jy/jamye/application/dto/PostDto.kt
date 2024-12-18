@@ -72,4 +72,10 @@ data class PostDto(
         val message: MutableMap<Long, MessagePost>,
         val nickName: Map<String, String> = mapOf()
     )
+
+    data class MessageUpdate(
+        val message: MutableMap<Long, MessagePost>,
+        val nickName: Map<String, String> = mapOf(),
+        val deleteMessage: Set<Long> = setOf()
+    )
 }
