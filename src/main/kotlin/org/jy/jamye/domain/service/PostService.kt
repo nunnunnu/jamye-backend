@@ -184,7 +184,13 @@ class PostService(
         }
     }
 
-    fun postUpdate(groupSeq: Long, postSeq: Long, message: MutableCollection<PostDto.MessagePost>, nickName: Map<String, String>) {
+    fun postUpdate(
+        groupSeq: Long,
+        postSeq: Long,
+        message: MutableCollection<PostDto.MessagePost>,
+        nickName: Map<String, String>,
+        deleteMessage: Set<Long>
+    ) {
         val updateMessage = mutableListOf<PostDto.MessagePost>()
         val createMessage = mutableListOf<PostDto.MessagePost>()
         message.forEach {
@@ -193,7 +199,7 @@ class PostService(
             updateMessage.add(update)
 
             val create = it.copy()
-            update.message = it.message.filter { msg -> msg.messageSeq == null }.toMutableList()
+            create.message = it.message.filter { msg -> msg.messageSeq == null }.toMutableList()
             createMessage.add(create)
 
         }
@@ -222,6 +228,11 @@ class PostService(
 
         if(createMessage.isNotEmpty()) {
             createMessage(content = createMessage, postSeq = postSeq)
+        }
+
+        if(deleteMessage.isNotEmpty()) {
+            messageRepository.deleteAllById(deleteMessage)
+            messageImageRepository.deleteAllByMessageSeqIn(deleteMessage)
         }
     }
 }

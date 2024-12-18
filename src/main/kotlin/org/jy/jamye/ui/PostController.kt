@@ -120,7 +120,7 @@ class PostController(
         @PathVariable groupSeq: Long,
         @PathVariable postSeq: Long,
         @AuthenticationPrincipal user: UserDetails,
-        @RequestBody data: PostDto.MessageNickName
+        @RequestBody data: PostDto.MessageUpdate
     ): ResponseDto<Long> {
         postService.updateMessagePost(groupSeq, postSeq, user.username, data)
         return ResponseDto(data = null, status = HttpStatus.OK)
