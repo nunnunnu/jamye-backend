@@ -61,10 +61,10 @@ class PostService(
         var key = 1L
         var seq = 0L
         val messages = messageRepository.findAllByPostSeqOrderByOrderNumber(postSeq)
-        val imageUriMap: Map<Long?, Set<String>> = messageImageRepository.findByMessageSeqIn(messages.map { it.messageSeq!! }.toSet())
+        val imageUriMap: Map<Long?, MutableSet<Pair<Long, String>>> = messageImageRepository.findByMessageSeqIn(messages.map { it.messageSeq!! }.toSet())
             .groupBy{
                 it.messageSeq
-            }.mapValues { entry -> entry.value.map { it.imageUri }.toSet() }
+            }.mapValues { entry -> entry.value.map { it.messageImageSeq!! to it.imageUri }.toMutableSet() }
 
         //todo: 도메인 분리 필요
         val groupUsers = groupUserRepository.findAllById(messages.map { it.groupUserSequence })
@@ -82,7 +82,7 @@ class PostService(
                         PostDto.MessageSequence(
                             seq = ++seq,
                             message = it.content,
-                            imageUri = imageUriMap.getOrDefault(it.messageSeq, setOf()),
+                            imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()),
                             messageSeq = it.messageSeq)
                     ),
                     sendDate = it.sendDate.toString(),
@@ -90,7 +90,7 @@ class PostService(
                 )
                 messageResponse[key++] = messagePost!!
             } else if(messagePost!!.sendUser == it.nickName) {
-                messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content, imageUri = imageUriMap.getOrDefault(it.messageSeq, setOf()), messageSeq = it.messageSeq))
+                messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content, imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()), messageSeq = it.messageSeq))
             }
 
         }
@@ -189,7 +189,8 @@ class PostService(
         postSeq: Long,
         message: MutableCollection<PostDto.MessagePost>,
         nickName: Map<String, String>,
-        deleteMessage: Set<Long>
+        deleteMessage: Set<Long>,
+        deleteImage: Set<Long>
     ) {
         val updateMessage = mutableListOf<PostDto.MessagePost>()
         val createMessage = mutableListOf<PostDto.MessagePost>()
@@ -212,6 +213,7 @@ class PostService(
             updateMessage.forEach { it ->
                 run {
                     it.message.forEach { msg ->
+                        messageImageRepository.saveAll(postFactory.createMessageImage(msg.messageSeq!!, msg.imageUri.filter { it.first == 0L }.map { it.second }))
                         messageEntityMap[msg.messageSeq]!!.update(
                             content = msg.message,
                             nickName = it.sendUser,
@@ -233,6 +235,10 @@ class PostService(
         if(deleteMessage.isNotEmpty()) {
             messageRepository.deleteAllById(deleteMessage)
             messageImageRepository.deleteAllByMessageSeqIn(deleteMessage)
+        }
+
+        if(deleteImage.isNotEmpty()) {
+            messageImageRepository.deleteAllById(deleteImage)
         }
     }
 }

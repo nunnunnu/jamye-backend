@@ -34,8 +34,8 @@ class PostFactory(
                 postSeq = postSeq,
                 replyTo = it.replyTo,
                 replyMessage = it.replyMessage,
-                messageImage = it.imageUri.map {
-                    MessageImage(imageUri = it)
+                messageImage = it.imageUri.map { img ->
+                    MessageImage(imageUri = img.second)
                 }.toSet()
             )
         }
@@ -55,6 +55,11 @@ class PostFactory(
             postSequence = postSeq,
             userSequence = userSeq
         )
+    }
+
+    fun createMessageImage(messageSeq: Long, uriList: List<String>): List<MessageImage> {
+        return uriList.map { MessageImage(messageSeq = messageSeq, imageUri = it) }
+
     }
 
 }

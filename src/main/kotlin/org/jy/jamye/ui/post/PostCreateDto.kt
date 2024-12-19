@@ -18,12 +18,12 @@ data class PostCreateDto<T>(
     data class Board(
         var content: String
     ) {
-        fun replaceUri(imageUriMap: MutableMap<String, String>) {
+        fun replaceUri(imageUriMap: MutableMap<String, Pair<Long, String>>) {
             imageUriMap.forEach { (t, u) ->
                 println(this.content.contains(t))
                 run {
                     this.content = this.content.replace(
-                        t, u
+                        t, u.second
                     )
                 }
             }

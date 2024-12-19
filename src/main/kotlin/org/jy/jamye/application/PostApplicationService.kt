@@ -76,7 +76,7 @@ class PostApplicationService(private val postService: PostService, private val u
         val user = userService.getUser(userId)
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
 
-        postService.postUpdate(groupSeq, postSeq, data.message.values, data.nickName, data.deleteMessage)
+        postService.postUpdate(groupSeq, postSeq, data.message.values, data.nickName, data.deleteMessage, data.deleteImage)
 
     }
 

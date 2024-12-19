@@ -47,7 +47,7 @@ data class PostDto(
         var replyMessage: String? = null,
         var replyTo: String? = null,
         val imageKey: Set<String> = setOf(),
-        val imageUri: Set<String> = setOf(),
+        val imageUri: MutableSet<Pair<Long, String>> = mutableSetOf(),
         val messageSeq: Long? = null
     ) {
 
@@ -76,6 +76,7 @@ data class PostDto(
     data class MessageUpdate(
         val message: MutableMap<Long, MessagePost>,
         val nickName: Map<String, String> = mapOf(),
-        val deleteMessage: Set<Long> = setOf()
+        val deleteMessage: Set<Long> = setOf(),
+        val deleteImage: Set<Long> = setOf()
     )
 }
