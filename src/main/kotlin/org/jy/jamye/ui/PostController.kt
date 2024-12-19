@@ -68,8 +68,8 @@ class PostController(
                         replyTo = it.replyTo,
                         imageKey = it.imageKey,
                         imageUri = if(it.imageKey.isNotEmpty())
-                            it.imageKey.map { imageUriMap.getOrDefault(it, "" /*수정 필요*/) }.toSet()
-                            else setOf()
+                            it.imageKey.map { imageUriMap.getOrDefault(it, Pair(0L, "") /*수정 필요*/) }.toMutableSet()
+                            else mutableSetOf()
                     )),
                     sendDate = value.sendDate,
                     sendUser = value.sendUser
@@ -100,14 +100,14 @@ class PostController(
         return ResponseDto(data = postSeq, status = HttpStatus.OK)
     }
 
-    private fun imageUriMap(imageMap: Map<String, MultipartFile>): MutableMap<String, String> {
-        val imageUriMap = mutableMapOf<String, String>()
+    private fun imageUriMap(imageMap: Map<String, MultipartFile>): MutableMap<String, Pair<Long, String>> {
+        val imageUriMap = mutableMapOf<String, Pair<Long, String>>()
         if (imageMap.isNotEmpty()) {
             imageMap.forEach { (key, value) ->
                 run {
                     val saveFile = visionService.saveFile(value)
                     saveFile?.let {
-                        imageUriMap[key] = saveFile
+                        imageUriMap[key] = Pair(0L, saveFile)
                     }
                 }
             }
@@ -120,8 +120,15 @@ class PostController(
         @PathVariable groupSeq: Long,
         @PathVariable postSeq: Long,
         @AuthenticationPrincipal user: UserDetails,
-        @RequestBody data: PostDto.MessageUpdate
+        @RequestPart data: PostDto.MessageUpdate,
+        @RequestParam imageMap: Map<String, MultipartFile>,
     ): ResponseDto<Long> {
+        val imageUriMap = imageUriMap(imageMap)
+        data.message.forEach { (key, value) ->
+            value.message.forEach { it ->
+                it.imageKey.forEach { img -> it.imageUri.add(imageUriMap[img]!!) }
+             }
+        }
         postService.updateMessagePost(groupSeq, postSeq, user.username, data)
         return ResponseDto(data = null, status = HttpStatus.OK)
     }

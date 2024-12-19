@@ -19,7 +19,7 @@ class Message(
     @Column(name = "reply_message")
     var replyMessage: String? = null,
     @Column(name="num")
-    val orderNumber: Long,
+    var orderNumber: Long,
     @Column(name="pi_seq")
     val postSeq: Long,
     @OneToMany(fetch = FetchType.LAZY, cascade = [(CascadeType.ALL)])
@@ -52,6 +52,8 @@ class Message(
         if (replyMessage != null) {
             this.replyMessage = replyMessage
         }
-
+        if  (orderNumber != null) {
+            this.orderNumber = orderNumber
+        }
     }
 }
