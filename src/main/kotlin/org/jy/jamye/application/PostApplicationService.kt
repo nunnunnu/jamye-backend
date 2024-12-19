@@ -2,6 +2,7 @@ package org.jy.jamye.application
 
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.client.RedisClient
+import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.PostService
 import org.jy.jamye.domain.service.UserService
@@ -22,6 +23,19 @@ class PostApplicationService(private val postService: PostService, private val u
             groupService.groupUserInfo(groupSequence = groupSequence, userSequence = post.createdUserSequence)
         if(createUserInfo!=null) {
             post.createdUserNickName = createUserInfo.nickname
+        }
+        if(post.postType.equals(PostType.MSG)) {
+            val messageInfo = post.content as PostDto.MessageNickNameInfo
+            val userInfoInGroupMap =
+                groupService.userInfoInGroup(messageInfo.nickName.values.filter { it.userNameInGroup != null }
+                    .map { it.userSeqInGroup!! }.toSet())
+            messageInfo.nickName.forEach { (_, value) ->
+                value.userSeqInGroup.let {
+                    value.userNameInGroup = userInfoInGroupMap[value.userSeqInGroup]!!.nickname
+                    value.imageUri = userInfoInGroupMap[value.userSeqInGroup]!!.imageUrl
+                }
+
+            }
         }
         return post
     }
@@ -57,13 +71,13 @@ class PostApplicationService(private val postService: PostService, private val u
         return result
     }
 
-    fun createPostMessage(userId: String, post: PostDto, content: List<PostDto.MessagePost>): Long {
+    fun createPostMessage(userId: String, post: PostDto, content: List<PostDto.MessagePost>, nickNameMap: Map<String, Long?>): Long {
         val user = userService.getUser(userId)
         post.createdUserSequence = user.sequence!!
-        val sendUserSeqs: Set<Long> = content.filter { it.sendUserInGroupSeq != null }.map { it.sendUserInGroupSeq!! }.toSet()
+        val sendUserSeqs: Set<Long> = content.filter { it.sendUserSeq != null }.map { it.sendUserSeq!! }.toSet()
         groupService.usersInGroupCheckOrThrow(sendUserSeqs, post.groupSequence)
 
-        return postService.createPostMessageType(post, content, user.sequence)
+        return postService.createPostMessageType(post, content, user.sequence, nickNameMap)
     }
 
     fun createPostBoard(userId: String, post: PostDto, content: PostDto.BoardPost): Long {

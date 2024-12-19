@@ -1,9 +1,11 @@
 package org.jy.jamye.domain.service
 
 import jakarta.persistence.EntityNotFoundException
+import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.exception.PostAccessDeniedException
 import org.jy.jamye.domain.model.Message
+import org.jy.jamye.domain.model.MessageNickName
 import org.jy.jamye.domain.model.Post
 import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.infra.*
@@ -18,6 +20,7 @@ class PostService(
     private val boardRepository: BoardRepository,
     private val messageImageRepository: MessageImageRepository,
     private val groupUserRepository: GroupUserRepository,
+    private val messageNickNameRepository: MessageNickNameRepository
 ) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
         if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
@@ -55,7 +58,7 @@ class PostService(
         return result
     }
 
-    private fun getMessagePost(postSeq: Long): PostDto.MessageNickName {
+    private fun getMessagePost(postSeq: Long): PostDto.MessageNickNameInfo {
         val messageResponse = mutableMapOf<Long, PostDto.MessagePost>()
         var messagePost: PostDto.MessagePost? = null
         var key = 1L
@@ -66,18 +69,13 @@ class PostService(
                 it.messageSeq
             }.mapValues { entry -> entry.value.map { it.messageImageSeq!! to it.imageUri }.toMutableSet() }
 
-        //todo: 도메인 분리 필요
-        val groupUsers = groupUserRepository.findAllById(messages.map { it.groupUserSequence })
-        val groupUserInfo = groupUsers.associateBy { it.groupUserSequence }
         val nickNameMap =
-            messages.filter { it.groupUserSequence != null && it.nickName != null }
-                .associate { it.nickName!! to groupUserInfo[it.groupUserSequence]!!.nickname }
+            messageNickNameRepository.findAllByPostSeq(postSeq).associate { it.messageNickNameSeq!! to MessageNickNameDto(nickName = it.nickname, userSeqInGroup = it.userSeqInGroup) }
 
         messages.forEach{
-            if(seq == 0L || messagePost!!.sendUser != it.nickName) {
+            if(seq == 0L || messagePost!!.sendUserSeq != it.messageNickNameSeq) {
                 messagePost = PostDto.MessagePost(
-                    sendUser = it.nickName,
-                    sendUserInGroupSeq = it.groupUserSequence,
+                    sendUserSeq = it.messageNickNameSeq,
                     message = mutableListOf(
                         PostDto.MessageSequence(
                             seq = ++seq,
@@ -86,16 +84,16 @@ class PostService(
                             messageSeq = it.messageSeq)
                     ),
                     sendDate = it.sendDate.toString(),
-                    myMessage = it.nickName == null,
+                    myMessage = it.messageNickNameSeq == null,
                 )
                 messageResponse[key++] = messagePost!!
-            } else if(messagePost!!.sendUser == it.nickName) {
+            } else if(messagePost!!.sendUserSeq == it.messageNickNameSeq) {
                 messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content, imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()), messageSeq = it.messageSeq))
             }
 
         }
 
-        return PostDto.MessageNickName(message = messageResponse, nickName = nickNameMap)
+        return PostDto.MessageNickNameInfo(message = messageResponse, nickName = nickNameMap)
     }
 
     private fun getPostOrThrow(groupSequence: Long, postSequence: Long): Post {
@@ -141,10 +139,27 @@ class PostService(
         return pickPostSeq
     }
 
-    fun createPostMessageType(data: PostDto, content: List<PostDto.MessagePost>, userSeq: Long): Long {
+    fun createPostMessageType(
+        data: PostDto,
+        content: List<PostDto.MessagePost>,
+        userSeq: Long,
+        nickNameMap: Map<String, Long?>
+    ): Long {
         val post = postFactory.createPost(data, PostType.MSG)
         postRepository.save(post)
-        createMessage(content, post.postSeq!!)
+
+        val nickNames = mutableListOf<MessageNickName>()
+        nickNameMap.forEach{(key, value) ->
+            run {
+                nickNames.add(postFactory.createMessageNickName(key, value, post.postSeq!!))
+            }
+        }
+
+        messageNickNameRepository.saveAll(nickNames)
+
+        val nickNameMap = nickNames.map { it.nickname to it.messageNickNameSeq!! }.toMap()
+
+        createMessage(content, post.postSeq!!, nickNameMap)
 
         userGroupPostRepository.save(postFactory.createUserGroupFactory(
             groupSeq = data.groupSequence,
@@ -157,9 +172,10 @@ class PostService(
     private fun createMessage(
         content: List<PostDto.MessagePost>,
         postSeq: Long,
+        nickNameMap: Map<String, Long>,
     ) {
         val messages: MutableList<Message> = mutableListOf()
-        content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = postSeq)) }
+        content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = postSeq, nickNameMap.get(it.sendUser))) }
 
         messageRepository.saveAll(messages)
     }
@@ -188,7 +204,7 @@ class PostService(
         groupSeq: Long,
         postSeq: Long,
         message: MutableCollection<PostDto.MessagePost>,
-        nickName: Map<String, String>,
+        nickNameMap: Map<String, Long>,
         deleteMessage: Set<Long>,
         deleteImage: Set<Long>
     ) {
@@ -216,8 +232,7 @@ class PostService(
                         messageImageRepository.saveAll(postFactory.createMessageImage(msg.messageSeq!!, msg.imageUri.filter { it.first == 0L }.map { it.second }))
                         messageEntityMap[msg.messageSeq]!!.update(
                             content = msg.message,
-                            nickName = it.sendUser,
-                            groupUserSequence = it.sendUserInGroupSeq,
+                            messageNickNameSeq = it.sendUserSeq,
                             replyTo = msg.replyTo,
                             replyMessage = msg.replyMessage,
                             orderNumber = msg.seq
@@ -229,7 +244,7 @@ class PostService(
         }
 
         if(createMessage.isNotEmpty()) {
-            createMessage(content = createMessage, postSeq = postSeq)
+            createMessage(content = createMessage, postSeq = postSeq, nickNameMap = nickNameMap)
         }
 
         if(deleteMessage.isNotEmpty()) {

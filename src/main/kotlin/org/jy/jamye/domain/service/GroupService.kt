@@ -206,5 +206,11 @@ class GroupService(
             updateDate = it.updateDate
         ) }
     }
+
+    fun userInfoInGroup(groupUserSeqs: Set<Long>): Map<Long, UserInGroupDto.Simple>  {
+        return groupUserRepo.findAllById(groupUserSeqs)
+            .associate { it.groupUserSequence!! to UserInGroupDto.Simple(nickname = it.nickname, imageUrl = it.imageUrl) }
+            .toMap()
+    }
 }
 
