@@ -1,6 +1,5 @@
 package org.jy.jamye.application.dto
 
-import org.jy.jamye.domain.model.GroupUser
 import org.jy.jamye.domain.model.PostType
 import java.time.LocalDateTime
 
@@ -26,11 +25,11 @@ data class PostDto(
         val isViewable: Boolean,
             )
     data class MessagePost(
+        val sendUserSeq: Long? = null,
         val sendUser: String? = null,
-        val sendUserInGroupSeq: Long? = null,
         var message: MutableList<MessageSequence> = mutableListOf(),
         var sendDate: String? = null,
-        val myMessage: Boolean? = null
+        val myMessage: Boolean? = null,
     ) {
         constructor(sendUser: String?) : this(
             sendUser = sendUser,
@@ -68,15 +67,22 @@ data class PostDto(
         val content: T
     )
 
-    data class MessageNickName(
+    data class MessageNickNameInfo(
         val message: MutableMap<Long, MessagePost>,
-        val nickName: Map<String, String> = mapOf()
+        val nickName: Map<Long, MessageNickNameDto> = mapOf()
     )
 
     data class MessageUpdate(
         val message: MutableMap<Long, MessagePost>,
-        val nickName: Map<String, String> = mapOf(),
+        val nickName: Map<String, Long> = mapOf(),
         val deleteMessage: Set<Long> = setOf(),
         val deleteImage: Set<Long> = setOf()
     )
 }
+
+data class MessageNickNameDto (
+    val nickName: String,
+    val userSeqInGroup: Long? = null,
+    var userNameInGroup: String? = null,
+    var imageUri: String? = null
+)

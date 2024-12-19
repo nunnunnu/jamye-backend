@@ -49,7 +49,8 @@ class PostController(
     fun createPostMessageType(
         @AuthenticationPrincipal user: UserDetails,
         @RequestParam imageMap: Map<String, MultipartFile>,
-        @RequestPart data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>
+        @RequestPart data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>,
+        @RequestParam nickNameMap: Map<String, Long?>
     ): ResponseDto<Long> {
         val sortData = TreeMap(data.content)
         val imageUriMap = imageUriMap(imageMap)
@@ -80,7 +81,8 @@ class PostController(
         val postSeq = postService.createPostMessage(userId = user.username, post = PostDto(
             title = data.title,
             groupSequence = data.groupSeq),
-            content = contents
+            content = contents,
+            nickNameMap = nickNameMap
         )
         return ResponseDto(data = postSeq, status = HttpStatus.OK)
     }

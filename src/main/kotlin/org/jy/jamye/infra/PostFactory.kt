@@ -23,12 +23,11 @@ class PostFactory(
     }
 
 
-    fun createPostMessageType(data: PostDto.MessagePost, postSeq: Long): List<Message> {
+    fun createPostMessageType(data: PostDto.MessagePost, postSeq: Long, messageNickNameSeq: Long?): List<Message> {
         val messages = data.message.map {
             Message(
                 content = it.message,
-                nickName = data.sendUser,
-                groupUserSequence = data.sendUserInGroupSeq,
+                messageNickNameSeq = messageNickNameSeq,
                 orderNumber = it.seq,
                 sendDate = data.sendDate,
                 postSeq = postSeq,
@@ -60,6 +59,10 @@ class PostFactory(
     fun createMessageImage(messageSeq: Long, uriList: List<String>): List<MessageImage> {
         return uriList.map { MessageImage(messageSeq = messageSeq, imageUri = it) }
 
+    }
+
+    fun createMessageNickName(nickName: String, userSeqInGroup: Long?, postSeq: Long): MessageNickName {
+        return MessageNickName(nickName, userSeqInGroup, postSeq)
     }
 
 }
