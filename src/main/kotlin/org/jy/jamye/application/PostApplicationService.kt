@@ -24,10 +24,10 @@ class PostApplicationService(private val postService: PostService, private val u
         if(createUserInfo!=null) {
             post.createdUserNickName = createUserInfo.nickname
         }
-        if(post.postType.equals(PostType.MSG)) {
+        if(post.postType == PostType.MSG) {
             val messageInfo = post.content as PostDto.MessageNickNameInfo
             val userInfoInGroupMap =
-                groupService.userInfoInGroup(messageInfo.nickName.values.filter { it.userNameInGroup != null }
+                groupService.userInfoInGroup(messageInfo.nickName.values.filter { it.userSeqInGroup != null }
                     .map { it.userSeqInGroup!! }.toSet())
             messageInfo.nickName.forEach { (_, value) ->
                 value.userSeqInGroup.let {

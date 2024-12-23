@@ -83,7 +83,7 @@ class PostService(
                             imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()),
                             messageSeq = it.messageSeq)
                     ),
-                    sendDate = it.sendDate.toString(),
+                    sendDate = it.sendDate,
                     myMessage = it.messageNickNameSeq == null,
                 )
                 messageResponse[key++] = messagePost!!
@@ -157,7 +157,7 @@ class PostService(
 
         messageNickNameRepository.saveAll(nickNames)
 
-        val nickNameMap = nickNames.map { it.nickname to it.messageNickNameSeq!! }.toMap()
+        val nickNameMap = nickNames.associate { it.nickname to it.messageNickNameSeq!! }
 
         createMessage(content, post.postSeq!!, nickNameMap)
 
@@ -175,7 +175,9 @@ class PostService(
         nickNameMap: Map<String, Long>,
     ) {
         val messages: MutableList<Message> = mutableListOf()
-        content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = postSeq, nickNameMap.get(it.sendUser))) }
+        content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = postSeq,
+            nickNameMap[it.sendUser]
+        )) }
 
         messageRepository.saveAll(messages)
     }

@@ -50,7 +50,7 @@ class PostController(
         @AuthenticationPrincipal user: UserDetails,
         @RequestParam imageMap: Map<String, MultipartFile>,
         @RequestPart data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>,
-        @RequestParam nickNameMap: Map<String, Long?>
+        @RequestPart nickNameMap: Map<String, Long?>
     ): ResponseDto<Long> {
         val sortData = TreeMap(data.content)
         val imageUriMap = imageUriMap(imageMap)
@@ -126,8 +126,8 @@ class PostController(
         @RequestParam imageMap: Map<String, MultipartFile>,
     ): ResponseDto<Long> {
         val imageUriMap = imageUriMap(imageMap)
-        data.message.forEach { (key, value) ->
-            value.message.forEach { it ->
+        data.message.forEach { (_, value) ->
+            value.message.forEach {
                 it.imageKey.forEach { img -> it.imageUri.add(imageUriMap[img]!!) }
              }
         }
