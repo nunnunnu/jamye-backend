@@ -6,6 +6,7 @@ import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.PostService
 import org.jy.jamye.domain.service.UserService
+import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.stereotype.Service
 
 @Service
@@ -90,8 +91,34 @@ class PostApplicationService(private val postService: PostService, private val u
         val user = userService.getUser(userId)
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
 
-        postService.postUpdate(groupSeq, postSeq, data.message.values, data.nickName, data.deleteMessage, data.deleteImage)
+        postService.postUpdate(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage)
 
+    }
+
+    fun messagePostNickNameAdd(
+        groupSeq: Long,
+        postSeq: Long,
+        nickName: String,
+        userSeqInGroup: Long?,
+        userId: String
+    ): Long {
+        val user = userService.getUser(userId)
+        postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
+
+        return postService.messagePostNickNameAdd(groupSeq, postSeq, userSeqInGroup, userId, nickName)
+    }
+
+    fun updateMessageNickNameInfo(
+        groupSeq: Long,
+        postSeq: Long,
+        data: Map<Long, PostCreateDto.MessageNickNameDto>,
+        userId: String,
+        deleteMessageNickNameSeqs: Set<Long>
+    ) {
+        val user = userService.getUser(userId)
+        postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
+
+        postService.updateNickNameInfo(groupSeq, postSeq, userId, data, deleteMessageNickNameSeqs)
     }
 
 }
