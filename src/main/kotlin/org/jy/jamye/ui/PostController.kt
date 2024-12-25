@@ -4,6 +4,7 @@ import org.jy.jamye.application.PostApplicationService
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.service.VisionService
+import org.jy.jamye.infra.MessageNickNameRepository
 import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,7 +19,8 @@ import java.util.*
 @RequestMapping("/api/post")
 class PostController(
     private val postService: PostApplicationService,
-    private val visionService: VisionService
+    private val visionService: VisionService,
+    private val nickName: MessageNickNameRepository
 ) {
     var log: Logger = LoggerFactory.getLogger(PostController::class.java.name)
     @GetMapping("/{groupSequence}/{postSequence}")
@@ -132,6 +134,30 @@ class PostController(
              }
         }
         postService.updateMessagePost(groupSeq, postSeq, user.username, data)
+        return ResponseDto(data = null, status = HttpStatus.OK)
+    }
+
+    @PostMapping("/message/{groupSeq}/{postSeq}/nickNameAdd")
+    fun messagePostNickNameAdd(
+        @PathVariable groupSeq: Long,
+        @PathVariable postSeq: Long,
+        @AuthenticationPrincipal user: UserDetails,
+        @RequestParam nickName: String,
+        @RequestParam(required = false) userSeqInGroup: Long?
+    ): ResponseDto<Long> {
+        val messageNickNameSeq =
+            postService.messagePostNickNameAdd(groupSeq, postSeq, nickName, userSeqInGroup, user.username)
+        return ResponseDto(data = messageNickNameSeq, status = HttpStatus.OK)
+    }
+
+    @PostMapping("/message/{groupSeq}/{postSeq}/nickName")
+    fun messagePostNickNameAdd(
+        @PathVariable groupSeq: Long,
+        @PathVariable postSeq: Long,
+        @AuthenticationPrincipal user: UserDetails,
+        @RequestBody data: PostCreateDto.MessageNickNameUpdate
+    ): ResponseDto<Long> {
+        postService.updateMessageNickNameInfo(groupSeq, postSeq, data.updateInfo, user.username, data.deleteMessageNickNameSeqs)
         return ResponseDto(data = null, status = HttpStatus.OK)
     }
 }

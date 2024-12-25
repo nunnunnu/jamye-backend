@@ -9,6 +9,7 @@ import org.jy.jamye.domain.model.MessageNickName
 import org.jy.jamye.domain.model.Post
 import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.infra.*
+import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.stereotype.Service
 
 @Service
@@ -172,7 +173,7 @@ class PostService(
     private fun createMessage(
         content: List<PostDto.MessagePost>,
         postSeq: Long,
-        nickNameMap: Map<String, Long>,
+        nickNameMap: Map<String, Long> = mapOf(),
     ) {
         val messages: MutableList<Message> = mutableListOf()
         content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = postSeq,
@@ -206,7 +207,6 @@ class PostService(
         groupSeq: Long,
         postSeq: Long,
         message: MutableCollection<PostDto.MessagePost>,
-        nickNameMap: Map<String, Long>,
         deleteMessage: Set<Long>,
         deleteImage: Set<Long>
     ) {
@@ -226,7 +226,7 @@ class PostService(
         if(updateMessage.isNotEmpty()) {
             val messageEntityMap: Map<Long, Message> =
                 messageRepository.findAllById(updateMessage.flatMap { it.message.map { it.messageSeq!! } })
-                    .map { it.messageSeq!! to it }.toMap()
+                    .associateBy { it.messageSeq!! }
 
             updateMessage.forEach { it ->
                 run {
@@ -246,7 +246,7 @@ class PostService(
         }
 
         if(createMessage.isNotEmpty()) {
-            createMessage(content = createMessage, postSeq = postSeq, nickNameMap = nickNameMap)
+            createMessage(content = createMessage, postSeq = postSeq)
         }
 
         if(deleteMessage.isNotEmpty()) {
@@ -257,5 +257,38 @@ class PostService(
         if(deleteImage.isNotEmpty()) {
             messageImageRepository.deleteAllById(deleteImage)
         }
+    }
+
+    fun messagePostNickNameAdd(groupSeq: Long, postSeq: Long, userSeqInGroup: Long?, userId: String, nickName: String): Long {
+        val messageNickName =
+            postFactory.createMessageNickName(nickName = nickName, userSeqInGroup = userSeqInGroup, postSeq = postSeq)
+
+        messageNickNameRepository.save(messageNickName)
+
+        return messageNickName.messageNickNameSeq!!
+    }
+
+    fun updateNickNameInfo(
+        groupSeq: Long,
+        postSeq: Long,
+        userId: String,
+        data: Map<Long, PostCreateDto.MessageNickNameDto>,
+        deleteMessageNickNameSeqs: Set<Long>
+    ) {
+        messageNickNameRepository.deleteAllById(deleteMessageNickNameSeqs)
+        val messageNickNames = messageNickNameRepository.findAllById(data.keys)
+
+        messageNickNames.forEach {
+            run {
+                val updateInfo = data[it.messageNickNameSeq]
+                if (updateInfo != null) {
+                    it.update(updateInfo.userSeqInGroup, updateInfo.nickName)
+                }
+
+
+            }
+        }
+
+
     }
 }

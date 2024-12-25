@@ -15,4 +15,8 @@ class MessageNickName(
     @Column(name = "msg_name_seq")
     var messageNickNameSeq: Long? = null
 ) {
+    fun update(userSeqInGroup: Long?, nickName: String) {
+        this.nickname = nickName
+        this.userSeqInGroup = userSeqInGroup
+    }
 }

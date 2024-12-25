@@ -74,7 +74,6 @@ data class PostDto(
 
     data class MessageUpdate(
         val message: MutableMap<Long, MessagePost>,
-        val nickName: Map<String, Long> = mapOf(),
         val deleteMessage: Set<Long> = setOf(),
         val deleteImage: Set<Long> = setOf()
     )

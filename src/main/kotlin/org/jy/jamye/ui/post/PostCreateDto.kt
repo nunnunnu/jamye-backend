@@ -31,5 +31,16 @@ data class PostCreateDto<T>(
 
         }
     }
+    data class MessageNickNameDto (
+        val nickName: String,
+        val userSeqInGroup: Long? = null,
+        var imageUri: String? = null
+    )
 
+    data class MessageNickNameUpdate(
+        val deleteMessageNickNameSeqs: Set<Long> = setOf(),
+        val updateInfo: Map<Long, MessageNickNameDto>
+    )
 }
+
+
