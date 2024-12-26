@@ -18,6 +18,7 @@ interface PostRepository: JpaRepository<Post, Long> {
             AND u.userSequence = :userSeq 
             AND u.postSequence = p.postSeq
         WHERE u.userPostSequence IS NULL 
+            and p.groupSeq = :groupSeq
     """)
     fun countAllByAbleDrawPool(groupSeq: Long, userSeq: Long): MutableList<Long>
     fun existsByGroupSeqAndPostSeqAndUserSeq(groupSeq: Long, postSeq: Long, userSeq: Long): Boolean

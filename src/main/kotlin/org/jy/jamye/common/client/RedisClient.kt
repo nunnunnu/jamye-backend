@@ -48,6 +48,15 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
         return luckyDrawMap
     }
 
+    fun setLuckyDrawMap(userSeq: Long) {
+        val luckyDrawMap = getLuckyDrawMap()
+
+        var count = luckyDrawMap.getOrDefault(userSeq, 0)
+        luckyDrawMap[userSeq] = ++count
+        val jsonData = ObjectMapper().writeValueAsString(luckyDrawMap)
+        setValue("luckyDraw", jsonData)
+    }
+
     fun setValueObject(key: String, deleteVoteMap: MutableMap<Long, DeleteVote>) {
         val mapper = ObjectMapper()
         val jsonString = mapper.writeValueAsString(deleteVoteMap)

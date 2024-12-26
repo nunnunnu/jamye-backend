@@ -3,6 +3,7 @@ package org.jy.jamye.domain.service
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
+import org.jy.jamye.common.exception.AllPostsAlreadyOwnedException
 import org.jy.jamye.common.exception.PostAccessDeniedException
 import org.jy.jamye.domain.model.Message
 import org.jy.jamye.domain.model.MessageNickName
@@ -134,6 +135,10 @@ class PostService(
 
     fun luckyDraw(groupSeq: Long, userSeq: Long): Long {
         val postSeqs: MutableList<Long> = postRepository.countAllByAbleDrawPool(groupSeq, userSeq)
+
+        if(postSeqs.isEmpty()) {
+            throw AllPostsAlreadyOwnedException()
+        }
 
         val pickPostSeq = postSeqs[(Math.random() * postSeqs.size).toInt()]
 
@@ -290,5 +295,10 @@ class PostService(
         }
 
 
+    }
+
+    fun createLuckyDraw(userSeq: Long, groupSeq: Long, luckyDrawSeq: Long) {
+        val createLuckyDraw = postFactory.createLuckyDraw(userSeq, groupSeq, luckyDrawSeq)
+        userGroupPostRepository.save(createLuckyDraw)
     }
 }

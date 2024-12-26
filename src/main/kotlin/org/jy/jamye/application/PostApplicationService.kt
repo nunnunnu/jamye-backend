@@ -55,7 +55,7 @@ class PostApplicationService(private val postService: PostService, private val u
         val luckyDrawMap = redisClient.getLuckyDrawMap()
         val user = userService.getUser(id = userId)
         val userSeq = user.sequence!!
-        val count = luckyDrawMap.getOrDefault(userSeq, 0)
+        var count = luckyDrawMap.getOrDefault(userSeq, 0)
         if(count >= 2) {
             throw IllegalArgumentException("뽑기는 하루에 2번까지 가능합니다.")
         }
@@ -68,6 +68,9 @@ class PostApplicationService(private val postService: PostService, private val u
         if(createUserInfo!=null) {
             result.createdUserNickName = createUserInfo.nickname
         }
+
+        postService.createLuckyDraw(userSeq, groupSeq, luckyDrawSeq)
+//        redisClient.setLuckyDrawMap(userSeq)
 
         return result
     }
