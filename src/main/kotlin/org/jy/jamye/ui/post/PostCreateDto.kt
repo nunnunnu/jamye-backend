@@ -23,7 +23,7 @@ data class PostCreateDto<T>(
                 println(this.content.contains(t))
                 run {
                     this.content = this.content.replace(
-                        t, u.second
+                        t, "http://localhost:8080/api/file/" + u.second
                     )
                 }
             }
