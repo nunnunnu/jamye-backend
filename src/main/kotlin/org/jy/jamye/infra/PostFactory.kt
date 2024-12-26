@@ -65,4 +65,8 @@ class PostFactory(
         return MessageNickName(nickName, userSeqInGroup, postSeq)
     }
 
+    fun createLuckyDraw(userSeq: Long, groupSeq: Long, luckyDrawSeq: Long): UserGroupPost {
+        return UserGroupPost(userSequence = userSeq, groupSequence = groupSeq, postSequence = luckyDrawSeq)
+    }
+
 }
