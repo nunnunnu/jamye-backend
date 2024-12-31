@@ -94,6 +94,8 @@ class PostApplicationService(private val postService: PostService, private val u
         val user = userService.getUser(userId)
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
 
+        var seq = 1L
+        data.message.values.forEach { it.message.forEach { msg -> msg.seq = seq++ } }
         postService.postUpdate(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage)
 
     }

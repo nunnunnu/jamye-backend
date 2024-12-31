@@ -40,7 +40,7 @@ data class PostDto(
     }
 
     data class MessageSequence(
-        val seq: Long,
+        var seq: Long,
         var message: String? = null,
         var isReply: Boolean? = false,
         var replyMessage: String? = null,
