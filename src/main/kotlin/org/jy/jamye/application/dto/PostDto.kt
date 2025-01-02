@@ -47,9 +47,14 @@ data class PostDto(
         var replyTo: String? = null,
         val imageKey: Set<String> = setOf(),
         val imageUri: MutableSet<Pair<Long, String>> = mutableSetOf(),
-        val messageSeq: Long? = null
+        val messageSeq: Long? = null,
+        val replyToSeq: Long? = null,
+        val replyToKey: Long? = null
     ) {
 
+        fun replyStringKey(): String {
+            return this.replyToKey.toString() + this.replyToSeq.toString()
+        }
     }
     data class BoardPost(
         val content: String,

@@ -23,22 +23,19 @@ class PostFactory(
     }
 
 
-    fun createPostMessageType(data: PostDto.MessagePost, postSeq: Long, messageNickNameSeq: Long?): List<Message> {
-        val messages = data.message.map {
-            Message(
-                content = it.message,
-                messageNickNameSeq = messageNickNameSeq,
-                orderNumber = it.seq,
-                sendDate = data.sendDate,
-                postSeq = postSeq,
-                replyTo = it.replyTo,
-                replyMessage = it.replyMessage,
-                messageImage = it.imageUri.map { img ->
-                    MessageImage(imageUri = img.second)
-                }.toSet()
-            )
-        }
-        return messages
+    fun createPostMessageType(data: PostDto.MessagePost, message: PostDto.MessageSequence, postSeq: Long, messageNickNameSeq: Long?): Message {
+        return Message(
+            content = message.message,
+            messageNickNameSeq = messageNickNameSeq,
+            orderNumber = message.seq,
+            sendDate = data.sendDate,
+            postSeq = postSeq,
+            replyTo = message.replyTo,
+            replyMessage = message.replyMessage,
+            messageImage = message.imageUri.map { img ->
+                MessageImage(imageUri = img.second)
+            }.toSet()
+        )
     }
 
     fun createPostBoardType(detailContent: PostDto.BoardPost, postSeq: Long): Board {
