@@ -178,11 +178,11 @@ class PostService(
     private fun createMessage(
         content: List<PostDto.MessagePost>,
         postSeq: Long,
-        nickNameMap: Map<String, Long> = mapOf(),
+        nickNameMap: Map<String, Long> = mapOf()
     ) {
         val messages: MutableList<Message> = mutableListOf()
         content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = postSeq,
-            nickNameMap[it.sendUser]
+            if (nickNameMap[it.sendUser] == null) it.sendUserSeq else nickNameMap[it.sendUser]
         )) }
 
         messageRepository.saveAll(messages)
