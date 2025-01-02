@@ -56,7 +56,11 @@ class PostController(
     ): ResponseDto<Long> {
         val sortData = TreeMap(data.content)
         val imageUriMap = imageUriMap(imageMap)
-
+        val replyMap = mutableMapOf<String, Long>()
+        val replyKeySeqSet = mutableSetOf<String>()
+        data.content.forEach{
+            it.value.message.forEach { msg -> replyKeySeqSet.add(msg.replyStringKey()) }
+        }
         val contents: MutableList<PostDto.MessagePost> = mutableListOf()
         var seq = 0L
         sortData.entries.forEach { (key, value) ->
@@ -70,6 +74,8 @@ class PostController(
                         replyMessage = it.replyMessage,
                         replyTo = it.replyTo,
                         imageKey = it.imageKey,
+                        replyToKey = it.replyToKey,
+                        replyToSeq = it.replyToSeq,
                         imageUri = if(it.imageKey.isNotEmpty())
                             it.imageKey.map { imageUriMap.getOrDefault(it, Pair(0L, "") /*수정 필요*/) }.toMutableSet()
                             else mutableSetOf()
@@ -77,6 +83,12 @@ class PostController(
                     sendDate = value.sendDate,
                     sendUser = value.sendUser
                 ))
+
+                replyKeySeqSet.forEach { keySeq ->
+                    if(key.toString() + it.seq.toString() == keySeq) {
+                         replyMap[keySeq] = seq
+                    }
+                }
             }
 
         }
@@ -84,7 +96,8 @@ class PostController(
             title = data.title,
             groupSequence = data.groupSeq),
             content = contents,
-            nickNameMap = nickNameMap
+            nickNameMap = nickNameMap,
+            replySeqMap = replyMap
         )
         return ResponseDto(data = postSeq, status = HttpStatus.OK)
     }

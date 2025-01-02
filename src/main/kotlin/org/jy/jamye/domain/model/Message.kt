@@ -16,10 +16,13 @@ class Message(
     var replyTo: String? = null,
     @Column(name = "reply_message")
     var replyMessage: String? = null,
+    @Column(name = "reply_seq")
+    var replyToPostSeq: Long? = null,
     @Column(name="num")
     var orderNumber: Long,
     @Column(name="pi_seq")
     val postSeq: Long,
+
     @OneToMany(fetch = FetchType.LAZY, cascade = [(CascadeType.ALL)])
     @JoinColumn(name="mi_seq")
     val messageImage: Collection<MessageImage>,

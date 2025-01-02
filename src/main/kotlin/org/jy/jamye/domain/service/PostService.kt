@@ -149,7 +149,8 @@ class PostService(
         data: PostDto,
         content: List<PostDto.MessagePost>,
         userSeq: Long,
-        nickNameMap: Map<String, Long?>
+        nickNameMap: Map<String, Long?>,
+        replySeqMap: MutableMap<String, Long>
     ): Long {
         val post = postFactory.createPost(data, PostType.MSG)
         postRepository.save(post)
@@ -165,7 +166,7 @@ class PostService(
 
         val nickNameMap = nickNames.associate { it.nickname to it.messageNickNameSeq!! }
 
-        createMessage(content, post.postSeq!!, nickNameMap)
+        createMessage(content, post.postSeq!!, nickNameMap, replySeqMap)
 
         userGroupPostRepository.save(postFactory.createUserGroupFactory(
             groupSeq = data.groupSequence,
@@ -178,14 +179,38 @@ class PostService(
     private fun createMessage(
         content: List<PostDto.MessagePost>,
         postSeq: Long,
-        nickNameMap: Map<String, Long> = mapOf()
+        nickNameMap: Map<String, Long> = mapOf(),
+        replySeqMap: MutableMap<String, Long> = mutableMapOf()
     ) {
+        val replyEntitySeqMap = mutableMapOf<String, Message>()
+        val replyKeyMap = mutableMapOf<Message, String>()
         val messages: MutableList<Message> = mutableListOf()
-        content.forEach { messages.addAll(postFactory.createPostMessageType(data = it, postSeq = postSeq,
-            if (nickNameMap[it.sendUser] == null) it.sendUserSeq else nickNameMap[it.sendUser]
-        )) }
+        content.forEach {
+            it.message.forEach { msg ->
+                run {
+                    val message = postFactory.createPostMessageType(
+                        data = it, postSeq = postSeq, message = msg,
+                        messageNickNameSeq = if (nickNameMap[it.sendUser] == null) it.sendUserSeq else nickNameMap[it.sendUser]
+                    )
+                    replyKeyMap[message] = msg.replyStringKey()
 
+                    replySeqMap.entries.forEach { (key, value) ->
+                        if (value == msg.seq) {
+                            replyEntitySeqMap[key] = message
+                        }
+                    }
+
+                    messages.add(message)
+                }
+            }
+        }
         messageRepository.saveAll(messages)
+        messages.forEach { message ->
+            val keySeq = replyKeyMap[message]
+            if(replyEntitySeqMap.containsKey(keySeq)) {
+                message.replyToPostSeq = replyEntitySeqMap[keySeq]!!.messageSeq
+            }
+        }
     }
 
     fun createPostBoardType(userSeq: Long, data: PostDto, detailContent: PostDto.BoardPost): Long {
