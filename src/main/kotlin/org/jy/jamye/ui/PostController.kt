@@ -184,8 +184,22 @@ class PostController(
         @PathVariable postSeq: Long,
         @AuthenticationPrincipal user: UserDetails,
         @RequestBody data: PostCreateDto.MessageNickNameUpdate
-    ): ResponseDto<Long> {
+    ): ResponseDto<Nothing> {
         postService.updateMessageNickNameInfo(groupSeq, postSeq, data.updateInfo, user.username, data.deleteMessageNickNameSeqs)
         return ResponseDto(data = null, status = HttpStatus.OK)
+    }
+
+    @PostMapping("/board/{groupSeq}/{postSeq}")
+    fun updateBoardPost(
+        @PathVariable groupSeq: Long,
+        @PathVariable postSeq: Long,
+        @AuthenticationPrincipal user: UserDetails,
+        @RequestPart data: PostCreateDto.Board,
+        @RequestParam imageMap: Map<String, MultipartFile>,
+    ): ResponseDto<String> {
+        val imageUriMap = imageUriMap(imageMap)
+        data.replaceUri(imageUriMap)
+        postService.updateBoardPost(groupSeq, postSeq, data, user.username)
+        return ResponseDto(data = data.content, status = HttpStatus.OK)
     }
 }

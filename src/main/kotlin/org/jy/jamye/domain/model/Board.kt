@@ -14,4 +14,7 @@ class Board(
     @Column(name = "bi_seq")
     var boardSeq: Long? = null
 ) {
+    fun contentUpdate(content: String) {
+        this.detail = content
+    }
 }
