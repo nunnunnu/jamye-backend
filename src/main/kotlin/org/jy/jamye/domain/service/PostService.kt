@@ -186,7 +186,7 @@ class PostService(
         postSeq: Long,
         nickNameMap: Map<String, Long> = mapOf(),
         replySeqMap: MutableMap<String, Long> = mutableMapOf()
-    ) {
+    ): Map<String, Long> {
         val replyEntitySeqMap = mutableMapOf<String, Message>()
         val replyKeyMap = mutableMapOf<Message, String>()
         val messages: MutableList<Message> = mutableListOf()
@@ -216,6 +216,7 @@ class PostService(
                 message.replyToMessageSeq = replyEntitySeqMap[keySeq]!!.messageSeq
             }
         }
+        return replyEntitySeqMap.map { it.key to it.value.messageSeq!! }.toMap()
     }
 
     fun createPostBoardType(userSeq: Long, data: PostDto, detailContent: PostDto.BoardPost): Long {
@@ -243,7 +244,8 @@ class PostService(
         postSeq: Long,
         message: MutableCollection<PostDto.MessagePost>,
         deleteMessage: Set<Long>,
-        deleteImage: Set<Long>
+        deleteImage: Set<Long>,
+        replyMap: MutableMap<String, Long>
     ) {
         val updateMessage = mutableListOf<PostDto.MessagePost>()
         val createMessage = mutableListOf<PostDto.MessagePost>()
@@ -257,10 +259,14 @@ class PostService(
             createMessage.add(create)
 
         }
+        var replyPrimaryKeyMap = mapOf<String, Long>()
+        if(createMessage.isNotEmpty()) {
+            replyPrimaryKeyMap = createMessage(content = createMessage, postSeq = postSeq, replySeqMap = replyMap)
+        }
 
         if(updateMessage.isNotEmpty()) {
             val messageEntityMap: Map<Long, Message> =
-                messageRepository.findAllById(updateMessage.flatMap { it.message.map { it.messageSeq!! } })
+                messageRepository.findAllById(updateMessage.flatMap { it.message.map { msg -> msg.messageSeq!! } })
                     .associateBy { it.messageSeq!! }
 
             updateMessage.forEach { it ->
@@ -272,16 +278,19 @@ class PostService(
                             messageNickNameSeq = it.sendUserSeq,
                             replyTo = msg.replyTo,
                             replyMessage = msg.replyMessage,
+                            replyToMessageSeq =
+                                if(msg.replyMessageSeq != null) {
+                                    if (deleteMessage.contains(msg.replyMessageSeq)) null
+                                    else msg.replyMessageSeq
+                                } else if(msg.replyToKey != null && msg.replyToSeq != null){
+                                    replyPrimaryKeyMap[msg.replyStringKey()]
+                                 } else null,
                             orderNumber = msg.seq
                         )
                     }
                 }
             }
             messageRepository.saveAll(messageEntityMap.values)
-        }
-
-        if(createMessage.isNotEmpty()) {
-            createMessage(content = createMessage, postSeq = postSeq)
         }
 
         if(deleteMessage.isNotEmpty()) {

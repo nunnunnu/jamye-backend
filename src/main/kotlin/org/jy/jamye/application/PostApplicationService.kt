@@ -96,13 +96,19 @@ class PostApplicationService(private val postService: PostService, private val u
         return postService.createPostBoardType(user.sequence, post, content)
     }
 
-    fun updateMessagePost(groupSeq: Long, postSeq: Long, userId: String, data: PostDto.MessageUpdate) {
+    fun updateMessagePost(
+        groupSeq: Long,
+        postSeq: Long,
+        userId: String,
+        data: PostDto.MessageUpdate,
+        replyMap: MutableMap<String, Long>
+    ) {
         val user = userService.getUser(userId)
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
 
         var seq = 1L
         data.message.values.forEach { it.message.forEach { msg -> msg.seq = seq++ } }
-        postService.postUpdate(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage)
+        postService.postUpdate(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage, replyMap)
 
     }
 

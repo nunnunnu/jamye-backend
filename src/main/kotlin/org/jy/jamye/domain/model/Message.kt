@@ -34,7 +34,8 @@ class Message(
         messageNickNameSeq: Long?,
         replyTo: String?,
         replyMessage: String?,
-        orderNumber: Long?
+        replyToMessageSeq: Long?,
+        orderNumber: Long?,
         ) {
         if (content != null) {
             this.content = content
@@ -42,14 +43,12 @@ class Message(
         if (messageNickNameSeq != null) {
             this.messageNickNameSeq = messageNickNameSeq
         }
-        if (replyTo != null) {
-            this.replyTo = replyTo
-        }
-        if (replyMessage != null) {
-            this.replyMessage = replyMessage
-        }
         if  (orderNumber != null) {
             this.orderNumber = orderNumber
         }
+
+        this.replyTo = replyTo
+        this.replyMessage = replyMessage
+        this.replyToMessageSeq = replyToMessageSeq
     }
 }
