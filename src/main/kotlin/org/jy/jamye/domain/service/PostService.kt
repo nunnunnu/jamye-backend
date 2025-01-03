@@ -5,10 +5,7 @@ import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.exception.AllPostsAlreadyOwnedException
 import org.jy.jamye.common.exception.PostAccessDeniedException
-import org.jy.jamye.domain.model.Message
-import org.jy.jamye.domain.model.MessageNickName
-import org.jy.jamye.domain.model.Post
-import org.jy.jamye.domain.model.PostType
+import org.jy.jamye.domain.model.*
 import org.jy.jamye.infra.*
 import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.stereotype.Service
@@ -54,7 +51,7 @@ class PostService(
             postType = post.postType,
             content = if (post.postType == PostType.MSG) getMessagePost(postSequence)
                     else PostDto.BoardPost(
-                        content = boardRepository.findByPostSeq(postSequence).detail
+                        content = getBoardPostOrThrow(postSequence).detail
                     )
             )
         return result
@@ -339,5 +336,15 @@ class PostService(
     fun createLuckyDraw(userSeq: Long, groupSeq: Long, luckyDrawSeq: Long) {
         val createLuckyDraw = postFactory.createLuckyDraw(userSeq, groupSeq, luckyDrawSeq)
         userGroupPostRepository.save(createLuckyDraw)
+    }
+
+    fun updateBoardPost(groupSeq: Long, postSeq: Long, data: PostCreateDto.Board) {
+        val board = getBoardPostOrThrow(postSeq)
+        board.contentUpdate(data.content)
+        boardRepository.save(board)
+    }
+
+    private fun getBoardPostOrThrow(postSeq: Long): Board {
+        return boardRepository.findByPostSeq(postSeq).orElseThrow { EntityNotFoundException("잘못된 게시글 번호입니다.") }
     }
 }

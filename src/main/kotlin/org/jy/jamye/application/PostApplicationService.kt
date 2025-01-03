@@ -138,4 +138,11 @@ class PostApplicationService(private val postService: PostService, private val u
         postService.updateNickNameInfo(groupSeq, postSeq, userId, data, deleteMessageNickNameSeqs)
     }
 
+    fun updateBoardPost(groupSeq: Long, postSeq: Long, data: PostCreateDto.Board, userId: String) {
+        val user = userService.getUser(userId)
+        postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
+
+        postService.updateBoardPost(groupSeq, postSeq, data)
+    }
+
 }

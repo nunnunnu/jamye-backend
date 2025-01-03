@@ -83,6 +83,10 @@ data class PostDto(
         val deleteMessage: Set<Long> = setOf(),
         val deleteImage: Set<Long> = setOf()
     )
+
+    class BoardUpdate (
+        val content: String
+    )
 }
 
 data class MessageNickNameDto (
