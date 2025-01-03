@@ -83,7 +83,12 @@ class PostService(
                             seq = ++seq,
                             message = it.content,
                             imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()),
-                            messageSeq = it.messageSeq)
+                            messageSeq = it.messageSeq,
+                            replyMessageSeq = it.replyToMessageSeq,
+                            replyTo = it.replyTo,
+                            replyMessage = it.replyMessage,
+                            isReply = it.replyTo != null
+                            )
                     ),
                     sendDate = it.sendDate,
                     myMessage = it.messageNickNameSeq == null,
@@ -208,7 +213,7 @@ class PostService(
         messages.forEach { message ->
             val keySeq = replyKeyMap[message]
             if(replyEntitySeqMap.containsKey(keySeq)) {
-                message.replyToPostSeq = replyEntitySeqMap[keySeq]!!.messageSeq
+                message.replyToMessageSeq = replyEntitySeqMap[keySeq]!!.messageSeq
             }
         }
     }

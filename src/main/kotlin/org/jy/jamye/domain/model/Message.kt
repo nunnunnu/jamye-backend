@@ -1,7 +1,6 @@
 package org.jy.jamye.domain.model
 
 import jakarta.persistence.*
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "pi_msg")
@@ -17,7 +16,7 @@ class Message(
     @Column(name = "reply_message")
     var replyMessage: String? = null,
     @Column(name = "reply_seq")
-    var replyToPostSeq: Long? = null,
+    var replyToMessageSeq: Long? = null,
     @Column(name="num")
     var orderNumber: Long,
     @Column(name="pi_seq")

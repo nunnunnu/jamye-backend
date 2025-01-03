@@ -48,6 +48,7 @@ data class PostDto(
         val imageKey: Set<String> = setOf(),
         val imageUri: MutableSet<Pair<Long, String>> = mutableSetOf(),
         val messageSeq: Long? = null,
+        val replyMessageSeq: Long? = null,
         val replyToSeq: Long? = null,
         val replyToKey: Long? = null
     ) {
