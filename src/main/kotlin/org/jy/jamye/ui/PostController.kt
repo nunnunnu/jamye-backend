@@ -140,13 +140,28 @@ class PostController(
         @RequestPart data: PostDto.MessageUpdate,
         @RequestParam imageMap: Map<String, MultipartFile>,
     ): ResponseDto<Long> {
+        val replyMap = mutableMapOf<String, Long>()
+        val replyKeySeqSet = mutableSetOf<String>()
+        data.message.forEach{
+            it.value.message.forEach { msg -> replyKeySeqSet.add(msg.replyStringKey()) }
+        }
+        data.message.entries.forEach { (key, value) ->
+            value.message.forEach {
+                replyKeySeqSet.forEach { keySeq ->
+                    if(key.toString() + it.seq.toString() == keySeq) {
+                        replyMap[keySeq] = it.seq
+                    }
+                }
+            }
+
+        }
         val imageUriMap = imageUriMap(imageMap)
         data.message.forEach { (_, value) ->
             value.message.forEach {
                 it.imageKey.forEach { img -> it.imageUri.add(imageUriMap[img]!!) }
              }
         }
-        postService.updateMessagePost(groupSeq, postSeq, user.username, data)
+        postService.updateMessagePost(groupSeq, postSeq, user.username, data, replyMap)
         return ResponseDto(data = null, status = HttpStatus.OK)
     }
 
