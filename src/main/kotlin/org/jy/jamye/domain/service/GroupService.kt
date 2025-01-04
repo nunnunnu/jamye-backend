@@ -150,6 +150,22 @@ class GroupService(
             }
     }
 
+    fun groupUserInfoOrThrow(groupSequence: Long, userSequence: Long): UserInGroupDto {
+        val userInfo = groupUserRepo.findByGroupSequenceAndUserSequence(groupSequence, userSequence)
+            .orElseThrow { EntityNotFoundException("그룹 내 존재하는 유저가 아닙니다") }
+        return UserInGroupDto(
+                    userSequence = userInfo.userSequence,
+                    groupSequence = userInfo.groupSequence,
+                    groupUserSequence = userInfo.groupUserSequence!!,
+                    nickname = userInfo.nickname,
+                    imageUrl = userInfo.imageUrl,
+                    grade = userInfo.grade,
+                    createDate = userInfo.createDate,
+                    updateDate = userInfo.updateDate
+                )
+
+    }
+
     fun getGroupInUsersNickName(groupSeq: Long, userSeqs: List<Long>): Map<Long, String> {
         val groupUsers =
             groupUserRepo.findByGroupSequenceAndUserSequenceIn(groupSeq, userSeqs)
@@ -212,5 +228,17 @@ class GroupService(
             .associate { it.groupUserSequence!! to UserInGroupDto.Simple(nickname = it.nickname, imageUrl = it.imageUrl) }
             .toMap()
     }
+
+    fun updateUserInGroupInfo(groupSeq: Long, userInGroupSeq: Long, userSeq: Long, nickName: String?, saveFile: String?) {
+        userInGroupCheckOrThrow(groupSeq = groupSeq, userSeq = userSeq)
+
+        val userInGroup =
+            groupUserRepo.findById(userInGroupSeq).orElseThrow { EntityNotFoundException("유저 정보를 찾을 수 없습니다") }
+
+        userInGroup.updateInfo(nickName, saveFile)
+
+        groupUserRepo.save(userInGroup)
+    }
+
 }
 

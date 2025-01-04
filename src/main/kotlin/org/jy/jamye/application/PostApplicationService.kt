@@ -70,7 +70,7 @@ class PostApplicationService(private val postService: PostService, private val u
         }
 
         postService.createLuckyDraw(userSeq, groupSeq, luckyDrawSeq)
-//        redisClient.setLuckyDrawMap(userSeq)
+        redisClient.setLuckyDrawMap(userSeq)
 
         return result
     }
