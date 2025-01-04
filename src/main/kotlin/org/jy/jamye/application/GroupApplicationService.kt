@@ -11,9 +11,12 @@ import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.GroupVoteService
 import org.jy.jamye.domain.service.UserService
+import org.jy.jamye.domain.service.VisionService
 import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime.now
 
 @Suppress("CAST_NEVER_SUCCEEDS")
@@ -22,7 +25,8 @@ class GroupApplicationService(private val userService: UserService,
                               private val groupService: GroupService,
                               private val groupUserRepository: GroupUserRepository,
                               private val redisClient: RedisClient,
-    private val groupVoteService: GroupVoteService
+    private val groupVoteService: GroupVoteService,
+    private val fileService: VisionService
 ) {
     fun getGroupsInUser(id: String): List<GroupDto.UserInfo> {
         val user = userService.getUser(id)
@@ -114,5 +118,25 @@ class GroupApplicationService(private val userService: UserService,
     fun getUsersInGroup(groupSeq: Long, userId: String): List<UserInGroupDto> {
         val user = userService.getUser(userId)
         return groupService.getUsersInGroup(groupSeq, user.sequence!!)
+    }
+
+    fun getUserInGroup(groupSeq: Long, userId: String): UserInGroupDto {
+        val user = userService.getUser(userId)
+        groupService.userInGroupCheckOrThrow(groupSeq = groupSeq, userSeq = user.sequence!!)
+
+        return groupService.groupUserInfoOrThrow(groupSequence = groupSeq, userSequence = user.sequence)
+
+    }
+
+    fun updateUserInGroupInfo(
+        groupSeq: Long,
+        userInGroupSeq: Long,
+        nickName: String?,
+        profile: MultipartFile?,
+        userId: String
+    ) {
+        val user = userService.getUser(userId)
+        val saveFile = profile?.let { fileService.saveFile(it) }
+        groupService.updateUserInGroupInfo(groupSeq, userInGroupSeq, user.sequence!!, nickName, saveFile)
     }
 }

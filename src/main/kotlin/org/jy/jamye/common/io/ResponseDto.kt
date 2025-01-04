@@ -9,6 +9,6 @@ data class ResponseDto<T> (
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val time: LocalDateTime = LocalDateTime.now(),
     var data: T? = null,
-    val status: HttpStatus
+    val status: HttpStatus = HttpStatus.OK
 ){
 }

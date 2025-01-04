@@ -32,6 +32,14 @@ class GroupUser (
     @JoinColumn(name = "gi_seq", updatable = false, insertable = false)
     val group: Group
     ){
+    fun updateInfo(nickName: String?, saveFile: String?) {
+        if (nickName != null) {
+            this.nickname = nickName
+        }
+        if (saveFile != null) {
+            this.imageUrl = saveFile
+        }
+    }
 }
 
 enum class Grade {
