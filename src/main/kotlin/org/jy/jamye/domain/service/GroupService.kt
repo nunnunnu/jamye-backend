@@ -8,6 +8,7 @@ import org.jy.jamye.common.exception.MemberNotInGroupException
 import org.jy.jamye.common.listener.PostDeleteEvent
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
+import org.jy.jamye.domain.model.GroupUser
 import org.jy.jamye.infra.GroupFactory
 import org.jy.jamye.infra.GroupRepository
 import org.jy.jamye.infra.GroupUserRepository
@@ -176,11 +177,17 @@ class GroupService(
     }
 
     fun autoTransferMasterPrivileges(userSeq: Long, deleteAgree: Set<Long> = setOf(), groupSeqs: MutableSet<Long> = mutableSetOf()) {
-        val masterInfo = groupUserRepo.findAllByUserSequenceAndGrade(userSeq, Grade.MASTER)
-        if (groupSeqs.isEmpty()) {
+        val masterInfo = mutableListOf<GroupUser>()
+        if(groupSeqs.isEmpty()) {
+            masterInfo.addAll(groupUserRepo.findAllByUserSequenceAndGrade(userSeq, Grade.MASTER))
             groupSeqs.addAll(masterInfo.map { it.groupSequence })
+        } else {
+            masterInfo.addAll(groupUserRepo.findAllByUserSequenceAndGradeAndGroupSequenceIn(userSeq, Grade.MASTER, groupSeqs))
         }
 
+        if (masterInfo.isEmpty()) { //해당 유저가 운영자인 그룹이 없음
+            return
+        }
         groupUserRepo.deleteAllById(masterInfo.map { it.groupUserSequence })
 
         val groupOldestUser = groupUserRepo.findByGroupOldestUser(groupSeqs, deleteAgree)
@@ -249,13 +256,13 @@ class GroupService(
 
     @Transactional
     fun leaveGroup(groupSeq: Long, userSeq: Long) {
-        groupUserRepo.deleteAllByGroupSequenceAndUserSequence(groupSeq, userSeq)
-
         val countByGroupSequence = groupUserRepo.countByGroupSequence(groupSeq)
-        if(countByGroupSequence == 0L) {
+        if(countByGroupSequence == 1L) {
             deleteGroup(groupSeq)
+        } else {
+            autoTransferMasterPrivileges(userSeq = userSeq, groupSeqs = mutableSetOf(groupSeq))
         }
-
+        groupUserRepo.deleteAllByGroupSequenceAndUserSequence(groupSeq, userSeq)
     }
 
 }
