@@ -44,7 +44,7 @@ class PostController(
 
     @PostMapping("/message-text")
     fun extractText(@RequestParam image: MultipartFile, @RequestParam sendUser: Set<String>): ResponseDto< MutableMap<Long, PostDto.MessagePost>> {
-        return ResponseDto(data = visionService.extractTextFromImageUrl(image!!, sendUser), status = HttpStatus.OK)
+        return ResponseDto(data = visionService.extractTextFromImageUrl(image, sendUser), status = HttpStatus.OK)
     }
 
     @PostMapping("/message", consumes = ["multipart/form-data"])
