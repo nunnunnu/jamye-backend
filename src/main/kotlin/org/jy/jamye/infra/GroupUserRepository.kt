@@ -74,4 +74,5 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     fun countByGroupSequence(groupSeq: Long): Long
     @Modifying
     fun deleteAllByGroupSequenceAndUserSequence(groupSeq: Long, userSeq: Long)
+    fun findAllByUserSequenceAndGradeAndGroupSequenceIn(userSeq: Long, master: Grade, groupSeqs: MutableSet<Long>): List<GroupUser>
 }
