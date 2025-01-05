@@ -14,7 +14,6 @@ import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.domain.service.VisionService
 import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime.now
@@ -59,10 +58,16 @@ class GroupApplicationService(private val userService: UserService,
         return groupService.inviteUser(user.sequence!!, data)
     }
 
-    fun deleteGroup(id: String, groupSeq: Long) {
+    fun deleteGroupWithResult(id: String, groupSeq: Long): Boolean {
         val user = userService.getUser(id)
         if (!groupService.userIsMaster(user.sequence!!, groupSeq)) {
             throw GroupDeletionPermissionException()
+        }
+        val totalUser = groupUserRepository.countByGroupSequence(groupSeq)
+        if (totalUser <= 2) { //과반수 동의로 간주함
+            //todo: 마스터 양도 로직 추가
+            groupService.deleteGroup(groupSeq)
+            return true
         }
         val deleteVoteMap = redisClient.getDeleteVoteMap()
 
@@ -79,7 +84,7 @@ class GroupApplicationService(private val userService: UserService,
                 standardVoteCount = voteAbleNumber,
                 agreeUserSeqs = mutableSetOf(user.sequence),
                 disagreeUserSeqs = mutableSetOf(),
-                hasRevoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
+                hasRevoted = redisClient.reVoteCheckAndDeleteReVoteInfo("waitingReVote-${groupSeq}"),
             )
             deleteVoteMap[groupSeq] = deleteVote
             try {
@@ -89,7 +94,7 @@ class GroupApplicationService(private val userService: UserService,
             }
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
-
+        return false
     }
 
     fun deleteGroupVote(userId: String, type: String, groupSeq: Long) {
@@ -147,5 +152,15 @@ class GroupApplicationService(private val userService: UserService,
         groupService.leaveGroup(groupSeq, user.sequence)
 
 
+    }
+
+    fun isGroupDeletionVoteInProgress(groupSeq: Long, userId: String): DeleteVote {
+        val user = userService.getUser(userId)
+        groupService.userInGroupCheckOrThrow(groupSeq = groupSeq, userSeq = user.sequence!!)
+
+        val deleteVoteMap = redisClient.getDeleteVoteMap()
+        val deleteVoteInfo = deleteVoteMap.getOrDefault(groupSeq, DeleteVote())
+        deleteVoteInfo.isWaitingDeleteReVoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
+        return deleteVoteInfo
     }
 }

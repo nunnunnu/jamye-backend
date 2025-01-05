@@ -1,6 +1,7 @@
 package org.jy.jamye.ui
 
 import org.jy.jamye.application.GroupApplicationService
+import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.io.ResponseDto
@@ -10,7 +11,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.util.zip.ZipFile
 
 @RestController
 @RequestMapping("/api/group")
@@ -64,10 +64,9 @@ class GroupController(private val groupService: GroupApplicationService) {
 
 
     @DeleteMapping("/{groupSeq}")
-    fun deleteGroup(@AuthenticationPrincipal user: UserDetails, @PathVariable("groupSeq") groupSeq: Long): ResponseDto<Nothing> {
-        groupService.deleteGroup(user.username, groupSeq)
-
-        return ResponseDto()
+    fun deleteGroup(@AuthenticationPrincipal user: UserDetails, @PathVariable("groupSeq") groupSeq: Long): ResponseDto<Boolean> {
+        val result = groupService.deleteGroupWithResult(user.username, groupSeq)
+        return ResponseDto(data = result)
     }
 
     @PostMapping("/vote/{type}/{groupSeq}")
@@ -111,5 +110,12 @@ class GroupController(private val groupService: GroupApplicationService) {
     : ResponseDto<Nothing> {
         groupService.leaveGroup(groupSeq, user.username)
         return ResponseDto()
+    }
+
+    @GetMapping("/vote-info/{groupSeq}")
+    fun isGroupDeletionVoteInProgress(@PathVariable("groupSeq") groupSeq: Long,
+                                      @AuthenticationPrincipal user: UserDetails): ResponseDto<DeleteVote> {
+        val voteInfo = groupService.isGroupDeletionVoteInProgress(groupSeq, user.username)
+        return ResponseDto(data = voteInfo)
     }
 }

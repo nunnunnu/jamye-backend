@@ -67,14 +67,16 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
         redisTemplate.opsForValue().set(key, value, expireTime, TimeUnit.DAYS)
     }
 
-    fun reVoteCheck(key: String): Boolean{
+    fun reVoteCheckAndDeleteReVoteInfo(key: String): Boolean{
         val result = redisTemplate.hasKey(key)
         if(result) {
             deleteKeys(mutableSetOf(key))
         }
         return result
     }
-
+    fun reVoteCheck(key: String): Boolean{
+        return redisTemplate.hasKey(key)
+    }
     fun hasKey(key: String): Boolean{
         return redisTemplate.hasKey(key)
     }

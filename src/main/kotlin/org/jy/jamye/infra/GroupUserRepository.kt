@@ -44,10 +44,11 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
                 SELECT MIN(g.createDate) 
                 FROM GroupUser g 
                 WHERE g.groupSequence = gu.groupSequence
+                    AND g.userSequence not in :deleteAgree
             ) 
-            AND gu.groupSequence IN :groupSeqs
+            AND gu.groupSequence in :groupSeqs
     """)
-    fun findByGroupOldestUser(groupSeqs: List<Long>): List<GroupUser>
+    fun findByGroupOldestUser(groupSeqs: Collection<Long>, deleteAgree: Set<Long>): List<GroupUser>
     fun countByGroupSequenceAndCreateDateGreaterThan(groupSequence: Long, createDate: LocalDateTime): Long
     @Modifying
     @Transactional

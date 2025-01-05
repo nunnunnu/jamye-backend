@@ -175,9 +175,9 @@ class PostService(
 
         messageNickNameRepository.saveAll(nickNames)
 
-        val nickNameMap = nickNames.associate { it.nickname to it.messageNickNameSeq!! }
+        val nickNameSeqMap = nickNames.associate { it.nickname to it.messageNickNameSeq!! }
 
-        createMessage(content, post.postSeq!!, nickNameMap, replySeqMap)
+        createMessage(content, post.postSeq!!, nickNameSeqMap, replySeqMap)
 
         userGroupPostRepository.save(postFactory.createUserGroupFactory(
             groupSeq = data.groupSequence,

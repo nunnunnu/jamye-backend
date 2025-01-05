@@ -1,12 +1,10 @@
 package org.jy.jamye.domain.service
 
 import jakarta.persistence.EntityNotFoundException
-import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.exception.AlreadyJoinedGroupException
 import org.jy.jamye.common.exception.MemberNotInGroupException
-import org.jy.jamye.common.listener.EmailEvent
 import org.jy.jamye.common.listener.PostDeleteEvent
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
@@ -177,12 +175,15 @@ class GroupService(
 
     }
 
-    fun autoTransferMasterPrivileges(userSeq: Long) {
+    fun autoTransferMasterPrivileges(userSeq: Long, deleteAgree: Set<Long> = setOf(), groupSeqs: MutableSet<Long> = mutableSetOf()) {
         val masterInfo = groupUserRepo.findAllByUserSequenceAndGrade(userSeq, Grade.MASTER)
-        val groupSeqs = masterInfo.map { it.groupSequence }
+        if (groupSeqs.isEmpty()) {
+            groupSeqs.addAll(masterInfo.map { it.groupSequence })
+        }
+
         groupUserRepo.deleteAllById(masterInfo.map { it.groupUserSequence })
 
-        val groupOldestUser = groupUserRepo.findByGroupOldestUser(groupSeqs)
+        val groupOldestUser = groupUserRepo.findByGroupOldestUser(groupSeqs, deleteAgree)
         if (groupOldestUser.isNotEmpty()) {
             groupUserRepo.assignMasterToOldestUser(groupOldestUser.map { it.groupUserSequence!! })
             groupUserRepo.flush()
@@ -199,8 +200,8 @@ class GroupService(
 
     fun deleteUsers(groupSeq: Long, deleteAgree: Set<Long>) {
         val masterSeq = groupUserRepo.findGroupMasterSeq(groupSeq, deleteAgree)
+        autoTransferMasterPrivileges(masterSeq, deleteAgree, groupSeqs = mutableSetOf(groupSeq))
         groupUserRepo.deleteAllByGroupSequenceAndUserSequenceIn(groupSeq, deleteAgree)
-        autoTransferMasterPrivileges(masterSeq)
     }
 
     fun getInviteGroupInfo(userSeq: Long, groupSeq: Long) : GroupDto {

@@ -1,6 +1,5 @@
 package org.jy.jamye.application
 
-import org.jy.jamye.common.exception.AlreadyRegisteredIdException
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.infra.UserRepository
@@ -17,7 +16,7 @@ class UserApplicationService(
     @Transactional
     fun deleteUser(username: String, password: String) {
         val userSeq = userService.deleteUser(username, password)
-        groupService.autoTransferMasterPrivileges(userSeq)
+        groupService.autoTransferMasterPrivileges(userSeq, setOf())
     }
 
     fun duplicateIdCheck(id: String): Boolean {
