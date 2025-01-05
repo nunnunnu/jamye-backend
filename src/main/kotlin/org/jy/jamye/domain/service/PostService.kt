@@ -9,6 +9,7 @@ import org.jy.jamye.domain.model.*
 import org.jy.jamye.infra.*
 import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PostService(
@@ -123,10 +124,18 @@ class PostService(
         }
     }
 
+    @Transactional
     fun deletePostInGroup(groupSeq: Long) {
+        //post detail 삭제
+        messageImageRepository.deleteAllPostInGroup(groupSeq)
+        messageNickNameRepository.deleteAllPostInGroup(groupSeq)
+        messageRepository.deleteAllByGroupSeq(groupSeq)
+        boardRepository.deleteAllByGroupSeq(groupSeq)
+        //post 삭제
         postRepository.deleteByGroupSeq(groupSeq)
+
+        //사용자 보유 post 삭제
         userGroupPostRepository.deleteByGroupSequence(groupSeq)
-        //todo: post detail 삭제 로직 추가
     }
 
     fun deleteUserAllPostInGroup(agreeUserSeqs: Set<Long>, groupSeq: Long) {
