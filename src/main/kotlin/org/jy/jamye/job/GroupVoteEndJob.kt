@@ -28,7 +28,7 @@ class GroupVoteEndJob(
             val deleteAgree = voteInfo.agreeUserSeqs
             if(deleteAgree.size > (voteInfo.standardVoteCount/2)) {
                 log.info("[1차 투표] $groupSeq: 과반수 삭제 동의 ${deleteAgree.size}/${voteInfo.standardVoteCount}명")
-                groupService.deleteGroup(groupSeq!!, voteInfo)
+                groupService.deleteGroup(groupSeq!!)
                 postService.deletePostInGroup(groupSeq)
             } else if(voteInfo.hasRevoted) {
                 log.info("[2차 투표] $groupSeq: ${deleteAgree.size}/${voteInfo.standardVoteCount}명 과반수 달성 불가")

@@ -105,4 +105,11 @@ class GroupController(private val groupService: GroupApplicationService) {
         groupService.updateUserInGroupInfo(groupSeq, userInGroupSeq, nickName, profile, user.username)
         return ResponseDto()
     }
+
+    @PostMapping("/leave/{groupSeq}")
+    fun leaveGroup(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails)
+    : ResponseDto<Nothing> {
+        groupService.leaveGroup(groupSeq, user.username)
+        return ResponseDto()
+    }
 }

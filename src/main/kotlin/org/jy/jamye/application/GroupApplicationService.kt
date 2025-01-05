@@ -139,4 +139,13 @@ class GroupApplicationService(private val userService: UserService,
         val saveFile = profile?.let { fileService.saveFile(it) }
         groupService.updateUserInGroupInfo(groupSeq, userInGroupSeq, user.sequence!!, nickName, saveFile)
     }
+
+    fun leaveGroup(groupSeq: Long, userId: String) {
+        val user = userService.getUser(userId)
+        groupService.userInGroupCheckOrThrow(groupSeq = groupSeq, userSeq = user.sequence!!)
+
+        groupService.leaveGroup(groupSeq, user.sequence)
+
+
+    }
 }

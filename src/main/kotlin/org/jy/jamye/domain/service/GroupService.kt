@@ -185,7 +185,7 @@ class GroupService(
         }
     }
 
-    fun deleteGroup(groupSeq: Long, voteInfo: DeleteVote) {
+    fun deleteGroup(groupSeq: Long) {
         log.info("---{}번 그룹 삭제 유저 과반수 동의---", groupSeq)
         groupUserRepo.deleteAllByGroupSequence(groupSeq)
         groupRepo.deleteById(groupSeq)
@@ -238,6 +238,17 @@ class GroupService(
         userInGroup.updateInfo(nickName, saveFile)
 
         groupUserRepo.save(userInGroup)
+    }
+
+    @Transactional
+    fun leaveGroup(groupSeq: Long, userSeq: Long) {
+        groupUserRepo.deleteAllByGroupSequenceAndUserSequence(groupSeq, userSeq)
+
+        val countByGroupSequence = groupUserRepo.countByGroupSequence(groupSeq)
+        if(countByGroupSequence == 0L) {
+            deleteGroup(groupSeq)
+        }
+
     }
 
 }
