@@ -46,7 +46,8 @@ data class DeleteVote(
     var disagreeUserSeqs: MutableSet<Long> = mutableSetOf<Long>(),
     var hasRevoted: Boolean
 ): Serializable {
-
+    var isWaitingDeleteReVoted: Boolean = false
+    var isNowVoting: Boolean = true
     fun startDateAsLocalDateTime(): LocalDateTime {
         return LocalDateTime.parse(startDateTime)  // String을 LocalDateTime으로 변환
     }
@@ -62,5 +63,7 @@ data class DeleteVote(
         agreeUserSeqs = mutableSetOf(),
         disagreeUserSeqs = mutableSetOf(),
         hasRevoted = false
-    )
+    ) {
+        this.isNowVoting = false
+    }
 }

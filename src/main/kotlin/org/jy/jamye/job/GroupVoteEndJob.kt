@@ -13,8 +13,7 @@ import java.time.LocalDateTime
 class GroupVoteEndJob(
     private val groupService: GroupService,
     private val redisClient: RedisClient,
-    private val postService: PostService,
-    service: PostService
+    private val postService: PostService
 ) : Job {
     private val log = LoggerFactory.getLogger(GroupVoteEndJob::class.java)
 
@@ -31,8 +30,8 @@ class GroupVoteEndJob(
                 groupService.deleteGroup(groupSeq!!)
             } else if(voteInfo.hasRevoted) {
                 log.info("[2차 투표] $groupSeq: ${deleteAgree.size}/${voteInfo.standardVoteCount}명 과반수 달성 불가")
-                postService.deleteUserAllPostInGroup(deleteAgree, groupSeq!!)
-                groupService.deleteUsers(groupSeq, deleteAgree)
+                groupService.deleteUsers(groupSeq!!, deleteAgree)
+                postService.deleteUserAllPostInGroup(deleteAgree, groupSeq)
 
             } else {
                 log.info("[1차투표 종료] $groupSeq: ${deleteAgree.size}/${voteInfo.standardVoteCount}명 과반수 달성 불가")
