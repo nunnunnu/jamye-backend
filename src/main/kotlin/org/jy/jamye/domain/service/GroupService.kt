@@ -6,6 +6,8 @@ import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.exception.AlreadyJoinedGroupException
 import org.jy.jamye.common.exception.MemberNotInGroupException
+import org.jy.jamye.common.listener.EmailEvent
+import org.jy.jamye.common.listener.PostDeleteEvent
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
 import org.jy.jamye.infra.GroupFactory
@@ -14,6 +16,7 @@ import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,7 +28,8 @@ import java.util.UUID
 class GroupService(
     private val groupRepo: GroupRepository,
     private val groupUserRepo: GroupUserRepository,
-    private val groupFactory: GroupFactory
+    private val groupFactory: GroupFactory,
+    private val publisher: ApplicationEventPublisher
 ) {
 
     var log: Logger = LoggerFactory.getLogger(GroupService::class.java)
@@ -189,6 +193,8 @@ class GroupService(
         log.info("---{}번 그룹 삭제 유저 과반수 동의---", groupSeq)
         groupUserRepo.deleteAllByGroupSequence(groupSeq)
         groupRepo.deleteById(groupSeq)
+        val event = PostDeleteEvent(groupSeq)
+        publisher.publishEvent(event)
     }
 
     fun deleteUsers(groupSeq: Long, deleteAgree: Set<Long>) {

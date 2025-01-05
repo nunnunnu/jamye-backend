@@ -27,7 +27,6 @@ class EmailController(private val emailService: EmailService, private val emailA
     //인증 번호 전송
     @PostMapping("/send")
     fun sendEmail(@RequestParam email: String): ResponseDto<EmailDto> {
-        //todo: 이벤트 적용필요
         val event = EmailEvent(email = email)
         publisher.publishEvent(event)
         return ResponseDto(status = HttpStatus.OK)
