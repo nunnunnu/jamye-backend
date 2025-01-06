@@ -10,6 +10,7 @@ data class PostDto(
     var createdUserSequence: Long? = null,
     var createDate: LocalDateTime? = null,
     var updateDate: LocalDateTime? = null,
+    val type: PostType
 ) {
     var createdUserNickName: String? = null
 
