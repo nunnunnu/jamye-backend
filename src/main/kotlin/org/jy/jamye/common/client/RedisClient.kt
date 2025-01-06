@@ -39,20 +39,20 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
         return deleteVoteMap
     }
 
-    fun getLuckyDrawMap(): MutableMap<Long, Int> {
+    fun getLuckyDrawMap(): MutableMap<String, Int> {
         val mapper = ObjectMapper()
 
-        val luckyDrawMap: MutableMap<Long, Int> = if (redisTemplate.opsForValue().get("luckyDraw").isNullOrBlank()) HashMap()
-        else mapper.readValue(redisTemplate.opsForValue().get("luckyDraw"), object : TypeReference<MutableMap<Long, Int>>() {})
+        val luckyDrawMap: MutableMap<String, Int> = if (redisTemplate.opsForValue().get("luckyDraw").isNullOrBlank()) HashMap()
+        else mapper.readValue(redisTemplate.opsForValue().get("luckyDraw"), object : TypeReference<MutableMap<String, Int>>() {})
 
         return luckyDrawMap
     }
 
-    fun setLuckyDrawMap(userSeq: Long) {
+    fun setLuckyDrawMap(key: String) {
         val luckyDrawMap = getLuckyDrawMap()
 
-        var count = luckyDrawMap.getOrDefault(userSeq, 0)
-        luckyDrawMap[userSeq] = ++count
+        var count = luckyDrawMap.getOrDefault(key, 0)
+        luckyDrawMap[key] = ++count
         val jsonData = ObjectMapper().writeValueAsString(luckyDrawMap)
         setValue("luckyDraw", jsonData)
     }

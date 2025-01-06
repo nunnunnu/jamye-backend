@@ -3,6 +3,7 @@ package org.jy.jamye.ui
 import org.jy.jamye.application.PostApplicationService
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.io.ResponseDto
+import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.domain.service.VisionService
 import org.jy.jamye.infra.MessageNickNameRepository
 import org.jy.jamye.ui.post.PostCreateDto
@@ -93,8 +94,10 @@ class PostController(
 
         }
         val postSeq = postService.createPostMessage(userId = user.username, post = PostDto(
-            title = data.title,
-            groupSequence = data.groupSeq),
+                title = data.title,
+                groupSequence = data.groupSeq,
+                type = PostType.MSG
+            ),
             content = contents,
             nickNameMap = nickNameMap,
             replySeqMap = replyMap
@@ -111,7 +114,8 @@ class PostController(
         data.content.replaceUri(imageUriMap)
         val postSeq = postService.createPostBoard(userId = user.username, post = PostDto(
             title = data.title,
-            groupSequence = data.groupSeq),
+            groupSequence = data.groupSeq,
+            type = PostType.BOR),
             content = PostDto.BoardPost(content = data.content.content)
         )
         return ResponseDto(data = postSeq, status = HttpStatus.OK)

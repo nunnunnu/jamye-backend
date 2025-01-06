@@ -36,7 +36,8 @@ class PostService(
             createdUserSequence = post.userSeq,
             title = post.title,
             createDate = post.createDate,
-            updateDate = post.updateDate
+            updateDate = post.updateDate,
+            type = post.postType
         )
     }
 
