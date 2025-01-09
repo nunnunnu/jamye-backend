@@ -6,6 +6,7 @@ import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyDeleteVoting
+import org.jy.jamye.common.exception.DuplicateGroupNicknameException
 import org.jy.jamye.common.exception.GroupDeletionPermissionException
 import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.domain.service.GroupService
@@ -25,7 +26,7 @@ class GroupApplicationService(private val userService: UserService,
                               private val groupUserRepository: GroupUserRepository,
                               private val redisClient: RedisClient,
     private val groupVoteService: GroupVoteService,
-    private val fileService: VisionService
+    private val fileService: VisionService,
 ) {
     fun getGroupsInUser(id: String): List<GroupDto.UserInfo> {
         val user = userService.getUser(id)
@@ -162,5 +163,12 @@ class GroupApplicationService(private val userService: UserService,
         val deleteVoteInfo = deleteVoteMap.getOrDefault(groupSeq, DeleteVote())
         deleteVoteInfo.isWaitingDeleteReVoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
         return deleteVoteInfo
+    }
+
+    fun nickNameDuplicateCheck(groupSeq: Long, nickName: String) {
+        if (groupUserRepository.existsByGroupSequenceAndNickname(groupSeq, nickName)) {
+           throw DuplicateGroupNicknameException()
+        }
+
     }
 }

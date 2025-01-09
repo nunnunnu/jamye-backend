@@ -69,6 +69,13 @@ class GroupController(private val groupService: GroupApplicationService) {
         return ResponseDto(data = result)
     }
 
+    @GetMapping("/{groupSeq}/nick-name")
+    fun duplicateNickName(@AuthenticationPrincipal user: UserDetails, @PathVariable("groupSeq") groupSeq: Long, @RequestParam nickName: String)
+    : ResponseDto<Nothing> {
+        groupService.nickNameDuplicateCheck(groupSeq, nickName = nickName)
+        return ResponseDto()
+    }
+
     @PostMapping("/vote/{type}/{groupSeq}")
     fun groupDeleteVote(
         @AuthenticationPrincipal user: UserDetails,
