@@ -86,7 +86,7 @@ class VisionService {
                             }
 
                             val lineRightX = paragraph.boundingBox.verticesList.maxOfOrNull { it.x } ?: 0
-                            val isRightmost = lineRightX >= maxRightX - 60  // 오른쪽 끝 기준 조정
+                            val isRightmost = lineRightX >= maxRightX - 80  // 오른쪽 끝 기준 조정
                             val spaceRemoveNickname = sendUser.map { it.replace(" ", "") }
                             val spaceRemoveLineText = lineText.replace(" ", "")
                             if (spaceRemoveNickname.contains(spaceRemoveLineText)) {
