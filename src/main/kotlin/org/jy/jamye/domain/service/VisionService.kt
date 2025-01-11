@@ -170,21 +170,24 @@ class VisionService {
                 }
                 messageMap.entries.forEach { (key, value) ->
                     val messages = value.message
-                    messages.forEachIndexed { index, it ->
-                        run {
-                            val originMessage = res.fullTextAnnotation.text.split("\n")
-                            for (message in originMessage) {
-                                if(it.message != null) {
-                                    val replace = it.message!!.replace(" ", "")
-                                    if (replace.length > 5 && message.replace(" ", "").contains(replace.substring(1 until replace.length - 1))) {
-                                        value.message[index] = MessageSequence(it.seq, message)
+                    if(messages.isNotEmpty()) {
+                        messages.forEachIndexed { index, it ->
+                            run {
+                                val originMessage = res.fullTextAnnotation.text.split("\n")
+                                for (message in originMessage) {
+                                    if(it.message != null) {
+                                        val replace = it.message!!.replace(" ", "")
+                                        if (replace.length > 5 && message.replace(" ", "").contains(replace.substring(1 until replace.length - 1))) {
+                                            value.message[index] = MessageSequence(it.seq, message)
+                                        }
                                     }
-                                }
 
+                                }
                             }
                         }
+                        result[key] = value
                     }
-                    result[key] = value
+
                 }
             }
 
