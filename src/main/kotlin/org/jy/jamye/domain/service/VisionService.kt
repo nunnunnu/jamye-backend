@@ -168,8 +168,14 @@ class VisionService {
 
                     }
                 }
+                var sendUser: String? = null
+                var seqKey = 0L
                 messageMap.entries.forEach { (key, value) ->
                     val messages = value.message
+                    if(seqKey == 0L || sendUser != value.sendUser) {
+                        sendUser = value.sendUser
+                        seqKey++
+                    }
                     if(messages.isNotEmpty()) {
                         messages.forEachIndexed { index, it ->
                             run {
@@ -185,7 +191,14 @@ class VisionService {
                                 }
                             }
                         }
-                        result[key] = value
+                        if(result.containsKey(seqKey)) {
+                            var seqMax: Long = result[seqKey]!!.message.maxBy { it.seq }.seq
+                            value.message.forEach { it.seq = ++seqMax }
+                            result[seqKey]!!.message.addAll(value.message)
+                        } else {
+                            result[seqKey] = value
+                        }
+
                     }
 
                 }
