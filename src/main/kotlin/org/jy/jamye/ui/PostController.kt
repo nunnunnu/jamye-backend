@@ -183,7 +183,7 @@ class PostController(
     }
 
     @PostMapping("/message/{groupSeq}/{postSeq}/nickName")
-    fun messagePostNickNameAdd(
+    fun messagePostNickNameUpdate(
         @PathVariable groupSeq: Long,
         @PathVariable postSeq: Long,
         @AuthenticationPrincipal user: UserDetails,
