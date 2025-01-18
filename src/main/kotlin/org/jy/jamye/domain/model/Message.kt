@@ -35,7 +35,7 @@ class Message(
         replyTo: String?,
         replyMessage: String?,
         replyToMessageSeq: Long?,
-        orderNumber: Long?,
+        orderNumber: Long?
         ) {
         if (content != null) {
             this.content = content

@@ -339,6 +339,7 @@ class PostService(
 
             }
         }
+        messageNickNameRepository.saveAll(messageNickNames)
 
 
     }
