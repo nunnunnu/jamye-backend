@@ -292,7 +292,8 @@ class PostService(
                                 } else if(msg.replyToKey != null && msg.replyToSeq != null){
                                     replyPrimaryKeyMap[msg.replyStringKey()]
                                  } else null,
-                            orderNumber = msg.seq
+                            orderNumber = msg.seq,
+                            sendUserSeq = it.sendUserSeq
                         )
                     }
                 }
