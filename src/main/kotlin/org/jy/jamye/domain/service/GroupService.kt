@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.exception.AlreadyJoinedGroupException
+import org.jy.jamye.common.exception.DuplicateGroupNicknameException
 import org.jy.jamye.common.exception.MemberNotInGroupException
 import org.jy.jamye.common.listener.PostDeleteEvent
 import org.jy.jamye.domain.model.Grade
@@ -28,7 +29,8 @@ class GroupService(
     private val groupRepo: GroupRepository,
     private val groupUserRepo: GroupUserRepository,
     private val groupFactory: GroupFactory,
-    private val publisher: ApplicationEventPublisher
+    private val publisher: ApplicationEventPublisher,
+    private val groupUserRepository: GroupUserRepository
 ) {
 
     var log: Logger = LoggerFactory.getLogger(GroupService::class.java)
@@ -265,5 +267,10 @@ class GroupService(
         groupUserRepo.deleteAllByGroupSequenceAndUserSequence(groupSeq, userSeq)
     }
 
+    fun nickNameDuplicateCheck(groupSeq: Long, nickName: String) {
+        if (groupUserRepository.existsByGroupSequenceAndNickname(groupSeq, nickName)) {
+            throw DuplicateGroupNicknameException()
+        }
+    }
 }
 
