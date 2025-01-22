@@ -143,6 +143,7 @@ class GroupApplicationService(private val userService: UserService,
     ) {
         val user = userService.getUser(userId)
         val saveFile = profile?.let { fileService.saveFile(it) }
+        nickName?.let { groupService.nickNameDuplicateCheck(groupSeq, nickName) }
         groupService.updateUserInGroupInfo(groupSeq, userInGroupSeq, user.sequence!!, nickName, saveFile)
     }
 
@@ -163,12 +164,5 @@ class GroupApplicationService(private val userService: UserService,
         val deleteVoteInfo = deleteVoteMap.getOrDefault(groupSeq, DeleteVote())
         deleteVoteInfo.isWaitingDeleteReVoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
         return deleteVoteInfo
-    }
-
-    fun nickNameDuplicateCheck(groupSeq: Long, nickName: String) {
-        if (groupUserRepository.existsByGroupSequenceAndNickname(groupSeq, nickName)) {
-           throw DuplicateGroupNicknameException()
-        }
-
     }
 }

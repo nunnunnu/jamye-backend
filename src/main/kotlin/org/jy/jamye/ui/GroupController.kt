@@ -5,6 +5,7 @@ import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.io.ResponseDto
+import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -14,10 +15,10 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/group")
-class GroupController(private val groupService: GroupApplicationService) {
+class GroupController(private val groupAppService: GroupApplicationService, private val groupService: GroupService) {
     @GetMapping("/list")
     fun groups(@AuthenticationPrincipal user: UserDetails) :  ResponseDto<List<GroupDto.UserInfo>> {
-        val groups = groupService.getGroupsInUser(user.username)
+        val groups = groupAppService.getGroupsInUser(user.username)
         return ResponseDto(data = groups)
     }
 
@@ -26,7 +27,7 @@ class GroupController(private val groupService: GroupApplicationService) {
         @AuthenticationPrincipal user: UserDetails,
         @RequestBody data: GroupPostDto,
     ): ResponseDto<GroupDto.Detail> {
-        val result = groupService.createGroup(
+        val result = groupAppService.createGroup(
             user.username,
             GroupDto(name = data.name, description = data.description, imageUrl = data.imageUrl),
             UserInGroupDto.Simple(nickname = data.nickname, imageUrl = data.profileImageUrl)
@@ -36,13 +37,13 @@ class GroupController(private val groupService: GroupApplicationService) {
 
     @GetMapping("/{groupSeq}")
     fun getGroup(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<GroupDto.Detail> {
-        val result = groupService.getGroup(user.username, groupSeq)
+        val result = groupAppService.getGroup(user.username, groupSeq)
         return ResponseDto(data = result)
     }
 
     @GetMapping("/invite/{groupSeq}")
     fun inviteGroupCode(@AuthenticationPrincipal user: UserDetails, @PathVariable groupSeq: Long): ResponseDto<String> {
-        val groupInviteCode: String = groupService.inviteGroupCode(user.username, groupSeq)
+        val groupInviteCode: String = groupAppService.inviteGroupCode(user.username, groupSeq)
         return ResponseDto(data = groupInviteCode)
     }
 
@@ -52,20 +53,20 @@ class GroupController(private val groupService: GroupApplicationService) {
         @RequestBody data: GroupPostDto.Invite,
     ): ResponseDto<Long> {
 
-        val userInGroupSequence = groupService.inviteGroupUser(user.username, data)
+        val userInGroupSequence = groupAppService.inviteGroupUser(user.username, data)
         return ResponseDto(data = userInGroupSequence)
     }
 
     @GetMapping("/group-info/{inviteCode}")
     fun inviteGroupInfo(@AuthenticationPrincipal user: UserDetails, @PathVariable inviteCode: String): ResponseDto<GroupDto> {
-        val group = groupService.getInviteGroup(user.username, inviteCode)
+        val group = groupAppService.getInviteGroup(user.username, inviteCode)
         return ResponseDto(data = group)
     }
 
 
     @DeleteMapping("/{groupSeq}")
     fun deleteGroup(@AuthenticationPrincipal user: UserDetails, @PathVariable("groupSeq") groupSeq: Long): ResponseDto<Boolean> {
-        val result = groupService.deleteGroupWithResult(user.username, groupSeq)
+        val result = groupAppService.deleteGroupWithResult(user.username, groupSeq)
         return ResponseDto(data = result)
     }
 
@@ -83,19 +84,19 @@ class GroupController(private val groupService: GroupApplicationService) {
         @PathVariable("groupSeq") groupSeq: Long,
     )
     : ResponseDto<Nothing> {
-        groupService.deleteGroupVote(user.username, type, groupSeq)
+        groupAppService.deleteGroupVote(user.username, type, groupSeq)
         return ResponseDto()
     }
 
     @GetMapping("/users/{groupSeq}")
     fun getAllUsersInGroup(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<List<UserInGroupDto>> {
-        val usersInGroup = groupService.getUsersInGroup(groupSeq, user.username)
+        val usersInGroup = groupAppService.getUsersInGroup(groupSeq, user.username)
         return ResponseDto(data = usersInGroup)
     }
 
     @GetMapping("/user/{groupSeq}")
     fun getUsersInGroup(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<UserInGroupDto> {
-        val usersInGroup = groupService.getUserInGroup(groupSeq, user.username)
+        val usersInGroup = groupAppService.getUserInGroup(groupSeq, user.username)
         return ResponseDto(data = usersInGroup)
     }
 
@@ -108,21 +109,21 @@ class GroupController(private val groupService: GroupApplicationService) {
         @AuthenticationPrincipal user: UserDetails,
     )
     : ResponseDto<Nothing> {
-        groupService.updateUserInGroupInfo(groupSeq, userInGroupSeq, nickName, profile, user.username)
+        groupAppService.updateUserInGroupInfo(groupSeq, userInGroupSeq, nickName, profile, user.username)
         return ResponseDto()
     }
 
     @PostMapping("/leave/{groupSeq}")
     fun leaveGroup(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails)
     : ResponseDto<Nothing> {
-        groupService.leaveGroup(groupSeq, user.username)
+        groupAppService.leaveGroup(groupSeq, user.username)
         return ResponseDto()
     }
 
     @GetMapping("/vote-info/{groupSeq}")
     fun isGroupDeletionVoteInProgress(@PathVariable("groupSeq") groupSeq: Long,
                                       @AuthenticationPrincipal user: UserDetails): ResponseDto<DeleteVote> {
-        val voteInfo = groupService.isGroupDeletionVoteInProgress(groupSeq, user.username)
+        val voteInfo = groupAppService.isGroupDeletionVoteInProgress(groupSeq, user.username)
         return ResponseDto(data = voteInfo)
     }
 }
