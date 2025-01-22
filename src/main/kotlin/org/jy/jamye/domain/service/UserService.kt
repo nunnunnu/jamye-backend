@@ -95,4 +95,11 @@ class UserService(
         return randomPassword
     }
 
+    fun passwordCheck(id: String, password: String) {
+        val user = userRepo.findByUserId(id).orElseThrow { throw BadCredentialsException("로그인 정보를 다시 확인해주세요") }
+        if (!passwordEncoder.matches(password, user.password)) {
+            throw PasswordErrorException("비밀번호가 잘못되었습니다.")
+        }
+    }
+
 }
