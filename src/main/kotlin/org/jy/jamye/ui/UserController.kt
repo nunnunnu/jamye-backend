@@ -62,4 +62,10 @@ class UserController(
     fun duplicateEmailCheck(@PathVariable email: String) : ResponseDto<Boolean> {
         return ResponseDto(data = userAppService.duplicateEmailCheck(email), status = HttpStatus.OK)
     }
+
+    @PostMapping("/password/check")
+    fun passwordCheck(@AuthenticationPrincipal user: UserDetails, @RequestBody data: UserPasswordDto): ResponseDto<Nothing> {
+        userService.passwordCheck(user.username, data.password)
+        return ResponseDto()
+    }
 }
