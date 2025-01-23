@@ -21,8 +21,8 @@ class CustomAuthenticationProvider(
     override fun authenticate(authentication: Authentication): Authentication {
         val user = userRepository.findByUserId(authentication.name).orElseThrow { throw EntityNotFoundException() }
 
-        val decodePassword: String = authentication.credentials.toString()
-        if (passwordEncoder.matches(decodePassword, user.password)) {
+        val encoder: String = authentication.credentials.toString()
+        if (encoder == user.password) {
             return UsernamePasswordAuthenticationToken(user.username, null, user.authorities)
         }
         throw BadCredentialsException("사용자 인증 실패")

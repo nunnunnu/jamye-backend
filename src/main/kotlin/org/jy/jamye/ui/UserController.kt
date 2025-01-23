@@ -6,6 +6,7 @@ import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.service.UserService
+import org.jy.jamye.security.TokenDto
 import org.jy.jamye.ui.post.LoginPostDto
 import org.jy.jamye.ui.post.UserPasswordDto
 import org.jy.jamye.ui.post.UserPostDto
@@ -67,5 +68,10 @@ class UserController(
     fun passwordCheck(@AuthenticationPrincipal user: UserDetails, @RequestBody data: UserPasswordDto): ResponseDto<Nothing> {
         userService.passwordCheck(user.username, data.password)
         return ResponseDto()
+    }
+
+    @PostMapping("/refresh")
+    fun getAccessToken(@RequestBody token: TokenDto): ResponseDto<TokenDto> {
+        return ResponseDto<TokenDto>(data = userService.getAccessToken(token.refreshToken))
     }
 }
