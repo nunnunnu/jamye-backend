@@ -4,12 +4,13 @@ import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
+import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
-import org.jy.jamye.common.util.StringUtils.generateRandomCode
 import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.UserFactory
 import org.jy.jamye.infra.UserRepository
+import org.jy.jamye.security.TokenDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.BadCredentialsException
@@ -22,7 +23,8 @@ class UserService(
     private val userFactory: UserFactory,
     private val userRepo: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val tokenProvider: JwtTokenProvider
+    private val tokenProvider: JwtTokenProvider,
+    private val redisClient: RedisClient
 ) {
     val log = LoggerFactory.getLogger(UserService::class.java)
     @Transactional
@@ -39,8 +41,9 @@ class UserService(
             log.debug("[login] 로그인 실패 = {}", id)
             throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
         }
-        val generateToken = tokenProvider.getAccessToken(user.userId, password)
-        return UserLoginDto(sequence = user.sequence!!, token = generateToken, id = user.userId, email = user.email)
+        val token = tokenProvider.getAccessToken(user.userId, user.password)
+        redisClient.setIdByRefreshToken(userId = user.userId, refreshToken = token.refreshToken)
+        return UserLoginDto(sequence = user.sequence!!, token = token, id = user.userId, email = user.email)
     }
 
     @Transactional(readOnly = true)
@@ -100,6 +103,25 @@ class UserService(
         if (!passwordEncoder.matches(password, user.password)) {
             throw PasswordErrorException("비밀번호가 잘못되었습니다.")
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun getAccessToken(refreshToken: String): TokenDto {
+        val userId = redisClient.getIdByRefreshToken(refreshToken)
+        if (tokenProvider.isRefreshTokenExpired(refreshToken)) {
+            // TODO: 만료토큰 관리로직 추가 필요
+            log.info("[getAccessToken] 만료된 refresh 토큰 = {}", refreshToken)
+            throw IllegalArgumentException("만료된 토큰")
+        }
+        val user = userRepo.findByUserId(userId)
+            .orElseThrow {
+                log.info("[getAccessToken] refresh 토큰의 유저 정보가 존재하지않음 = {}", userId)
+                throw IllegalArgumentException("refresh 토큰의 유저 정보가 존재하지않습니다.")
+            }
+
+        val generateToken = tokenProvider.getAccessToken(user.userId, user.password)
+        redisClient.setIdByRefreshToken(generateToken.refreshToken, user.userId)
+        return TokenDto(refreshToken = refreshToken, accessToken = generateToken.accessToken)
     }
 
 }

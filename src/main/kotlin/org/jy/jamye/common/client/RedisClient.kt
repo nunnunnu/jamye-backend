@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.jy.jamye.application.dto.DeleteVote
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 
@@ -79,5 +80,19 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
     }
     fun hasKey(key: String): Boolean{
         return redisTemplate.hasKey(key)
+    }
+
+    fun getIdByRefreshToken(refreshToken: String): String {
+        if(!hasKey(refreshToken)){
+            throw BadCredentialsException("다시 로그인해주세요")
+        }
+        return getValue(refreshToken)!!
+    }
+
+    fun setIdByRefreshToken(refreshToken: String, userId: String) {
+        println("??")
+        setValue(refreshToken, userId)
+        println("!!")
+        println(getValue(refreshToken))
     }
 }
