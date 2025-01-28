@@ -1,6 +1,7 @@
 package org.jy.jamye.domain.model
 
 import jakarta.persistence.*
+import org.h2.util.StringUtils
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
@@ -23,4 +24,16 @@ class Group (
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "gi_seq", nullable = false)
     var sequence: Long? = null
-)
+) {
+    fun updateInfo(name: String?, imageUrl: String?, description: String?) {
+        if(!StringUtils.isWhitespaceOrEmpty(name)) {
+            this.name = name!!
+        }
+        if(!imageUrl.isNullOrBlank()) {
+            this.imageUrl = imageUrl
+        }
+        if(!description.isNullOrBlank()) {
+            this.description = description
+        }
+    }
+}

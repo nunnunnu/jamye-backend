@@ -6,7 +6,6 @@ import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyDeleteVoting
-import org.jy.jamye.common.exception.DuplicateGroupNicknameException
 import org.jy.jamye.common.exception.GroupDeletionPermissionException
 import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.domain.service.GroupService
@@ -164,5 +163,11 @@ class GroupApplicationService(private val userService: UserService,
         val deleteVoteInfo = deleteVoteMap.getOrDefault(groupSeq, DeleteVote())
         deleteVoteInfo.isWaitingDeleteReVoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
         return deleteVoteInfo
+    }
+
+    fun updateGroupInfo(userId: String, groupSeq: Long, data: GroupPostDto.Update): GroupDto {
+        val user = userService.getUser(userId)
+        groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
+        return groupService.updateGroupInfo(groupSeq, data)
     }
 }

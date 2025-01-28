@@ -13,4 +13,10 @@ data class GroupPostDto (
         val nickName: String,
         val profileImageUrl: String? = null
     )
+
+    class Update (
+        val name: String? = null,
+        val imageUrl: String? = null,
+        val description: String? = null,
+    )
 }

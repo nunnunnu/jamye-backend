@@ -68,6 +68,10 @@ class GroupService(
         )
     }
 
+    fun findByIdOrThrow(groupSequence: Long): Group {
+        return groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
+    }
+
     @Transactional(readOnly = true)
     fun getGroup(userSequence: Long, groupSequence: Long): GroupDto.Detail {
         val usersInGroup = groupUserRepo.findAllByGroupSequence(groupSequence)
@@ -77,7 +81,7 @@ class GroupService(
 
         val masterInfo = usersInGroup.first { it.grade == Grade.MASTER }
 
-        val group = groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
+        val group = findByIdOrThrow(groupSequence)
 
         return GroupDto.Detail(
             groupSequence = group.sequence!!,
@@ -272,5 +276,21 @@ class GroupService(
             throw DuplicateGroupNicknameException()
         }
     }
+
+    @Transactional
+    fun updateGroupInfo(groupSeq: Long, data: GroupPostDto.Update): GroupDto {
+        val group = findByIdOrThrow(groupSeq)
+        group.updateInfo(data.name, data.imageUrl, data.description)
+        return GroupDto(
+            name = group.name,
+            imageUrl = group.imageUrl,
+            description = group.description,
+            createDate = group.createDate,
+            updateDate = group.updateDate,
+            groupSequence = group.sequence
+        )
+    }
+
+
 }
 
