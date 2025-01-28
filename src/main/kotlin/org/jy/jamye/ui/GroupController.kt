@@ -126,4 +126,13 @@ class GroupController(private val groupAppService: GroupApplicationService, priv
         val voteInfo = groupAppService.isGroupDeletionVoteInProgress(groupSeq, user.username)
         return ResponseDto(data = voteInfo)
     }
+
+    @PostMapping("/{groupSeq}")
+    fun updateGroupInfo(@AuthenticationPrincipal user: UserDetails,
+                        @PathVariable("groupSeq") groupSeq: Long,
+                        @RequestBody data: GroupPostDto.Update) : ResponseDto<GroupDto>{
+        val group = groupAppService.updateGroupInfo(user.username, groupSeq, data)
+        return ResponseDto(data = group)
+    }
+
 }
