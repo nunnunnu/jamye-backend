@@ -2,15 +2,23 @@ package org.jy.jamye.application
 
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.client.RedisClient
+import org.jy.jamye.common.listener.NotifyPostUpdateEvent
 import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.PostService
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.ui.post.PostCreateDto
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
-class PostApplicationService(private val postService: PostService, private val userService: UserService, private val groupService: GroupService, private val redisClient: RedisClient) {
+class PostApplicationService(
+        private val postService: PostService,
+        private val userService: UserService,
+        private val groupService: GroupService,
+        private val redisClient: RedisClient,
+        private val publisher: ApplicationEventPublisher
+) {
     fun getPost(groupSequence: Long, postSequence: Long, userId: String): PostDto.PostContent<Any> {
         val user = userService.getUser(id = userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSequence)
@@ -111,6 +119,7 @@ class PostApplicationService(private val postService: PostService, private val u
         var seq = 1L
         data.message.values.forEach { it.message.forEach { msg -> msg.seq = seq++ } }
         postService.postUpdate(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage, replyMap)
+        sendNotify(groupSeq = groupSeq, postSeq = postSeq)
 
     }
 
@@ -145,6 +154,23 @@ class PostApplicationService(private val postService: PostService, private val u
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
 
         postService.updateBoardPost(groupSeq, postSeq, data)
+
+
+        sendNotify(groupSeq, postSeq)
+    }
+
+    private fun sendNotify(groupSeq: Long, postSeq: Long) {
+        val postUserSeqs = postService.getPostUserSeqs(groupSeq, postSeq)
+        val group = groupService.getGroupSimpleInfo(groupSeq)
+        val post = postService.getPostTitle(groupSeq = groupSeq, postSeq = postSeq)
+        val event = NotifyPostUpdateEvent(
+            userSeqs = postUserSeqs,
+            groupSeq = groupSeq,
+            postSeq = postSeq,
+            groupName = group.name,
+            postTitle = post.title
+        )
+        publisher.publishEvent(event)
     }
 
 }

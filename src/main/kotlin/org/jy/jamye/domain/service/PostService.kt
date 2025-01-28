@@ -5,9 +5,11 @@ import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.exception.AllPostsAlreadyOwnedException
 import org.jy.jamye.common.exception.PostAccessDeniedException
+import org.jy.jamye.common.listener.NotifyPostUpdateEvent
 import org.jy.jamye.domain.model.*
 import org.jy.jamye.infra.*
 import org.jy.jamye.ui.post.PostCreateDto
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,7 +21,6 @@ class PostService(
     private val messageRepository: MessageRepository,
     private val boardRepository: BoardRepository,
     private val messageImageRepository: MessageImageRepository,
-    private val groupUserRepository: GroupUserRepository,
     private val messageNickNameRepository: MessageNickNameRepository
 ) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
@@ -354,6 +355,11 @@ class PostService(
         val board = getBoardPostOrThrow(postSeq)
         board.contentUpdate(data.content)
         boardRepository.save(board)
+    }
+
+    fun getPostUserSeqs(groupSeq: Long, postSeq: Long): Set<Long> {
+        return userGroupPostRepository.findAllByPostSequenceAndGroupSequence(groupSeq = groupSeq, postSeq = postSeq)
+            .map { it.userSequence }.toSet()
     }
 
     private fun getBoardPostOrThrow(postSeq: Long): Board {
