@@ -124,4 +124,12 @@ class UserService(
         return TokenDto(refreshToken = refreshToken, accessToken = generateToken.accessToken)
     }
 
+    fun notifyOnPostUpdate(userSeqs: Set<Long>, groupSeq: Long, postSeq: Long, groupName: String, postName: String) {
+        println("!!")
+        userSeqs.forEach { userSeq ->
+            redisClient.notifyBox(userSeq, "보유하신 " + groupName+"의 잼얘 " + postName + "이 업데이트되었습니다.", groupSeq, postSeq)
+        }
+
+    }
+
 }

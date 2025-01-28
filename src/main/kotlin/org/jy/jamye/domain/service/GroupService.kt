@@ -291,6 +291,18 @@ class GroupService(
         )
     }
 
+    fun getGroupSimpleInfo(groupSeq: Long): GroupDto {
+        val group = getGroupOrThrow(groupSeq)
+        return GroupDto(
+            name = group.name,
+            imageUrl = group.imageUrl,
+            description = group.description,
+            createDate = group.createDate,
+            updateDate = group.updateDate,
+            groupSequence = group.sequence
+        )
+    }
+
 
 }
 

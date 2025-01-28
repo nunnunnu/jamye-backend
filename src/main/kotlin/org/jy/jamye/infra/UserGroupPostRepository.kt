@@ -10,5 +10,6 @@ interface UserGroupPostRepository: JpaRepository<UserGroupPost, Long> {
     fun findPostSeqByGroupSequenceAndUserSequence(groupSeq: Long, userSeq: Long): Set<Long>
     fun deleteByGroupSequence(groupSeq: Long)
     fun deleteByGroupSequenceAndUserSequenceIn(groupSeq: Long, agreeUserSeqs: Set<Long>)
+    fun findAllByPostSequenceAndGroupSequence(postSeq: Long, groupSeq: Long): Set<UserGroupPost>
 
 }
