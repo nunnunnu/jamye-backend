@@ -2,6 +2,7 @@ package org.jy.jamye.ui
 
 import jakarta.validation.Valid
 import org.jy.jamye.application.UserApplicationService
+import org.jy.jamye.application.dto.NotifyDto
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
@@ -74,4 +75,17 @@ class UserController(
     fun getAccessToken(@RequestBody token: TokenDto): ResponseDto<TokenDto> {
         return ResponseDto<TokenDto>(data = userService.getAccessToken(token.refreshToken))
     }
+
+    @PostMapping("/notify/{notifySeq}")
+    fun viewNotify(@PathVariable notifySeq: Long) : ResponseDto<NotifyDto> {
+        val notify = userService.viewNotify(notifySeq)
+        return ResponseDto(data = notify)
+    }
+
+    @GetMapping("/notify")
+    fun getNotifyList(@AuthenticationPrincipal user: UserDetails): ResponseDto<List<NotifyDto>> {
+        val notifyList = userAppService.getNotifyList(user.username)
+        return ResponseDto(data = notifyList)
+    }
+
 }

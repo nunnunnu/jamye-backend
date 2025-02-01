@@ -130,18 +130,41 @@ class UserService(
     }
 
     fun notifyOnPostUpdate(userSeqs: Set<Long>, groupSeq: Long, postSeq: Long, groupName: String, postName: String) {
-        val notifyList = mutableSetOf<Notify>()
         userSeqs.forEach { userSeq ->
             val notify = Notify(message = "보유하신 " + groupName+"의 잼얘 " + postName + "이 업데이트되었습니다.",
                 groupSeq = groupSeq, postSeq = postSeq, userSeq = userSeq)
-            notifyList.add(notify)
+            notifyRepository.save(notify)
         }
-        notifyRepository.saveAll(notifyList)
     }
 
-    fun notifyBox(userSeq: Long, message: String, groupSeq: Long, postSeq: Long) {
+    @Transactional(readOnly = true)
+    fun viewNotify(notifySeq: Long): NotifyDto {
+        val notify = notifyRepository.findById(notifySeq).orElseThrow { EntityNotFoundException() }
+        notify.read()
+        notifyRepository.save(notify)
+        return NotifyDto(
+            groupSeq = notify.groupSeq,
+            postSeq = notify.postSeq,
+            notifySeq = notify.notiSeq,
+            message = notify.message,
+            isRead = notify.isRead
+        )
+    }
 
-
+    @Transactional(readOnly = true)
+    fun getNotifyList(userSeq: Long): List<NotifyDto> {
+        val notifyList = notifyRepository.findAllByUserSeq(userSeq)
+        val result = notifyList.map {
+            NotifyDto(
+                groupSeq = it.groupSeq,
+                postSeq = it.postSeq,
+                notifySeq = it.notiSeq,
+                message = it.message,
+                isRead = it.isRead
+            )
+        }
+        result.sortedBy { !it.isRead }
+        return result
     }
 
 }
