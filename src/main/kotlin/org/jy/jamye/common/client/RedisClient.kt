@@ -93,24 +93,4 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
     fun setIdByRefreshToken(refreshToken: String, userId: String) {
         setValue(refreshToken, userId)
     }
-
-    fun getNotifyList(userSeq: Long): MutableSet<NotifyDto> {
-        val mapper = ObjectMapper()
-
-        val notifyList: MutableSet<NotifyDto> = if (redisTemplate.opsForValue().get(userSeq).isNullOrBlank()) mutableSetOf()
-        else mapper.readValue(redisTemplate.opsForValue().get(userSeq), object : TypeReference<MutableSet<NotifyDto>>() {})
-
-        return notifyList
-    }
-
-    fun notifyBox(userSeq: Long, message: String, groupSeq: Long, postSeq: Long) {
-        val notifyList = getNotifyList(userSeq)
-        val notifyDto = NotifyDto(message = message, groupSeq = groupSeq, postSeq = postSeq)
-        notifyList.add(notifyDto)
-        val mapper = ObjectMapper()
-        println(notifyDto)
-        val jsonString = mapper.writeValueAsString(notifyDto)
-        println(jsonString)
-        setValue(userSeq.toString(), jsonString)
-    }
 }

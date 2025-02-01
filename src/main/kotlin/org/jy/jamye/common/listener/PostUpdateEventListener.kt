@@ -12,7 +12,6 @@ class PostUpdateEventListener(
     @Async
     @EventListener
     fun notifyOnPostUpdate(data: NotifyPostUpdateEvent) {
-        println("???")
         userService.notifyOnPostUpdate(data.userSeqs, data.groupSeq, data.postSeq, data.groupName, data.postTitle)
     }
 }
