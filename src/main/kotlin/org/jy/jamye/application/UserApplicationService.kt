@@ -1,5 +1,6 @@
 package org.jy.jamye.application
 
+import org.jy.jamye.application.dto.NotifyDto
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.infra.UserRepository
@@ -25,5 +26,10 @@ class UserApplicationService(
 
     fun duplicateEmailCheck(email: String): Boolean {
         return !userRepository.existsByEmail(email)
+    }
+
+    fun getNotifyList(userId: String): List<NotifyDto> {
+        val user = userService.getUser(userId)
+        return userService.getNotifyList(user.sequence!!)
     }
 }
