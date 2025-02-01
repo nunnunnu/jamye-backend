@@ -1,13 +1,17 @@
 package org.jy.jamye.domain.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.persistence.EntityNotFoundException
+import org.jy.jamye.application.dto.NotifyDto
 import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
+import org.jy.jamye.domain.model.Notify
 import org.jy.jamye.domain.model.User
+import org.jy.jamye.infra.NotifyRepository
 import org.jy.jamye.infra.UserFactory
 import org.jy.jamye.infra.UserRepository
 import org.jy.jamye.security.TokenDto
@@ -24,7 +28,8 @@ class UserService(
     private val userRepo: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val tokenProvider: JwtTokenProvider,
-    private val redisClient: RedisClient
+    private val redisClient: RedisClient,
+    private val notifyRepository: NotifyRepository
 ) {
     val log = LoggerFactory.getLogger(UserService::class.java)
     @Transactional
@@ -125,10 +130,17 @@ class UserService(
     }
 
     fun notifyOnPostUpdate(userSeqs: Set<Long>, groupSeq: Long, postSeq: Long, groupName: String, postName: String) {
-        println("!!")
+        val notifyList = mutableSetOf<Notify>()
         userSeqs.forEach { userSeq ->
-            redisClient.notifyBox(userSeq, "보유하신 " + groupName+"의 잼얘 " + postName + "이 업데이트되었습니다.", groupSeq, postSeq)
+            val notify = Notify(message = "보유하신 " + groupName+"의 잼얘 " + postName + "이 업데이트되었습니다.",
+                groupSeq = groupSeq, postSeq = postSeq, userSeq = userSeq)
+            notifyList.add(notify)
         }
+        notifyRepository.saveAll(notifyList)
+    }
+
+    fun notifyBox(userSeq: Long, message: String, groupSeq: Long, postSeq: Long) {
+
 
     }
 
