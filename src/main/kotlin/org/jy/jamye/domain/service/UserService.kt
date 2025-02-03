@@ -137,7 +137,7 @@ class UserService(
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     fun viewNotify(notifySeq: Long): NotifyDto {
         val notify = notifyRepository.findById(notifySeq).orElseThrow { EntityNotFoundException() }
         notify.read()
@@ -160,7 +160,8 @@ class UserService(
                 postSeq = it.postSeq,
                 notifySeq = it.notiSeq,
                 message = it.message,
-                isRead = it.isRead
+                isRead = it.isRead,
+                createDate = it.createDate
             )
         }
         result.sortedBy { !it.isRead }

@@ -4,6 +4,7 @@ import org.jy.jamye.application.PostApplicationService
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.model.PostType
+import org.jy.jamye.domain.service.PostService
 import org.jy.jamye.domain.service.VisionService
 import org.jy.jamye.infra.MessageNickNameRepository
 import org.jy.jamye.ui.post.PostCreateDto
@@ -19,7 +20,8 @@ import java.util.*
 @RestController
 @RequestMapping("/api/post")
 class PostController(
-    private val postService: PostApplicationService,
+    private val postAppService: PostApplicationService,
+    private val postService: PostService,
     private val visionService: VisionService,
     private val nickName: MessageNickNameRepository
 ) {
@@ -27,19 +29,25 @@ class PostController(
     @GetMapping("/{groupSequence}/{postSequence}")
     fun getPost(@PathVariable("groupSequence") groupSequence: Long, @PathVariable("postSequence") postSequence: Long, @AuthenticationPrincipal user: UserDetails):
             ResponseDto<PostDto.PostContent<Any>> {
-        val post = postService.getPost(groupSequence, postSequence, user.username)
+        val post = postAppService.getPost(groupSequence, postSequence, user.username)
+        return ResponseDto(data = post, status = HttpStatus.OK)
+    }
+
+    @GetMapping("/title/{groupSequence}/{postSequence}")
+    fun getPostTitle(@PathVariable("groupSequence") groupSequence: Long, @PathVariable("postSequence") postSequence: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<PostDto> {
+        val post = postService.getPostTitle(groupSequence, postSequence)
         return ResponseDto(data = post, status = HttpStatus.OK)
     }
 
     @GetMapping("/{groupSequence}")
     fun getPosts(@PathVariable("groupSequence") groupSequence: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<List<PostDto.Detail>> {
-        val posts = postService.getPosts(user.username, groupSequence)
+        val posts = postAppService.getPosts(user.username, groupSequence)
         return ResponseDto(data = posts, status = HttpStatus.OK)
     }
 
     @GetMapping("/lucky-draw/{groupSeq}")
     fun postLuckyDraw(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<PostDto> {
-        val post = postService.postLuckyDraw(groupSeq, user.username)
+        val post = postAppService.postLuckyDraw(groupSeq, user.username)
         return ResponseDto(data = post, status = HttpStatus.OK)
     }
 
@@ -93,7 +101,7 @@ class PostController(
             }
 
         }
-        val postSeq = postService.createPostMessage(userId = user.username, post = PostDto(
+        val postSeq = postAppService.createPostMessage(userId = user.username, post = PostDto(
                 title = data.title,
                 groupSequence = data.groupSeq,
                 type = PostType.MSG
@@ -112,7 +120,7 @@ class PostController(
         val imageUriMap = imageUriMap(imageMap)
 
         data.content.replaceUri(imageUriMap)
-        val postSeq = postService.createPostBoard(userId = user.username, post = PostDto(
+        val postSeq = postAppService.createPostBoard(userId = user.username, post = PostDto(
             title = data.title,
             groupSequence = data.groupSeq,
             type = PostType.BOR),
@@ -165,7 +173,7 @@ class PostController(
                 it.imageKey.forEach { img -> it.imageUri.add(imageUriMap[img]!!) }
              }
         }
-        postService.updateMessagePost(groupSeq, postSeq, user.username, data, replyMap)
+        postAppService.updateMessagePost(groupSeq, postSeq, user.username, data, replyMap)
         return ResponseDto(data = null, status = HttpStatus.OK)
     }
 
@@ -178,7 +186,7 @@ class PostController(
         @RequestParam(required = false) userSeqInGroup: Long?
     ): ResponseDto<Long> {
         val messageNickNameSeq =
-            postService.messagePostNickNameAdd(groupSeq, postSeq, nickName, userSeqInGroup, user.username)
+            postAppService.messagePostNickNameAdd(groupSeq, postSeq, nickName, userSeqInGroup, user.username)
         return ResponseDto(data = messageNickNameSeq, status = HttpStatus.OK)
     }
 
@@ -189,7 +197,7 @@ class PostController(
         @AuthenticationPrincipal user: UserDetails,
         @RequestBody data: PostCreateDto.MessageNickNameUpdate
     ): ResponseDto<Nothing> {
-        postService.updateMessageNickNameInfo(groupSeq, postSeq, data.updateInfo, user.username, data.deleteMessageNickNameSeqs)
+        postAppService.updateMessageNickNameInfo(groupSeq, postSeq, data.updateInfo, user.username, data.deleteMessageNickNameSeqs)
         return ResponseDto(data = null, status = HttpStatus.OK)
     }
 
@@ -203,7 +211,7 @@ class PostController(
     ): ResponseDto<String> {
         val imageUriMap = imageUriMap(imageMap)
         data.replaceUri(imageUriMap)
-        postService.updateBoardPost(groupSeq, postSeq, data, user.username)
+        postAppService.updateBoardPost(groupSeq, postSeq, data, user.username)
         return ResponseDto(data = data.content, status = HttpStatus.OK)
     }
 }
