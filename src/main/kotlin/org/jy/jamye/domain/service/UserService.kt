@@ -21,6 +21,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class UserService(
@@ -166,6 +167,10 @@ class UserService(
         }
         result.sortedBy { !it.isRead }
         return result
+    }
+
+    fun deleteNotify(standardDate: LocalDateTime) {
+        notifyRepository.deleteAllByStandardDateBefore((standardDate))
     }
 
 }

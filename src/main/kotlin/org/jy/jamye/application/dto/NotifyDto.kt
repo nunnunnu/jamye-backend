@@ -1,5 +1,6 @@
 package org.jy.jamye.application.dto
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDateTime
 
 data class NotifyDto(
@@ -8,6 +9,7 @@ data class NotifyDto(
     val postSeq: Long,
     val isRead: Boolean,
     var notifySeq: Long?  = null,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     val createDate: LocalDateTime? = null
 ) {
 }
