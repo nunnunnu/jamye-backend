@@ -6,6 +6,7 @@ import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.service.GroupService
+import org.jy.jamye.domain.service.VisionService
 import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -15,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/group")
-class GroupController(private val groupAppService: GroupApplicationService, private val groupService: GroupService) {
+class GroupController(private val groupAppService: GroupApplicationService,
+                      private val groupService: GroupService,
+                    private val visionService: VisionService) {
     @GetMapping("/list")
     fun groups(@AuthenticationPrincipal user: UserDetails) :  ResponseDto<List<GroupDto.UserInfo>> {
         val groups = groupAppService.getGroupsInUser(user.username)
@@ -25,12 +28,16 @@ class GroupController(private val groupAppService: GroupApplicationService, priv
     @PostMapping
     fun createGroup(
         @AuthenticationPrincipal user: UserDetails,
-        @RequestBody data: GroupPostDto,
+        @RequestPart data: GroupPostDto,
+        @RequestPart profileImageUrl: MultipartFile?,
+        @RequestPart imageUrl: MultipartFile?
     ): ResponseDto<GroupDto.Detail> {
+        val profileFileUri = profileImageUrl?.let { visionService.saveFile(it) }
+        val groupImageUri = imageUrl?.let { visionService.saveFile(it) }
         val result = groupAppService.createGroup(
             user.username,
-            GroupDto(name = data.name, description = data.description, imageUrl = data.imageUrl),
-            UserInGroupDto.Simple(nickname = data.nickname, imageUrl = data.profileImageUrl)
+            GroupDto(name = data.name, description = data.description, imageUrl = groupImageUri),
+            UserInGroupDto.Simple(nickname = data.nickname, imageUrl = profileFileUri)
         )
         return ResponseDto(data = result, status = HttpStatus.CREATED)
     }
