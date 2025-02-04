@@ -41,7 +41,7 @@ class GroupService(
         return groupConnection.map {
             val group = it.group
             GroupDto.UserInfo(
-                groupSequence = group.sequence, name = group.name, description = group.description, createDate = group.createDate, updateDate = group.updateDate, userNickName = it.nickname,
+                groupSequence = group.sequence, name = group.name, description = group.description, createDate = group.createDate, updateDate = group.updateDate, userNickName = it.nickname, imageUrl = group.imageUrl,
                 totalUsers = totalUserCount.getOrDefault(group.sequence, 0)
             )
         }
