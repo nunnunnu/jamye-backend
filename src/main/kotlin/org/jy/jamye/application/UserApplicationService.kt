@@ -32,4 +32,9 @@ class UserApplicationService(
         val user = userService.getUser(userId)
         return userService.getNotifyList(user.sequence!!)
     }
+
+    fun getNotifyNoReadCount(userId: String): Long{
+        val user = userService.getUser(userId)
+        return userService.getNotifyNoReadCount(user.sequence!!)
+    }
 }

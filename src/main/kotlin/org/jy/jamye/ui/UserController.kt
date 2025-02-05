@@ -87,5 +87,9 @@ class UserController(
         val notifyList = userAppService.getNotifyList(user.username)
         return ResponseDto(data = notifyList)
     }
-
+    @GetMapping("/no-read")
+    fun getNotifyNoReadCount(@AuthenticationPrincipal user: UserDetails) : ResponseDto<Long> {
+        val noReadCount = userAppService.getNotifyNoReadCount(user.username)
+        return ResponseDto(data = noReadCount)
+    }
 }
