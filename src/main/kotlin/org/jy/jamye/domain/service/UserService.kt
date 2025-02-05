@@ -173,4 +173,8 @@ class UserService(
         notifyRepository.deleteAllByStandardDateBefore((standardDate))
     }
 
+    fun getNotifyNoReadCount(userSeq: Long): Long {
+        return notifyRepository.countByUserSeqAndIsRead(userSeq, false)
+    }
+
 }
