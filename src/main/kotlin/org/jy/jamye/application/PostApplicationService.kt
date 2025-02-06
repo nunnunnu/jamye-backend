@@ -120,7 +120,7 @@ class PostApplicationService(
         data.message.values.forEach { it.message.forEach { msg -> msg.seq = seq++ } }
         postService.postUpdate(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage, replyMap)
         sendNotify(groupSeq = groupSeq, postSeq = postSeq)
-
+        userService.getNotifyNoReadCount(user.sequence)
     }
 
     fun messagePostNickNameAdd(
@@ -157,6 +157,7 @@ class PostApplicationService(
 
 
         sendNotify(groupSeq, postSeq)
+        userService.getNotifyNoReadCount(user.sequence)
     }
 
     private fun sendNotify(groupSeq: Long, postSeq: Long) {

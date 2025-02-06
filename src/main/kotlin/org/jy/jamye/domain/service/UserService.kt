@@ -17,6 +17,7 @@ import org.jy.jamye.infra.UserRepository
 import org.jy.jamye.security.TokenDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.slf4j.LoggerFactory
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -30,7 +31,8 @@ class UserService(
     private val passwordEncoder: PasswordEncoder,
     private val tokenProvider: JwtTokenProvider,
     private val redisClient: RedisClient,
-    private val notifyRepository: NotifyRepository
+    private val notifyRepository: NotifyRepository,
+    private val messagingTemplate: SimpMessagingTemplate
 ) {
     val log = LoggerFactory.getLogger(UserService::class.java)
     @Transactional
@@ -135,7 +137,9 @@ class UserService(
             val notify = Notify(message = "보유하신 " + groupName+"의 잼얘 " + postName + "이 업데이트되었습니다.",
                 groupSeq = groupSeq, postSeq = postSeq, userSeq = userSeq)
             notifyRepository.save(notify)
+            getNotifyNoReadCount(userSeq)
         }
+
     }
 
     @Transactional
@@ -148,7 +152,8 @@ class UserService(
             postSeq = notify.postSeq,
             notifySeq = notify.notiSeq,
             message = notify.message,
-            isRead = notify.isRead
+            isRead = notify.isRead,
+            userSeq = notify.userSeq
         )
     }
 
@@ -162,7 +167,8 @@ class UserService(
                 notifySeq = it.notiSeq,
                 message = it.message,
                 isRead = it.isRead,
-                createDate = it.createDate
+                createDate = it.createDate,
+                userSeq = it.userSeq
             )
         }
         result.sortedBy { !it.isRead }
@@ -174,7 +180,11 @@ class UserService(
     }
 
     fun getNotifyNoReadCount(userSeq: Long): Long {
-        return notifyRepository.countByUserSeqAndIsRead(userSeq, false)
+        val unreadCount = notifyRepository.countByUserSeqAndIsRead(userSeq, false)
+        println("메시지 전송 중: ${userSeq}에게 /topic/unread-count로 $unreadCount 전송")
+        messagingTemplate.convertAndSendToUser(userSeq.toString(), "/topic/unread-count", unreadCount);
+
+        return unreadCount
     }
 
 }
