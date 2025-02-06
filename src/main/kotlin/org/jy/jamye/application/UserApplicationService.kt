@@ -30,7 +30,8 @@ class UserApplicationService(
 
     fun getNotifyList(userId: String): List<NotifyDto> {
         val user = userService.getUser(userId)
-        return userService.getNotifyList(user.sequence!!)
+        val notifyList = userService.getNotifyList(user.sequence!!)
+        return notifyList
     }
 
     fun getNotifyNoReadCount(userId: String): Long{

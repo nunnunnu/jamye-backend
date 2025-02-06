@@ -9,6 +9,7 @@ data class NotifyDto(
     val postSeq: Long,
     val isRead: Boolean,
     var notifySeq: Long?  = null,
+    val userSeq: Long,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     val createDate: LocalDateTime? = null
 ) {

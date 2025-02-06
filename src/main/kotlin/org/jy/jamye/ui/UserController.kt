@@ -79,6 +79,7 @@ class UserController(
     @PostMapping("/notify/{notifySeq}")
     fun viewNotify(@PathVariable notifySeq: Long) : ResponseDto<NotifyDto> {
         val notify = userService.viewNotify(notifySeq)
+        userService.getNotifyNoReadCount(notify.userSeq)
         return ResponseDto(data = notify)
     }
 
