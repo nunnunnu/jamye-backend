@@ -17,7 +17,9 @@ import org.jy.jamye.infra.UserRepository
 import org.jy.jamye.security.TokenDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.slf4j.LoggerFactory
+import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
+import org.springframework.messaging.simp.annotation.SendToUser
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -178,11 +180,10 @@ class UserService(
     fun deleteNotify(standardDate: LocalDateTime) {
         notifyRepository.deleteAllByStandardDateBefore((standardDate))
     }
-
     fun getNotifyNoReadCount(userSeq: Long): Long {
         val unreadCount = notifyRepository.countByUserSeqAndIsRead(userSeq, false)
-        println("메시지 전송 중: ${userSeq}에게 /topic/unread-count로 $unreadCount 전송")
-        messagingTemplate.convertAndSendToUser(userSeq.toString(), "/topic/unread-count", unreadCount);
+        println("메시지 전송 중: ${userSeq}에게 /queue/unread-count로 $unreadCount 전송")
+        messagingTemplate.convertAndSend("/alarm/receive/$userSeq", unreadCount)
 
         return unreadCount
     }

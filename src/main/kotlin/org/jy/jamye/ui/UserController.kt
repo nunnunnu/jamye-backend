@@ -13,6 +13,9 @@ import org.jy.jamye.ui.post.UserPasswordDto
 import org.jy.jamye.ui.post.UserPostDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.springframework.http.HttpStatus
+import org.springframework.messaging.handler.annotation.DestinationVariable
+import org.springframework.messaging.handler.annotation.MessageMapping
+import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.validation.annotation.Validated
@@ -88,6 +91,7 @@ class UserController(
         val notifyList = userAppService.getNotifyList(user.username)
         return ResponseDto(data = notifyList)
     }
+
     @GetMapping("/no-read")
     fun getNotifyNoReadCount(@AuthenticationPrincipal user: UserDetails) : ResponseDto<Long> {
         val noReadCount = userAppService.getNotifyNoReadCount(user.username)
