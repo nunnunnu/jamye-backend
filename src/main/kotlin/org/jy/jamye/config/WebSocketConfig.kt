@@ -19,8 +19,6 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         // 메시지 브로커 설정
-        registry.enableSimpleBroker("/topic", "/queue")  // 구독 경로 설정
-        registry.setApplicationDestinationPrefixes("/app") // 클라이언트에서 보낼 메시지 경로
-        registry.setUserDestinationPrefix("/user")
+        registry.enableSimpleBroker("/alarm/receive")  // 구독 경로 설정
     }
 }
