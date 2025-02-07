@@ -303,6 +303,11 @@ class GroupService(
         )
     }
 
+    fun getUserSeqsInGroup(groupSeq: Long): Set<Long> {
+        val totalUser: Set<Long> = groupUserRepository.findAllByGroupSequence(groupSeq).map { it.userSequence }.toSet()
+        return totalUser
+    }
+
 
 }
 
