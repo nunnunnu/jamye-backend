@@ -14,9 +14,9 @@ class Notify(
     @Column(name = "ui_seq")
     val userSeq: Long,
     @Column(name = "gi_seq")
-    val groupSeq: Long,
+    val groupSeq: Long? = null,
     @Column(name = "pi_seq")
-    val postSeq: Long,
+    val postSeq: Long? = null,
     @Column(name = "is_read")
     var isRead: Boolean = false,
     @Column(name = "create_date")

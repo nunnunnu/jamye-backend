@@ -5,11 +5,9 @@ import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.exception.AllPostsAlreadyOwnedException
 import org.jy.jamye.common.exception.PostAccessDeniedException
-import org.jy.jamye.common.listener.NotifyPostUpdateEvent
 import org.jy.jamye.domain.model.*
 import org.jy.jamye.infra.*
 import org.jy.jamye.ui.post.PostCreateDto
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

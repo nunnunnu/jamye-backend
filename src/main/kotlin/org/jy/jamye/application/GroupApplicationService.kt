@@ -8,12 +8,14 @@ import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyDeleteVoting
 import org.jy.jamye.common.exception.GroupDeletionPermissionException
 import org.jy.jamye.common.exception.InvalidInviteCodeException
+import org.jy.jamye.common.listener.NotifyInfo
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.GroupVoteService
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.domain.service.VisionService
 import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime.now
@@ -24,8 +26,9 @@ class GroupApplicationService(private val userService: UserService,
                               private val groupService: GroupService,
                               private val groupUserRepository: GroupUserRepository,
                               private val redisClient: RedisClient,
-    private val groupVoteService: GroupVoteService,
-    private val fileService: VisionService,
+                              private val groupVoteService: GroupVoteService,
+                              private val fileService: VisionService,
+                              private val publisher: ApplicationEventPublisher
 ) {
     fun getGroupsInUser(id: String): List<GroupDto.UserInfo> {
         val user = userService.getUser(id)
@@ -63,8 +66,8 @@ class GroupApplicationService(private val userService: UserService,
         if (!groupService.userIsMaster(user.sequence!!, groupSeq)) {
             throw GroupDeletionPermissionException()
         }
-        val totalUser = groupUserRepository.countByGroupSequence(groupSeq)
-        if (totalUser <= 2) { //과반수 동의로 간주함
+        val totalUser: Set<Long> = groupService.getUserSeqsInGroup(groupSeq)
+        if (totalUser.count() <= 2) { //과반수 동의로 간주함
             //todo: 마스터 양도 로직 추가
             groupService.deleteGroup(groupSeq)
             return true
@@ -94,6 +97,9 @@ class GroupApplicationService(private val userService: UserService,
             }
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
+        val group = groupService.getGroupSimpleInfo(groupSeq)
+        val event = NotifyInfo(message = group.name + "그룹의 그룹 삭제 투표가 실시되었습니다. 과반수 동의 시 자동 삭제됩니다.", groupSeq = groupSeq, userSeqs = totalUser)
+        publisher.publishEvent(event)
         return false
     }
 
