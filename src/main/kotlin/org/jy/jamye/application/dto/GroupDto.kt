@@ -35,7 +35,6 @@ data class GroupDto(
         val groupSeq: Long
         val totalUser: Long
     }
-
 }
 
 data class DeleteVote(
@@ -66,4 +65,9 @@ data class DeleteVote(
     ) {
         this.isNowVoting = false
     }
+
+    data class VoteDto (
+            val isNowVoting: Boolean,
+            val hasUserInDeletionVote: Boolean
+        )
 }

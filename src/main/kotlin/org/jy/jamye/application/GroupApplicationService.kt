@@ -176,4 +176,16 @@ class GroupApplicationService(private val userService: UserService,
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
         return groupService.updateGroupInfo(groupSeq, data)
     }
+
+    fun isDeletionVoteInProgress(groupSeq: Long, userId: String): DeleteVote.VoteDto {
+        val user = userService.getUser(userId)
+        val voteDto = DeleteVote.VoteDto(
+            isNowVoting = groupService.isDeletionVoteInProgress(groupSeq),
+            hasUserInDeletionVote = groupService.hasParticipatedInDeletionVote(
+                groupSeq = groupSeq,
+                userSequence = user.sequence!!
+            )
+        )
+        return voteDto
+    }
 }

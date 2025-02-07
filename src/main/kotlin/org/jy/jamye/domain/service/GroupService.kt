@@ -3,6 +3,7 @@ package org.jy.jamye.domain.service
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyJoinedGroupException
 import org.jy.jamye.common.exception.DuplicateGroupNicknameException
 import org.jy.jamye.common.exception.MemberNotInGroupException
@@ -30,7 +31,8 @@ class GroupService(
     private val groupUserRepo: GroupUserRepository,
     private val groupFactory: GroupFactory,
     private val publisher: ApplicationEventPublisher,
-    private val groupUserRepository: GroupUserRepository
+    private val groupUserRepository: GroupUserRepository,
+    private val redisClient: RedisClient
 ) {
 
     var log: Logger = LoggerFactory.getLogger(GroupService::class.java)
@@ -308,6 +310,17 @@ class GroupService(
         return totalUser
     }
 
+    fun isDeletionVoteInProgress(groupSeq: Long): Boolean {
+        val group = redisClient.getDeleteVoteMap()[groupSeq]
+        if (group != null) {
+            return group.isNowVoting
+        }
+        return false
+    }
 
+    fun hasParticipatedInDeletionVote(groupSeq: Long, userSequence: Long): Boolean {
+        val group = redisClient.getDeleteVoteMap()[groupSeq] ?: return false
+        return group.agreeUserSeqs.contains(userSequence) || group.disagreeUserSeqs.contains(userSequence)
+    }
 }
 

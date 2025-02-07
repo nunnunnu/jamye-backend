@@ -142,4 +142,10 @@ class GroupController(private val groupAppService: GroupApplicationService,
         return ResponseDto(data = group)
     }
 
+    @GetMapping("/group/{groupSeq}/delete-vote/check")
+    fun isDeletionVoteInProgress(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<DeleteVote.VoteDto> {
+        val deletionVoteInProgress = groupAppService.isDeletionVoteInProgress(groupSeq, user.username)
+        return ResponseDto(data = deletionVoteInProgress)
+    }
+
 }
