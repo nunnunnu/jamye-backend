@@ -1,6 +1,5 @@
 package org.jy.jamye.domain.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.NotifyDto
 import org.jy.jamye.security.JwtTokenProvider
@@ -17,9 +16,8 @@ import org.jy.jamye.infra.UserRepository
 import org.jy.jamye.security.TokenDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.slf4j.LoggerFactory
-import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.SimpMessagingTemplate
-import org.springframework.messaging.simp.annotation.SendToUser
+import org.springframework.messaging.support.GenericMessage
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -134,9 +132,9 @@ class UserService(
         return TokenDto(refreshToken = refreshToken, accessToken = generateToken.accessToken)
     }
 
-    fun notifyOnPostUpdate(userSeqs: Set<Long>, groupSeq: Long, postSeq: Long, groupName: String, postName: String) {
+    fun notifySend(userSeqs: Set<Long>, groupSeq: Long?, postSeq: Long?, message: String) {
         userSeqs.forEach { userSeq ->
-            val notify = Notify(message = "보유하신 " + groupName+"의 잼얘 " + postName + "이 업데이트되었습니다.",
+            val notify = Notify(message = message,
                 groupSeq = groupSeq, postSeq = postSeq, userSeq = userSeq)
             notifyRepository.save(notify)
             getNotifyNoReadCount(userSeq)

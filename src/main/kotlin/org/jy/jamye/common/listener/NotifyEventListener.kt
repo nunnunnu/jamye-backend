@@ -6,21 +6,20 @@ import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 
 @Component
-class PostUpdateEventListener(
+class NotifyEventListener(
     private val userService: UserService
 ) {
     @Async
     @EventListener
-    fun notifyOnPostUpdate(data: NotifyPostUpdateEvent) {
-        userService.notifyOnPostUpdate(data.userSeqs, data.groupSeq, data.postSeq, data.groupName, data.postTitle)
+    fun notifySend(data: NotifyInfo) {
+        userService.notifySend(data.userSeqs, data.groupSeq, data.postSeq, data.message)
     }
 }
 
-data class NotifyPostUpdateEvent(
+data class NotifyInfo(
     val userSeqs: Set<Long>,
-    val groupSeq: Long,
-    val groupName: String,
-    val postSeq: Long,
-    val postTitle: String
+    val groupSeq: Long? = null,
+    val postSeq: Long? = null,
+    val message: String
 ) {
 }

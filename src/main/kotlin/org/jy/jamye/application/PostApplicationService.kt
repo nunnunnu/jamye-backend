@@ -2,7 +2,7 @@ package org.jy.jamye.application
 
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.client.RedisClient
-import org.jy.jamye.common.listener.NotifyPostUpdateEvent
+import org.jy.jamye.common.listener.NotifyInfo
 import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.PostService
@@ -164,12 +164,11 @@ class PostApplicationService(
         val postUserSeqs = postService.getPostUserSeqs(groupSeq, postSeq)
         val group = groupService.getGroupSimpleInfo(groupSeq)
         val post = postService.getPostTitle(groupSeq = groupSeq, postSeq = postSeq)
-        val event = NotifyPostUpdateEvent(
+        val event = NotifyInfo(
             userSeqs = postUserSeqs,
             groupSeq = groupSeq,
             postSeq = postSeq,
-            groupName = group.name,
-            postTitle = post.title
+            message = "보유하신 " + group.name +"의 잼얘 " + post.title + "이 업데이트되었습니다."
         )
         publisher.publishEvent(event)
     }
