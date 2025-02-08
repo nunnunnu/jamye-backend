@@ -97,4 +97,10 @@ class UserController(
         val noReadCount = userAppService.getNotifyNoReadCount(user.username)
         return ResponseDto(data = noReadCount)
     }
+
+    @PostMapping("/notify/read/all")
+    fun allNotifyRead(@AuthenticationPrincipal user: UserDetails) : ResponseDto<Nothing> {
+        userAppService.allNotifyRead(user.username)
+        return ResponseDto()
+    }
 }

@@ -186,4 +186,9 @@ class UserService(
         return unreadCount
     }
 
+    fun allNotifyRead(sequence: Long) {
+        notifyRepository.notifyInUserAllRead(sequence)
+        getNotifyNoReadCount(sequence)
+    }
+
 }

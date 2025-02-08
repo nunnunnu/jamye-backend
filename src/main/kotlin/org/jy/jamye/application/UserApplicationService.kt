@@ -38,4 +38,9 @@ class UserApplicationService(
         val user = userService.getUser(userId)
         return userService.getNotifyNoReadCount(user.sequence!!)
     }
+
+    fun allNotifyRead(userId: String) {
+        val user = userService.getUser(userId)
+        userService.allNotifyRead(user.sequence!!)
+    }
 }
