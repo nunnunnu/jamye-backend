@@ -16,7 +16,6 @@ data class GroupPostDto (
 
     class Update (
         val name: String? = null,
-        val imageUrl: String? = null,
         val description: String? = null,
     )
 }
