@@ -280,9 +280,9 @@ class GroupService(
     }
 
     @Transactional
-    fun updateGroupInfo(groupSeq: Long, data: GroupPostDto.Update): GroupDto {
+    fun updateGroupInfo(groupSeq: Long, data: GroupPostDto.Update, imageUri: String?): GroupDto {
         val group = findByIdOrThrow(groupSeq)
-        group.updateInfo(data.name, data.imageUrl, data.description)
+        group.updateInfo(data.name, imageUri, data.description)
         return GroupDto(
             name = group.name,
             imageUrl = group.imageUrl,

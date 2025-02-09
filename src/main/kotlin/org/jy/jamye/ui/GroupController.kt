@@ -137,8 +137,10 @@ class GroupController(private val groupAppService: GroupApplicationService,
     @PostMapping("/{groupSeq}")
     fun updateGroupInfo(@AuthenticationPrincipal user: UserDetails,
                         @PathVariable("groupSeq") groupSeq: Long,
-                        @RequestBody data: GroupPostDto.Update) : ResponseDto<GroupDto>{
-        val group = groupAppService.updateGroupInfo(user.username, groupSeq, data)
+                        @RequestPart data: GroupPostDto.Update,
+                        @RequestPart file: MultipartFile?) : ResponseDto<GroupDto>{
+        val saveFile = file?.let { visionService.saveFile(it) }
+        val group = groupAppService.updateGroupInfo(user.username, groupSeq, data, saveFile)
         return ResponseDto(data = group)
     }
 
