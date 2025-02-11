@@ -13,5 +13,5 @@ enum class ErrorCode(val status: HttpStatus, val message: String) {
     GROUP_DELETION_PERMISSION(HttpStatus.FORBIDDEN, "그룹 개설자만 그룹을 삭제 가능합니다."),
     POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "보유하지않은 게시글입니다."),
     ALREADY_DELETE_VOTE(HttpStatus.BAD_REQUEST, "이미 삭제 투표 진행중인 그룹입니다."),
-    ALL_POSTS_ALREADY_OWNED(HttpStatus.BAD_REQUEST, "모든 게시글을 보유하고 있습니다.");
+    ALL_POSTS_ALREADY_OWNED(HttpStatus.BAD_REQUEST, "더 이상 뽑을 수 있는 잼얘가 존재하지 않습니다.");
 }

@@ -29,8 +29,8 @@ class GroupController(private val groupAppService: GroupApplicationService,
     fun createGroup(
         @AuthenticationPrincipal user: UserDetails,
         @RequestPart data: GroupPostDto,
-        @RequestPart profileImageUrl: MultipartFile?,
-        @RequestPart imageUrl: MultipartFile?
+        @RequestPart profileImageUrl: MultipartFile? = null,
+        @RequestPart imageUrl: MultipartFile? = null
     ): ResponseDto<GroupDto.Detail> {
         val profileFileUri = profileImageUrl?.let { visionService.saveFile(it) }
         val groupImageUri = imageUrl?.let { visionService.saveFile(it) }
