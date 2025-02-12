@@ -8,7 +8,7 @@ spring:
     password: jamye123!
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     database: mysql
     show-sql: true
     properties:
