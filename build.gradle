@@ -84,3 +84,11 @@ kotlin {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+jar {
+    enabled = false  // plain JAR 생성 비활성화
+}
+
+bootJar {
+    archiveFileName = 'jamye-0.0.1-SNAPSHOT.jar'
+}
