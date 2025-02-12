@@ -27,7 +27,7 @@ class SecurityConfig(private val jwtFilter: JwtFilter) {
                     .requestMatchers(
                         "/api/user/login", "/api/user/join", "/v3/api-docs/**", "/", "/error", "/api/user/check/**",
                         "/api/email/**", "/api/file/**", "/api/user/refresh",  "/ws/**",
-                        "http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com"
+                        "http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com/**"
                     ).permitAll()
                     .anyRequest().hasAnyRole("USER")
             }
