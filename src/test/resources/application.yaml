@@ -1,6 +1,6 @@
 server:
   servlet:
-    application-display-name: superbe
+    application-display-name: jamye
   port: 8080
 
 spring:
