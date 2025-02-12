@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional
 import kotlin.test.fail
 
 @SpringBootTest
-//@Transactional
+@Transactional
 class GroupControllerTest @Autowired constructor(val groupController: GroupController,
                                       val userRepo: UserRepository,
                                       val userFactory: UserFactory,
