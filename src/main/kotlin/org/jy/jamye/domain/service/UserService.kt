@@ -6,6 +6,7 @@ import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.client.RedisClient
+import org.jy.jamye.common.exception.NonExistentUser
 import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
 import org.jy.jamye.domain.model.Notify
@@ -74,7 +75,7 @@ class UserService(
     }
 
     private fun getUserByIdOrThrow(id: String): User {
-        return userRepo.findByUserId(id).orElseThrow { EntityNotFoundException("없는 유저 번호를 입력하셨습니다.") }
+        return userRepo.findByUserId(id).orElseThrow { NonExistentUser() }
     }
 
     fun deleteUser(id: String, password: String): Long {

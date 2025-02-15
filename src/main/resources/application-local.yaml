@@ -6,3 +6,7 @@ spring:
     url: jdbc:mysql://localhost:3306/test
     username: root
     password: 1234
+cloud:
+  aws:
+    s3:
+      bucket: jamye-image-local

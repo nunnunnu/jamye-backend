@@ -33,3 +33,5 @@ class PostAccessDeniedException(detailMessage: String? = null) : BasicException(
 class AlreadyDeleteVoting(detailMessage: String? = null) : BasicException(ErrorCode.ALREADY_DELETE_VOTE, detailMessage)
 
 class AllPostsAlreadyOwnedException(detailMessage: String? = null) : BasicException(ErrorCode.ALL_POSTS_ALREADY_OWNED, detailMessage)
+
+class NonExistentUser(detailMessage: String? = null) : BasicException(ErrorCode.NON_EXISTENT_USER, detailMessage)

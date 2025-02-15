@@ -17,3 +17,7 @@ spring:
         use_sql_comments: true
 server:
   shutdown: graceful
+cloud:
+  aws:
+    s3:
+      bucket: jamye-image

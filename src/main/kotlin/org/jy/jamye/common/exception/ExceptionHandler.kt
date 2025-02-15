@@ -54,7 +54,8 @@ class ExceptionHandler {
         return ResponseEntity(ErrorResponseDto(
             status = e.status.value(),
             error = e.status.reasonPhrase,
-            message = e.errorCode.message
+            message = e.errorCode.message,
+            code = e.errorCode
         ), e.status)
     }
 
