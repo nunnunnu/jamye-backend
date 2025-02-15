@@ -36,3 +36,13 @@ jwt:
 logging:
   level:
     root: info
+
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAXZEFIB2KCYQXHMWM
+      secretKey: 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
+    s3:
+      bucket: jamye-image
+    region:
+      static: ap-northeast-2

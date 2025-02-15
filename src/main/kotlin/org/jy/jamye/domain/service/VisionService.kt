@@ -1,5 +1,9 @@
 package org.jy.jamye.domain.service
 
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.GetObjectRequest
+import com.amazonaws.services.s3.model.ObjectMetadata
+import com.amazonaws.util.IOUtils
 import com.google.cloud.vision.v1.AnnotateImageRequest
 import com.google.cloud.vision.v1.Feature
 import com.google.cloud.vision.v1.Image
@@ -8,14 +12,15 @@ import com.google.protobuf.ByteString
 import io.opencensus.resource.Resource
 import jakarta.servlet.http.HttpServletRequest
 import org.jy.jamye.application.dto.PostDto.*
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.UrlResource
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.multipart.MultipartFile
-import org.springframework.http.HttpHeaders;
-import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
 import java.nio.file.Path
@@ -24,8 +29,10 @@ import java.util.*
 
 
 @Service
-class VisionService {
-    private var DIR_PATH: String = "/Users/jinhee/image/"
+class VisionService(private val s3Client: AmazonS3) {
+    @Value("\${cloud.aws.s3.bucket}")
+    var bucket: String? = null
+//    private var DIR_PATH: String = "/Users/jinhee/image/"
 
     @Throws(IOException::class, IllegalStateException::class)
     fun saveFile(file: MultipartFile): String? {
@@ -35,10 +42,12 @@ class VisionService {
         val uuid: String = UUID.randomUUID().toString() // 파일 식별자
         val extension = originalName!!.substring(originalName.lastIndexOf(".")) // 파일 확장자 추출
         val savedName = uuid + extension // 이미지 파일의 새로운 이름
-        val savedPath = DIR_PATH + savedName // 파일 경로
 
-        file.transferTo(File(savedPath)) // local에 파일 저장
+        val metadata = ObjectMetadata()
+        metadata.contentType = file.contentType
+        metadata.contentLength = file.size
 
+        s3Client.putObject(bucket, savedName, file.inputStream, metadata)
         return savedName
     }
 
@@ -212,47 +221,21 @@ class VisionService {
     fun getImage(
         @PathVariable uri: String,
         request: HttpServletRequest,
-    ): ResponseEntity<UrlResource> {
-        val folderLocation: Path = Paths.get(DIR_PATH)
-        val filename: String = uri
+    ): ResponseEntity<ByteArrayResource> {
+        val o = s3Client.getObject(GetObjectRequest(bucket, "$uri"))
+        val objectInputStream = o.objectContent
+        val bytes: ByteArray = IOUtils.toByteArray(objectInputStream)
 
-        val split = filename.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val resource = ByteArrayResource(bytes)
+        val split = uri.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val ext = split[split.size - 1]
         val exportName = "$uri.$ext"
-
-        val targetFile: Path = folderLocation.resolve(filename)
-
-        var r: UrlResource? = null
-        try {
-
-            r = UrlResource(targetFile.toUri())
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        }
-
-        var contentType: String? = null
-        try {
-
-            contentType = request.servletContext.getMimeType(r!!.file.absolutePath)
-
-            if (contentType == null) {
-
-                contentType = "application/octet-stream"
-            }
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        }
         return ResponseEntity.ok()
-
-            .contentType(MediaType.parseMediaType(contentType!!))
-
-
             .header(
                 HttpHeaders.CONTENT_DISPOSITION,
                 ("attachment; filename=\"" + URLEncoder.encode(exportName, "UTF-8")).toString() + "\""
             )
-            .body(r)
-
+            .body(resource)
     }
 
 }
