@@ -1,6 +1,7 @@
 package org.jy.jamye.common.exception
 
 import com.fasterxml.jackson.core.JsonParseException
+import io.sentry.Sentry
 import jakarta.persistence.EntityNotFoundException
 import org.hibernate.exception.ConstraintViolationException
 import org.slf4j.Logger
@@ -16,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.UnsatisfiedServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.multipart.MultipartException
@@ -69,8 +71,17 @@ class ExceptionHandler {
         ), HttpStatus.FORBIDDEN)
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun handle500Exception(e: Exception): ResponseEntity<ErrorResponseDto> {
+        Sentry.captureException(e); //sentry 에러 전송
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ErrorResponseDto(message = e.message, status = 500))
+    }
+
     @ExceptionHandler(Exception::class)
     fun exception(e: Exception): ResponseEntity<ErrorResponseDto> {
+        Sentry.captureException(e); //sentry 에러 전송
         log.warn(e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.BAD_REQUEST.value(),

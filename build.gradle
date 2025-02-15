@@ -76,6 +76,10 @@ dependencies {
 
     //s3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    //sentry
+    implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.9.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
 }
 
 kotlin {
