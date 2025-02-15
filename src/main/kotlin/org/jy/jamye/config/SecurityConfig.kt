@@ -26,8 +26,7 @@ class SecurityConfig(private val jwtFilter: JwtFilter) {
                 authorizeRequests
                     .requestMatchers(
                         "/api/user/login", "/api/user/join", "/v3/api-docs/**", "/", "/error", "/api/user/check/**",
-                        "/api/email/**", "/api/file/**", "/api/user/refresh",  "/ws/**",
-                        "http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com/**"
+                        "/api/email/**", "/api/file/**", "/api/user/refresh",  "/ws/**"
                     ).permitAll()
                     .anyRequest().hasAnyRole("USER")
             }
@@ -48,7 +47,7 @@ class SecurityConfig(private val jwtFilter: JwtFilter) {
         corsConfiguration.addAllowedMethod(CorsConfiguration.ALL)
         corsConfiguration.addAllowedHeader(CorsConfiguration.ALL)
 
-        corsConfiguration.allowedOrigins = listOf("http://localhost:8081", "http://localhost:8080")
+        corsConfiguration.allowedOrigins = listOf("http://localhost:8081", "http://localhost:8080", "http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com")
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration)
 
         corsConfiguration.allowCredentials = true
