@@ -35,7 +35,13 @@ jwt:
   secretKey: fajldfklsdjfeijcnklcnsdknclnsdkncsldnckasdcnl
 logging:
   level:
+    org:
+      hibernate:
+        orm:
+          jdbc:
+            bind: trace
     root: info
+
 
 cloud:
   aws:
