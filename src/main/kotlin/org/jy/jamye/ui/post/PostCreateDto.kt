@@ -16,6 +16,7 @@ data class PostCreateDto<T>(
     )
 
     data class Board(
+        val title: String? = null,
         var content: String
     ) {
         fun replaceUri(imageUriMap: MutableMap<String, Pair<Long, String>>) {

@@ -47,3 +47,10 @@ logging:
 
 jwt:
   secretKey: fjkapnodsflvnsdavkhwiensejdnvasknavevnksnddkvfndlsk
+
+cloud:
+  aws:
+    s3:
+      bucket: jamye-image-local
+    region:
+      static: ap-northeast-2

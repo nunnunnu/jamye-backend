@@ -10,6 +10,7 @@ import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PostApplicationService(
@@ -106,6 +107,7 @@ class PostApplicationService(
         return postService.createPostBoardType(user.sequence, post, content)
     }
 
+    @Transactional
     fun updateMessagePost(
         groupSeq: Long,
         postSeq: Long,
@@ -118,7 +120,8 @@ class PostApplicationService(
 
         var seq = 1L
         data.message.values.forEach { it.message.forEach { msg -> msg.seq = seq++ } }
-        postService.postUpdate(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage, replyMap)
+        data.title?.let { if(it.isNotBlank()) postService.updatePost(groupSeq, postSeq, data.title) }
+        postService.updateMessagePost(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage, replyMap)
         sendNotify(groupSeq = groupSeq, postSeq = postSeq)
         userService.getNotifyNoReadCount(user.sequence)
     }
@@ -152,7 +155,7 @@ class PostApplicationService(
     fun updateBoardPost(groupSeq: Long, postSeq: Long, data: PostCreateDto.Board, userId: String) {
         val user = userService.getUser(userId)
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
-
+        data.title?.let { if(it.isNotBlank()) postService.updatePost(groupSeq, postSeq, data.title) }
         postService.updateBoardPost(groupSeq, postSeq, data)
 
 

@@ -245,7 +245,7 @@ class PostService(
         }
     }
 
-    fun postUpdate(
+    fun updateMessagePost(
         groupSeq: Long,
         postSeq: Long,
         message: MutableCollection<PostDto.MessagePost>,
@@ -362,5 +362,10 @@ class PostService(
 
     private fun getBoardPostOrThrow(postSeq: Long): Board {
         return boardRepository.findByPostSeq(postSeq).orElseThrow { EntityNotFoundException("잘못된 게시글 번호입니다.") }
+    }
+
+    fun updatePost(groupSeq: Long, postSeq: Long, title: String) {
+        val post = getPostOrThrow(groupSequence = groupSeq, postSequence = postSeq)
+        post.titleUpdate(title)
     }
 }

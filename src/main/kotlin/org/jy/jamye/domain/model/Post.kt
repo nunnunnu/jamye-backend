@@ -31,6 +31,12 @@ class Post(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var postSeq: Long? = null
 ) {
+    fun titleUpdate(title: String) {
+        if (this.title != title) {
+            this.title = title
+        }
+
+    }
 }
 
 enum class PostType(val koName: String) {
