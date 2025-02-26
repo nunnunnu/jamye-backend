@@ -46,7 +46,7 @@ logging:
     root: info
 
 jwt:
-  secretKey: fjkapnodsflvnsdavkhwiensejdnvasknavevnksnddkvfndlsk
+  secretKey: testkeytestkeytestkeytestkeytestkey
 
 cloud:
   aws:
