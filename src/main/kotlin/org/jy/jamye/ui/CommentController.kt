@@ -47,7 +47,9 @@ class CommentController(
                       @PathVariable("postSeq") postSeq: Long,
                       @PathVariable("commentSeq") commentSeq: Long,
                       @RequestBody comment: CommentPostDto
-    ) {
+    ): ResponseDto<Nothing> {
         commentAppService.updateComment(user.username, groupSeq, postSeq, commentSeq, comment.comment)
+        return ResponseDto()
+
     }
 }

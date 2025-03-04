@@ -1,11 +1,6 @@
 package org.jy.jamye.application.dto
 
-import jakarta.persistence.Column
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDateTime
 
 data class CommentDto(
@@ -13,7 +8,10 @@ data class CommentDto(
     val groupSeq: Long,
     val postSeq: Long,
     val userSeq: Long,
+    var nickName: String? = null,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val createDate: LocalDateTime,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val updateDate: LocalDateTime,
     var commentSeq: Long? = null
 ) {
