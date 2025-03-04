@@ -177,7 +177,8 @@ class UserService(
     }
 
     fun deleteNotify(standardDate: LocalDateTime) {
-        notifyRepository.deleteAllByStandardDateBefore((standardDate))
+        val count = notifyRepository.deleteAllByStandardDateBefore((standardDate))
+        log.info("[notifyDeleteJob] 알람함 삭제 진행 ${count}개")
     }
     fun getNotifyNoReadCount(userSeq: Long): Long {
         val unreadCount = notifyRepository.countByUserSeqAndIsRead(userSeq, false)
@@ -190,6 +191,11 @@ class UserService(
     fun allNotifyRead(sequence: Long) {
         notifyRepository.notifyInUserAllRead(sequence)
         getNotifyNoReadCount(sequence)
+    }
+
+    fun deleteNotify(userSeq: Long) {
+        val count = notifyRepository.deleteAllByUserReadNotify(userSeq)
+        log.info("[deleteNotifyRead] ${userSeq} 읽은 알림 삭제 :${count}개")
     }
 
 }

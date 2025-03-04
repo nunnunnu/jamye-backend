@@ -43,4 +43,11 @@ class UserApplicationService(
         val user = userService.getUser(userId)
         userService.allNotifyRead(user.sequence!!)
     }
+
+    fun deleteReadNotify(userId: String) {
+        val user = userService.getUser(userId)
+        userService.deleteNotify(user.sequence!!)
+
+
+    }
 }

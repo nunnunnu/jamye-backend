@@ -15,7 +15,7 @@ interface NotifyRepository: JpaRepository<Notify, Long>  {
         where n.createDate <= :standardDate
     """)
     @Transactional
-    fun deleteAllByStandardDateBefore(standardDate: LocalDateTime)
+    fun deleteAllByStandardDateBefore(standardDate: LocalDateTime): Int
     fun countByUserSeqAndIsRead(userSeq: Long, isRead: Boolean): Long
     @Modifying
     @Query("""
@@ -26,5 +26,13 @@ interface NotifyRepository: JpaRepository<Notify, Long>  {
     """)
     @Transactional
     fun notifyInUserAllRead(userSeq: Long)
+    @Transactional
+    @Modifying
+    @Query("""
+        delete from Notify n
+        where n.userSeq = :userSeq
+        and n.isRead = true
+    """)
+    fun deleteAllByUserReadNotify(userSeq: Long): Int
 
 }

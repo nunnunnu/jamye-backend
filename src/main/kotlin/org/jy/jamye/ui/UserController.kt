@@ -103,4 +103,10 @@ class UserController(
         userAppService.allNotifyRead(user.username)
         return ResponseDto()
     }
+
+    @DeleteMapping("/notify/read/delete")
+    fun allReadNotifyDelete(@AuthenticationPrincipal user: UserDetails) : ResponseDto<Nothing> {
+        userAppService.deleteReadNotify(user.username)
+        return ResponseDto()
+    }
 }
