@@ -193,9 +193,16 @@ class UserService(
         getNotifyNoReadCount(sequence)
     }
 
+    @Transactional
     fun deleteNotify(userSeq: Long) {
         val count = notifyRepository.deleteAllByUserReadNotify(userSeq)
-        log.info("[deleteNotifyRead] ${userSeq} 읽은 알림 삭제 :${count}개")
+        log.info("[deleteNotifyRead] $userSeq 읽은 알림 삭제 :${count}개")
+    }
+
+    @Transactional
+    fun deleteNotify(userSeq: Long, notifySeq: Long) {
+        notifyRepository.deleteByNotiSeqAndUserSeq(notifySeq, userSeq)
+        getNotifyNoReadCount(userSeq)
     }
 
 }

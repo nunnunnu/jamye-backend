@@ -4,7 +4,6 @@ import org.jy.jamye.application.dto.NotifyDto
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.infra.UserRepository
-import org.jy.jamye.security.TokenDto
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -49,5 +48,10 @@ class UserApplicationService(
         userService.deleteNotify(user.sequence!!)
 
 
+    }
+
+    fun deleteNotify(userId: String, notifySeq: Long) {
+        val user = userService.getUser(userId)
+        userService.deleteNotify(user.sequence!!, notifySeq)
     }
 }

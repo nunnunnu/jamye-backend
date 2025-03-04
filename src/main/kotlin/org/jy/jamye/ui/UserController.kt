@@ -13,9 +13,6 @@ import org.jy.jamye.ui.post.UserPasswordDto
 import org.jy.jamye.ui.post.UserPostDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.springframework.http.HttpStatus
-import org.springframework.messaging.handler.annotation.DestinationVariable
-import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.validation.annotation.Validated
@@ -107,6 +104,12 @@ class UserController(
     @DeleteMapping("/notify/read/delete")
     fun allReadNotifyDelete(@AuthenticationPrincipal user: UserDetails) : ResponseDto<Nothing> {
         userAppService.deleteReadNotify(user.username)
+        return ResponseDto()
+    }
+
+    @DeleteMapping("/notify/delete/{notifySeq}")
+    fun notifyDelete(@AuthenticationPrincipal user: UserDetails, @PathVariable notifySeq: Long) : ResponseDto<Nothing> {
+        userAppService.deleteNotify(user.username, notifySeq)
         return ResponseDto()
     }
 }

@@ -34,5 +34,6 @@ interface NotifyRepository: JpaRepository<Notify, Long>  {
         and n.isRead = true
     """)
     fun deleteAllByUserReadNotify(userSeq: Long): Int
+    fun deleteByNotiSeqAndUserSeq(notifySeq: Long, userSeq: Long)
 
 }
