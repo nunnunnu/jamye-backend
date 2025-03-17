@@ -46,6 +46,7 @@ data class PostDto(
         var isReply: Boolean? = false,
         var replyMessage: String? = null,
         var replyTo: String? = null,
+        var replyNickNameSeq: Long? = null,
         val imageKey: Set<String> = setOf(),
         val imageUri: MutableSet<Pair<Long, String>> = mutableSetOf(),
         val messageSeq: Long? = null,

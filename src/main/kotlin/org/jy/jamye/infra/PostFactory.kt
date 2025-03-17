@@ -23,14 +23,14 @@ class PostFactory(
     }
 
 
-    fun createPostMessageType(data: PostDto.MessagePost, message: PostDto.MessageSequence, postSeq: Long, messageNickNameSeq: Long?): Message {
+    fun createPostMessageType(data: PostDto.MessagePost, message: PostDto.MessageSequence, postSeq: Long, nickNameMap: Map<String, Long>): Message {
         return Message(
             content = message.message,
-            messageNickNameSeq = messageNickNameSeq,
+            messageNickNameSeq = if (nickNameMap[data.sendUser] == null) data.sendUserSeq else nickNameMap[data.sendUser],
             orderNumber = message.seq,
             sendDate = data.sendDate,
             postSeq = postSeq,
-            replyTo = message.replyTo,
+            replyTo = message.replyTo?.let { nickNameMap[it as String] },
             replyMessage = message.replyMessage,
             messageImage = message.imageUri.map { img ->
                 MessageImage(imageUri = img.second)

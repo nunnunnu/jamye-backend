@@ -83,7 +83,7 @@ class PostService(
                             imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()),
                             messageSeq = it.messageSeq,
                             replyMessageSeq = it.replyToMessageSeq,
-                            replyTo = it.replyTo,
+                            replyNickNameSeq = it.replyTo,
                             replyMessage = it.replyMessage,
                             isReply = it.replyMessage != null
                             )
@@ -99,7 +99,7 @@ class PostService(
                     imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()),
                     messageSeq = it.messageSeq,
                     replyMessageSeq = it.replyToMessageSeq,
-                    replyTo = it.replyTo,
+                    replyNickNameSeq = it.replyTo,
                     replyMessage = it.replyMessage,
                     isReply = it.replyMessage != null,
                 ))
@@ -209,7 +209,7 @@ class PostService(
                 run {
                     val message = postFactory.createPostMessageType(
                         data = it, postSeq = postSeq, message = msg,
-                        messageNickNameSeq = if (nickNameMap[it.sendUser] == null) it.sendUserSeq else nickNameMap[it.sendUser]
+                        nickNameMap = nickNameMap
                     )
                     replyKeyMap[message] = msg.replyStringKey()
 
@@ -290,7 +290,7 @@ class PostService(
                         messageEntityMap[msg.messageSeq]!!.update(
                             content = msg.message,
                             messageNickNameSeq = it.sendUserSeq,
-                            replyTo = msg.replyTo,
+                            replyNickNameSeq = msg.replyNickNameSeq,
                             replyMessage = msg.replyMessage,
                             replyToMessageSeq =
                                 if(msg.replyMessageSeq != null) {

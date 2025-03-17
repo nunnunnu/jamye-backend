@@ -12,7 +12,7 @@ class Message(
     @Column(name = "send_date")
     var sendDate: String? = null,
     @Column(name = "replyTo")
-    var replyTo: String? = null,
+    var replyTo: Long? = null,
     @Column(name = "reply_message")
     var replyMessage: String? = null,
     @Column(name = "reply_seq")
@@ -32,8 +32,8 @@ class Message(
     fun update(
         content: String?,
         messageNickNameSeq: Long?,
-        replyTo: String?,
-        replyMessage: String?,
+        replyNickNameSeq: Long? = null,
+        replyMessage: String? = null,
         replyToMessageSeq: Long?,
         orderNumber: Long?,
         sendUserSeq: Long?
@@ -48,7 +48,7 @@ class Message(
             this.orderNumber = orderNumber
         }
 
-        this.replyTo = replyTo
+        this.replyTo = replyNickNameSeq
         this.replyMessage = replyMessage
         this.replyToMessageSeq = replyToMessageSeq
         this.messageNickNameSeq = sendUserSeq
