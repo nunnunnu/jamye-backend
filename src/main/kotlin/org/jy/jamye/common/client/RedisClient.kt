@@ -3,9 +3,8 @@ package org.jy.jamye.common.client
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.jy.jamye.application.dto.DeleteVote
-import org.jy.jamye.application.dto.NotifyDto
+import org.jy.jamye.common.exception.SessionExpiredException
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 
@@ -85,7 +84,7 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
 
     fun getIdByRefreshToken(refreshToken: String): String {
         if(!hasKey(refreshToken)){
-            throw BadCredentialsException("다시 로그인해주세요")
+            throw SessionExpiredException()
         }
         return getValue(refreshToken)!!
     }

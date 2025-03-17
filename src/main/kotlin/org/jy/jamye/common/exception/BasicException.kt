@@ -35,3 +35,5 @@ class AlreadyDeleteVoting(detailMessage: String? = null) : BasicException(ErrorC
 class AllPostsAlreadyOwnedException(detailMessage: String? = null) : BasicException(ErrorCode.ALL_POSTS_ALREADY_OWNED, detailMessage)
 
 class NonExistentUser(detailMessage: String? = null) : BasicException(ErrorCode.NON_EXISTENT_USER, detailMessage)
+
+class SessionExpiredException(detailMessage: String? = null): BasicException(ErrorCode.SESSION_EXPIRED, detailMessage)

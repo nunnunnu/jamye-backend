@@ -1,5 +1,6 @@
 package org.jy.jamye.common.exception
 
+import com.google.api.Http
 import org.springframework.http.HttpStatus
 
 enum class ErrorCode(val status: HttpStatus, val message: String) {
@@ -14,5 +15,6 @@ enum class ErrorCode(val status: HttpStatus, val message: String) {
     POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "보유하지않은 게시글입니다."),
     ALREADY_DELETE_VOTE(HttpStatus.BAD_REQUEST, "이미 삭제 투표 진행중인 그룹입니다."),
     ALL_POSTS_ALREADY_OWNED(HttpStatus.BAD_REQUEST, "더 이상 뽑을 수 있는 잼얘가 존재하지 않습니다."),
-    NON_EXISTENT_USER(HttpStatus.UNAUTHORIZED, "없는 유저 번호를 입력하셨습니다.")
+    NON_EXISTENT_USER(HttpStatus.UNAUTHORIZED, "없는 유저 번호를 입력하셨습니다."),
+    SESSION_EXPIRED(HttpStatus.UNAUTHORIZED, "로그인이 만료되었습니다. 다시 로그인해주세요.")
 }
