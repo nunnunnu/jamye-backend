@@ -42,7 +42,7 @@ class PostService(
 
     fun getPost(groupSequence: Long, postSequence: Long): PostDto.PostContent<Any> {
         val post = getPostOrThrow(groupSequence, postSequence)
-        val result = PostDto.PostContent<Any>(
+        val result = PostDto.PostContent(
             groupSequence = post.groupSeq,
             postSequence = post.postSeq!!,
             createdUserSequence = post.userSeq,
@@ -85,7 +85,7 @@ class PostService(
                             replyMessageSeq = it.replyToMessageSeq,
                             replyTo = it.replyTo,
                             replyMessage = it.replyMessage,
-                            isReply = it.replyTo != null
+                            isReply = it.replyMessage != null
                             )
                     ),
                     sendDate = it.sendDate,
@@ -93,9 +93,17 @@ class PostService(
                 )
                 messageResponse[key++] = messagePost!!
             } else if(messagePost!!.sendUserSeq == it.messageNickNameSeq) {
-                messagePost!!.message.add(PostDto.MessageSequence(++seq, it.content, imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()), messageSeq = it.messageSeq))
+                messagePost!!.message.add(PostDto.MessageSequence(
+                    ++seq,
+                    it.content,
+                    imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()),
+                    messageSeq = it.messageSeq,
+                    replyMessageSeq = it.replyToMessageSeq,
+                    replyTo = it.replyTo,
+                    replyMessage = it.replyMessage,
+                    isReply = it.replyMessage != null,
+                ))
             }
-
         }
 
         return PostDto.MessageNickNameInfo(message = messageResponse, nickName = nickNameMap)

@@ -118,18 +118,12 @@ class VisionService(private val s3Client: AmazonS3) {
                             val messagePost = messageMap[sequence]
                             if(lineText.endsWith("에게 답장")) {
                                 isReply = true
-                                replyTo = lineText
+                                replyTo = lineText.replace("에게 답장", "").replace(" ", "")
                             } else {
-                                println(lineText)
-                                if(lineText.equals("오운완")) {
-                                    println(!lineText.contains("오전"))
-                                    println(!lineText.contains("오후"))
-                                    println(lineText.isNotBlank() && !org.h2.util.StringUtils.isNumber(lineText) && !lineText.contains("오전") && !lineText.contains("오후"))
-                                }
                                 if (messagePost == null) {
                                     val currentUserMessage = MessagePost(sendUser = currentUser)
                                     if(isReply) {
-                                        currentUserMessage.message.add(MessageSequence(1L, replyTo = lineText, isReply = true))
+                                        currentUserMessage.message.add(MessageSequence(1L, replyTo = replyTo, isReply = true))
                                     }
                                     messageMap[sequence] = currentUserMessage
                                 } else if (lineText.isNotBlank() && !org.h2.util.StringUtils.isNumber(lineText) && !lineText.contains("오전") && !lineText.contains("오후")) {
@@ -154,7 +148,7 @@ class VisionService(private val s3Client: AmazonS3) {
                                     } else {
                                         val last = if (messagePost.message.isEmpty()) 1 else messagePost.message.last().seq + 1
                                         if(isReply){
-                                            messagePost.message.add(MessageSequence(last, lineText, isReply = true, replyMessage = lineText))
+                                            messagePost.message.add(MessageSequence(seq = last, message = lineText, isReply = true, replyMessage = lineText, replyTo = replyTo))
                                             isReply = false
                                         } else {
                                             if(messagePost.message.isNotEmpty() && messagePost.message.last().isReply == true) {
@@ -170,6 +164,10 @@ class VisionService(private val s3Client: AmazonS3) {
                                         }
                                     }
                                 } else if (lineText.contains("오전") || lineText.contains("오후")) {
+                                    println(lineText)
+                                    println(lineText.contains("오전") || lineText.contains("오후"))
+                                    println(lineText.contains("오전"))
+                                    println(lineText.contains("오후"))
                                     messagePost.sendDate = lineText
                                 }
                             }
