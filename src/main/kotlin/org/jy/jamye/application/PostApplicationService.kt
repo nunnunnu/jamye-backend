@@ -1,5 +1,6 @@
 package org.jy.jamye.application
 
+import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.listener.NotifyInfo
@@ -133,12 +134,26 @@ class PostApplicationService(
         userId: String,
         deleteMessageNickNameSeqs: Set<Long>,
         createInfo: Set<PostCreateDto.MessageNickNameDto>
-    ) {
+    ): Map<Long, MessageNickNameDto> {
         val user = userService.getUser(userId)
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
 
         postService.messagePostNickNameAdd(postSeq, createInfo)
         postService.updateNickNameInfo(groupSeq, postSeq, userId, data, deleteMessageNickNameSeqs)
+
+        val nickNameMap = postService.getMessageAllNickNameMap(postSeq)
+        val userInfoInGroupMap =
+            groupService.userInfoInGroup(nickNameMap.filter { it.value.userSeqInGroup != null }.map { it.value.userSeqInGroup!! }.toSet())
+        nickNameMap.values.toSet().forEach { value ->
+            value.let {
+                userInfoInGroupMap[value.userSeqInGroup]?.let {
+                    value.userNameInGroup = it.nickname
+                    value.imageUri = it.imageUrl
+                }
+            }
+
+        }
+        return nickNameMap
     }
 
     fun updateBoardPost(groupSeq: Long, postSeq: Long, data: PostCreateDto.Board, userId: String) {

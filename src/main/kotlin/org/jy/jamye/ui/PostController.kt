@@ -1,6 +1,7 @@
 package org.jy.jamye.ui
 
 import org.jy.jamye.application.PostApplicationService
+import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.model.PostType
@@ -183,9 +184,16 @@ class PostController(
         @PathVariable postSeq: Long,
         @AuthenticationPrincipal user: UserDetails,
         @RequestBody data: PostCreateDto.MessageNickNameUpdate
-    ): ResponseDto<Nothing> {
-        postAppService.updateMessageNickNameInfo(groupSeq, postSeq, data.updateInfo, user.username, data.deleteMessageNickNameSeqs, data.createInfo)
-        return ResponseDto(data = null, status = HttpStatus.OK)
+    ): ResponseDto<Map<Long, MessageNickNameDto>> {
+        val nickNameMap = postAppService.updateMessageNickNameInfo(
+            groupSeq,
+            postSeq,
+            data.updateInfo,
+            user.username,
+            data.deleteMessageNickNameSeqs,
+            data.createInfo
+        )
+        return ResponseDto(data = nickNameMap, status = HttpStatus.OK)
     }
 
     @PostMapping("/board/{groupSeq}/{postSeq}")

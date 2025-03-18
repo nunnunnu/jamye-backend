@@ -69,8 +69,7 @@ class PostService(
                 it.messageSeq
             }.mapValues { entry -> entry.value.map { it.messageImageSeq!! to it.imageUri }.toMutableSet() }
 
-        val nickNameMap =
-            messageNickNameRepository.findAllByPostSeq(postSeq).associate { it.messageNickNameSeq!! to MessageNickNameDto(nickName = it.nickname, userSeqInGroup = it.userSeqInGroup) }
+        val nickNameMap = getMessageAllNickNameMap(postSeq)
 
         messages.forEach{
             if(seq == 0L || messagePost!!.sendUserSeq != it.messageNickNameSeq) {
@@ -107,6 +106,17 @@ class PostService(
         }
 
         return PostDto.MessageNickNameInfo(message = messageResponse, nickName = nickNameMap)
+    }
+
+    fun getMessageAllNickNameMap(postSeq: Long): Map<Long, MessageNickNameDto> {
+        val nickNameMap =
+            messageNickNameRepository.findAllByPostSeq(postSeq).associate {
+                it.messageNickNameSeq!! to MessageNickNameDto(
+                    nickName = it.nickname,
+                    userSeqInGroup = it.userSeqInGroup
+                )
+            }
+        return nickNameMap
     }
 
     private fun getPostOrThrow(groupSequence: Long, postSequence: Long): Post {
