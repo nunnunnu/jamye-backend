@@ -318,13 +318,11 @@ class PostService(
         }
     }
 
-    fun messagePostNickNameAdd(groupSeq: Long, postSeq: Long, userSeqInGroup: Long?, userId: String, nickName: String): Long {
-        val messageNickName =
-            postFactory.createMessageNickName(nickName = nickName, userSeqInGroup = userSeqInGroup, postSeq = postSeq)
-
-        messageNickNameRepository.save(messageNickName)
-
-        return messageNickName.messageNickNameSeq!!
+    fun messagePostNickNameAdd(postSeq: Long, createInfo: Set<PostCreateDto.MessageNickNameDto>) {
+        val messageNickName = createInfo
+            .map { postFactory.createMessageNickName(
+                nickName = it.nickName, userSeqInGroup = it.userSeqInGroup, postSeq = postSeq) }
+        messageNickNameRepository.saveAll(messageNickName)
     }
 
     fun updateNickNameInfo(

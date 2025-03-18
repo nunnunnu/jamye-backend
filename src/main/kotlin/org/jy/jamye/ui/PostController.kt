@@ -177,19 +177,6 @@ class PostController(
         return ResponseDto(data = null, status = HttpStatus.OK)
     }
 
-    @PostMapping("/message/{groupSeq}/{postSeq}/nickNameAdd")
-    fun messagePostNickNameAdd(
-        @PathVariable groupSeq: Long,
-        @PathVariable postSeq: Long,
-        @AuthenticationPrincipal user: UserDetails,
-        @RequestParam nickName: String,
-        @RequestParam(required = false) userSeqInGroup: Long?
-    ): ResponseDto<Long> {
-        val messageNickNameSeq =
-            postAppService.messagePostNickNameAdd(groupSeq, postSeq, nickName, userSeqInGroup, user.username)
-        return ResponseDto(data = messageNickNameSeq, status = HttpStatus.OK)
-    }
-
     @PostMapping("/message/{groupSeq}/{postSeq}/nickName")
     fun messagePostNickNameUpdate(
         @PathVariable groupSeq: Long,
@@ -197,7 +184,7 @@ class PostController(
         @AuthenticationPrincipal user: UserDetails,
         @RequestBody data: PostCreateDto.MessageNickNameUpdate
     ): ResponseDto<Nothing> {
-        postAppService.updateMessageNickNameInfo(groupSeq, postSeq, data.updateInfo, user.username, data.deleteMessageNickNameSeqs)
+        postAppService.updateMessageNickNameInfo(groupSeq, postSeq, data.updateInfo, user.username, data.deleteMessageNickNameSeqs, data.createInfo)
         return ResponseDto(data = null, status = HttpStatus.OK)
     }
 

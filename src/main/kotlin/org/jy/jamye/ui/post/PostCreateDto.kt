@@ -40,7 +40,8 @@ data class PostCreateDto<T>(
 
     data class MessageNickNameUpdate(
         val deleteMessageNickNameSeqs: Set<Long> = setOf(),
-        val updateInfo: Map<Long, MessageNickNameDto>
+        val updateInfo: Map<Long, MessageNickNameDto>,
+        val createInfo: Set<MessageNickNameDto> = setOf()
     )
 }
 

@@ -126,29 +126,18 @@ class PostApplicationService(
         userService.getNotifyNoReadCount(user.sequence)
     }
 
-    fun messagePostNickNameAdd(
-        groupSeq: Long,
-        postSeq: Long,
-        nickName: String,
-        userSeqInGroup: Long?,
-        userId: String
-    ): Long {
-        val user = userService.getUser(userId)
-        postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
-
-        return postService.messagePostNickNameAdd(groupSeq, postSeq, userSeqInGroup, userId, nickName)
-    }
-
     fun updateMessageNickNameInfo(
         groupSeq: Long,
         postSeq: Long,
         data: Map<Long, PostCreateDto.MessageNickNameDto>,
         userId: String,
-        deleteMessageNickNameSeqs: Set<Long>
+        deleteMessageNickNameSeqs: Set<Long>,
+        createInfo: Set<PostCreateDto.MessageNickNameDto>
     ) {
         val user = userService.getUser(userId)
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
 
+        postService.messagePostNickNameAdd(postSeq, createInfo)
         postService.updateNickNameInfo(groupSeq, postSeq, userId, data, deleteMessageNickNameSeqs)
     }
 
