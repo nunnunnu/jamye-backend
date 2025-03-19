@@ -26,7 +26,7 @@ data class PostDto(
         val isViewable: Boolean,
             )
     data class MessagePost(
-        val sendUserSeq: Long? = null,
+        var sendUserSeq: Long? = null,
         val sendUser: String? = null,
         var message: MutableList<MessageSequence> = mutableListOf(),
         var sendDate: String? = null,
