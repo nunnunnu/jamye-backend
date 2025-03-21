@@ -71,8 +71,8 @@ class PostApplicationService(
         val user = userService.getUser(id = userId)
         val userSeq = user.sequence!!
         val count = luckyDrawMap.getOrDefault("$userSeq-$groupSeq", 0)
-        if(count >= 2) {
-            throw IllegalArgumentException("뽑기는 그룹 당 하루에 2번까지 가능합니다.")
+        if(count >= 3) {
+            throw IllegalArgumentException("뽑기는 그룹 당 하루에 3번까지 가능합니다.")
         }
 
         val luckyDrawSeq = postService.luckyDraw(groupSeq, userSeq)
