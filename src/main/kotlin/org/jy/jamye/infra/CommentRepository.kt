@@ -7,5 +7,6 @@ import java.util.Optional
 interface CommentRepository: JpaRepository<Comment, Long> {
     fun findAllByGroupSeqAndPostSeq(groupSeq: Long, postSeq: Long): List<Comment>
     fun findByUserSeqAndCommentSeq(userSeq: Long, commentSeq: Long): Optional<Comment>
+    fun deleteByPostSeq(postSeq: Long)
 
 }

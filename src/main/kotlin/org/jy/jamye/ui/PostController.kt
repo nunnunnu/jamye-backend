@@ -209,4 +209,11 @@ class PostController(
         postAppService.updateBoardPost(groupSeq, postSeq, data, user.username)
         return ResponseDto(data = data.content, status = HttpStatus.OK)
     }
+
+    @DeleteMapping("/{groupSeq}/{postSeq}")
+    fun deletePost(@PathVariable groupSeq: Long,
+                   @PathVariable postSeq: Long,
+                   @AuthenticationPrincipal user: UserDetails) {
+        postAppService.deletePost(groupSeq, postSeq, user.username)
+    }
 }

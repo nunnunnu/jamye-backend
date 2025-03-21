@@ -19,7 +19,8 @@ class PostService(
     private val messageRepository: MessageRepository,
     private val boardRepository: BoardRepository,
     private val messageImageRepository: MessageImageRepository,
-    private val messageNickNameRepository: MessageNickNameRepository
+    private val messageNickNameRepository: MessageNickNameRepository,
+    private val commentRepository: CommentRepository
 ) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
         if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
@@ -397,5 +398,19 @@ class PostService(
             tempSendUser.forEach { it.sendUserSeq = nickNameMap[it.sendUser] }
 
         }
+    }
+
+    @Transactional
+    fun deletePost(groupSeq: Long, postSeq: Long) {
+        //post detail 삭제
+        messageImageRepository.deleteByPostSeq(postSeq)
+        messageNickNameRepository.deleteByPostSeq(postSeq)
+        messageRepository.deleteByPostSeq(postSeq)
+        boardRepository.deleteByPostSeq(postSeq)
+        //post 삭제
+        postRepository.deleteById(postSeq)
+
+        //사용자 보유 post 삭제
+        userGroupPostRepository.deleteByPostSequence(postSeq)
     }
 }

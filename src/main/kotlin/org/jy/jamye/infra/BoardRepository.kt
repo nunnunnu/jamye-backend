@@ -15,4 +15,5 @@ interface BoardRepository: JpaRepository<Board, Long> {
         ) 
     """)
     fun deleteAllByGroupSeq(groupSeq: Long)
+    fun deleteByPostSeq(postSeq: Long)
 }

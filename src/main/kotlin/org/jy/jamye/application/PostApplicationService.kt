@@ -5,6 +5,7 @@ import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.listener.NotifyInfo
 import org.jy.jamye.domain.model.PostType
+import org.jy.jamye.domain.service.CommentService
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.PostService
 import org.jy.jamye.domain.service.UserService
@@ -15,11 +16,12 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PostApplicationService(
-        private val postService: PostService,
-        private val userService: UserService,
-        private val groupService: GroupService,
-        private val redisClient: RedisClient,
-        private val publisher: ApplicationEventPublisher
+    private val postService: PostService,
+    private val userService: UserService,
+    private val groupService: GroupService,
+    private val redisClient: RedisClient,
+    private val publisher: ApplicationEventPublisher,
+    private val commentService: CommentService
 ) {
     fun getPost(groupSequence: Long, postSequence: Long, userId: String): PostDto.PostContent<Any> {
         val user = userService.getUser(id = userId)
@@ -182,6 +184,16 @@ class PostApplicationService(
             message = "보유하신 " + group.name +"의 잼얘 " + post.title + "이 업데이트되었습니다."
         )
         publisher.publishEvent(event)
+    }
+
+    fun deletePost(groupSeq: Long, postSeq: Long, userId: String) {
+        val user = userService.getUser(id = userId)
+        groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
+
+        postService.postCheck(groupSeq, postSeq, user.sequence)
+
+        postService.deletePost(groupSeq, postSeq)
+        commentService.deleteCommentByPost(postSeq)
     }
 
 }

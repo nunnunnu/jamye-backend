@@ -16,4 +16,5 @@ interface MessageNickNameRepository: JpaRepository<MessageNickName, Long>
     """)
     fun deleteAllPostInGroup(groupSeq: Long)
     fun countByPostSeq(postSeq: Long): Long
+    fun deleteByPostSeq(postSeq: Long)
 }

@@ -45,4 +45,8 @@ class CommentService(
         return commentRepository.findByUserSeqAndCommentSeq(userSeq, commentSeq).orElseThrow { EntityNotFoundException("해당 댓글에 접근할 수 없습니다.") }
     }
 
+    fun deleteCommentByPost(postSeq: Long) {
+        commentRepository.deleteByPostSeq(postSeq)
+    }
+
 }

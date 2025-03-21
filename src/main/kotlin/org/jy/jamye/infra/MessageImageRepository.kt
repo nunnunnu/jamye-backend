@@ -17,4 +17,12 @@ interface MessageImageRepository: JpaRepository<MessageImage, Long> {
             )
         """)
     fun deleteAllPostInGroup(groupSeq: Long)
+    @Modifying
+    @Query(
+        """delete from MessageImage where messageSeq IN (
+                select pm.messageSeq from Message pm
+                where pm.postSeq = :postSeq
+            )
+        """)
+    fun deleteByPostSeq(postSeq: Long)
 }

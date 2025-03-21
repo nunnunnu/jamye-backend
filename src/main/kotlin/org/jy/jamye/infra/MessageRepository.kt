@@ -14,4 +14,5 @@ interface MessageRepository: JpaRepository<Message, Long> {
         )
     """)
     fun deleteAllByGroupSeq(groupSeq: Long)
+    fun deleteByPostSeq(postSeq: Long)
 }
