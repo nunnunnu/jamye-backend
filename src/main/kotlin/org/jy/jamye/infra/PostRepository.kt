@@ -22,5 +22,7 @@ interface PostRepository: JpaRepository<Post, Long> {
     """)
     fun countAllByAbleDrawPool(groupSeq: Long, userSeq: Long): MutableList<Long>
     fun existsByGroupSeqAndPostSeqAndUserSeq(groupSeq: Long, postSeq: Long, userSeq: Long): Boolean
+    fun findByGroupSeqAndPostSeqIn(groupSeq: Long, postSeqs: Set<Long>): MutableList<Post>
+    fun countByGroupSeq(groupSequence: Long): Long
 
 }

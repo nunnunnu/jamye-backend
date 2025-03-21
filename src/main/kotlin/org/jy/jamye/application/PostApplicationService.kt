@@ -55,14 +55,15 @@ class PostApplicationService(
         return post
     }
 
-    fun getPosts(userId: String, groupSequence: Long) : List<PostDto.Detail> {
+    fun getPosts(userId: String, groupSequence: Long) : PostDto.PostList {
         val user = userService.getUser(id = userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSequence)
         val posts = postService.getPosts(user.sequence, groupSequence)
+        val postCountInGroup = postService.postCountInGroup(groupSequence)
         val userInfoMap = groupService.getGroupInUsersNickName(groupSequence, posts.map { it.createdUserSequence })
 
         posts.forEach { it.createdUserNickName = userInfoMap[it.createdUserSequence] }
-        return posts
+        return PostDto.PostList(posts = posts, count = postCountInGroup)
     }
 
     fun postLuckyDraw(groupSeq: Long, userId: String): PostDto {

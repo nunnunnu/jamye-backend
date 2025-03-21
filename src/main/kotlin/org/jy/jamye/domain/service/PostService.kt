@@ -125,10 +125,10 @@ class PostService(
     }
 
     fun getPosts(userSeq: Long, groupSeq: Long): List<PostDto.Detail> {
-        val posts = postRepository.findByGroupSeq(groupSeq)
-
         val isViewable =
             userGroupPostRepository.findPostSeqByGroupSequenceAndUserSequence(groupSeq, userSeq)
+
+        val posts = postRepository.findByGroupSeqAndPostSeqIn(groupSeq, isViewable)
 
         return posts.map {
             PostDto.Detail(groupSequence = it.groupSeq,
@@ -412,5 +412,9 @@ class PostService(
 
         //사용자 보유 post 삭제
         userGroupPostRepository.deleteByPostSequence(postSeq)
+    }
+
+    fun postCountInGroup(groupSequence: Long): Long {
+        return postRepository.countByGroupSeq(groupSequence)
     }
 }

@@ -25,6 +25,11 @@ data class PostDto(
         var createdUserNickName: String? = null,
         val isViewable: Boolean,
             )
+
+    data class PostList(
+        var posts: List<PostDto.Detail>,
+        var count: Long
+    )
     data class MessagePost(
         var sendUserSeq: Long? = null,
         val sendUser: String? = null,
