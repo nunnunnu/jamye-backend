@@ -116,6 +116,10 @@ class PostApplicationService(
         data: PostDto.MessageUpdate,
         replyMap: MutableMap<String, Long>
     ) {
+        val tempSendUser = data.message.values.filter { it.sendUser.equals("임시") }
+        if(tempSendUser.isNotEmpty()) {
+            postService.createTempUser(postSeq, tempSendUser)
+        }
         val user = userService.getUser(userId)
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
 
