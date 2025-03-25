@@ -11,6 +11,8 @@ import org.jy.jamye.domain.service.PostService
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -55,15 +57,15 @@ class PostApplicationService(
         return post
     }
 
-    fun getPosts(userId: String, groupSequence: Long) : PostDto.PostList {
+    fun getPosts(userId: String, groupSequence: Long, page: Pageable, keyword: String?, tag: String?) : Page<PostDto.Detail> {
         val user = userService.getUser(id = userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSequence)
-        val posts = postService.getPosts(user.sequence, groupSequence)
+        val posts = postService.getPosts(user.sequence, groupSequence, keyword, tag, page)
         val postCountInGroup = postService.postCountInGroup(groupSequence)
-        val userInfoMap = groupService.getGroupInUsersNickName(groupSequence, posts.map { it.createdUserSequence })
+//        val userInfoMap = groupService.getGroupInUsersNickName(groupSequence, posts.map { it.createdUserSequence })
 
-        posts.forEach { it.createdUserNickName = userInfoMap[it.createdUserSequence] }
-        return PostDto.PostList(posts = posts, count = postCountInGroup)
+//        posts.forEach { it.createdUserNickName = userInfoMap[it.createdUserSequence] }
+        return posts
     }
 
     fun postLuckyDraw(groupSeq: Long, userId: String): PostDto {

@@ -1,6 +1,8 @@
 package org.jy.jamye.infra
 
 import org.jy.jamye.domain.model.Post
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.util.Optional
@@ -22,7 +24,10 @@ interface PostRepository: JpaRepository<Post, Long> {
     """)
     fun countAllByAbleDrawPool(groupSeq: Long, userSeq: Long): MutableList<Long>
     fun existsByGroupSeqAndPostSeqAndUserSeq(groupSeq: Long, postSeq: Long, userSeq: Long): Boolean
-    fun findByGroupSeqAndPostSeqIn(groupSeq: Long, postSeqs: Set<Long>): MutableList<Post>
+
+    fun findByGroupSeqAndPostSeqIn(groupSeq: Long, viewable: Set<Long>, page: Pageable): Page<Post>
+    fun findByGroupSeqAndPostSeqInAndTitleContains(groupSeq: Long, postSeqs: Set<Long>, keyword: String?, page: Pageable): Page<Post>
+
     fun countByGroupSeq(groupSequence: Long): Long
 
 }

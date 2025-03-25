@@ -8,6 +8,8 @@ import org.jy.jamye.common.exception.PostAccessDeniedException
 import org.jy.jamye.domain.model.*
 import org.jy.jamye.infra.*
 import org.jy.jamye.ui.post.PostCreateDto
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,7 +22,7 @@ class PostService(
     private val boardRepository: BoardRepository,
     private val messageImageRepository: MessageImageRepository,
     private val messageNickNameRepository: MessageNickNameRepository,
-    private val commentRepository: CommentRepository
+    private val commentRepository: CommentRepository,
 ) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
         if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
@@ -124,11 +126,16 @@ class PostService(
         return postRepository.findByGroupSeqAndPostSeq(groupSequence, postSequence).orElseThrow { throw EntityNotFoundException("잘못된 게시글 번호입니다.") }
     }
 
-    fun getPosts(userSeq: Long, groupSeq: Long): List<PostDto.Detail> {
+    fun getPosts(userSeq: Long, groupSeq: Long, keyword: String?, tag: String?, page: Pageable): Page<PostDto.Detail> {
         val isViewable =
             userGroupPostRepository.findPostSeqByGroupSequenceAndUserSequence(groupSeq, userSeq)
+        var posts: Page<Post> = Page.empty()
+        if(keyword.isNullOrBlank()) {
+            posts = postRepository.findByGroupSeqAndPostSeqIn(groupSeq, isViewable, page)
+        } else if(keyword.isNotBlank()) {
+            posts = postRepository.findByGroupSeqAndPostSeqInAndTitleContains(groupSeq, isViewable, keyword, page)
+        }
 
-        val posts = postRepository.findByGroupSeqAndPostSeqIn(groupSeq, isViewable)
 
         return posts.map {
             PostDto.Detail(groupSequence = it.groupSeq,
@@ -180,7 +187,7 @@ class PostService(
         content: List<PostDto.MessagePost>,
         userSeq: Long,
         nickNameMap: Map<String, Long?>,
-        replySeqMap: MutableMap<String, Long>
+        replySeqMap: MutableMap<String, Long>,
     ): Long {
         val post = postFactory.createPost(data, PostType.MSG)
         postRepository.save(post)
@@ -210,7 +217,7 @@ class PostService(
         content: List<PostDto.MessagePost>,
         postSeq: Long,
         nickNameMap: Map<String, Long> = mapOf(),
-        replySeqMap: MutableMap<String, Long> = mutableMapOf()
+        replySeqMap: MutableMap<String, Long> = mutableMapOf(),
     ): Map<String, Long> {
         val replyEntitySeqMap = mutableMapOf<String, Message>()
         val replyKeyMap = mutableMapOf<Message, String>()
@@ -270,7 +277,7 @@ class PostService(
         message: MutableCollection<PostDto.MessagePost>,
         deleteMessage: Set<Long>,
         deleteImage: Set<Long>,
-        replyMap: MutableMap<String, Long>
+        replyMap: MutableMap<String, Long>,
     ) {
         val updateMessage = mutableListOf<PostDto.MessagePost>()
         val createMessage = mutableListOf<PostDto.MessagePost>()
@@ -342,7 +349,7 @@ class PostService(
         postSeq: Long,
         userId: String,
         data: Map<Long, PostCreateDto.MessageNickNameDto>,
-        deleteMessageNickNameSeqs: Set<Long>
+        deleteMessageNickNameSeqs: Set<Long>,
     ) {
         messageNickNameRepository.deleteAllById(deleteMessageNickNameSeqs)
         val messageNickNames = messageNickNameRepository.findAllById(data.keys)

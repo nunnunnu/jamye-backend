@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import java.util.*
 
 @RestController
@@ -24,7 +28,6 @@ class PostController(
     private val postAppService: PostApplicationService,
     private val postService: PostService,
     private val visionService: VisionService,
-    private val nickName: MessageNickNameRepository
 ) {
     var log: Logger = LoggerFactory.getLogger(PostController::class.java.name)
     @GetMapping("/{groupSequence}/{postSequence}")
@@ -41,8 +44,14 @@ class PostController(
     }
 
     @GetMapping("/{groupSequence}")
-    fun getPosts(@PathVariable("groupSequence") groupSequence: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<PostDto.PostList> {
-        val posts = postAppService.getPosts(user.username, groupSequence)
+    fun getPosts(
+        @PathVariable("groupSequence") groupSequence: Long,
+        @AuthenticationPrincipal user: UserDetails,
+        @PageableDefault(size = 5, sort = ["createDate"], direction = Sort.Direction.DESC) page: Pageable,
+        @RequestParam keyword: String?,
+        @RequestParam tag: String?,
+    ): ResponseDto<Page<PostDto.Detail>> {
+        val posts = postAppService.getPosts(user.username, groupSequence, page, keyword, tag)
         return ResponseDto(data = posts, status = HttpStatus.OK)
     }
 
