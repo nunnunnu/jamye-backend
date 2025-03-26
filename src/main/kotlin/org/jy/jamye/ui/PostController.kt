@@ -7,7 +7,6 @@ import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.domain.service.PostService
 import org.jy.jamye.domain.service.VisionService
-import org.jy.jamye.infra.MessageNickNameRepository
 import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -49,9 +48,10 @@ class PostController(
         @AuthenticationPrincipal user: UserDetails,
         @PageableDefault(size = 5, sort = ["createDate"], direction = Sort.Direction.DESC) page: Pageable,
         @RequestParam keyword: String?,
-        @RequestParam tag: String?,
+        @RequestParam tags: Set<String> = setOf(),
+        @RequestParam types: Set<PostType> = setOf(),
     ): ResponseDto<Page<PostDto.Detail>> {
-        val posts = postAppService.getPosts(user.username, groupSequence, page, keyword, tag)
+        val posts = postAppService.getPosts(user.username, groupSequence, page, keyword, tags, types)
         return ResponseDto(data = posts, status = HttpStatus.OK)
     }
 

@@ -1,6 +1,7 @@
 package org.jy.jamye.infra
 
 import org.jy.jamye.domain.model.Post
+import org.jy.jamye.domain.model.PostType
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -25,8 +26,22 @@ interface PostRepository: JpaRepository<Post, Long> {
     fun countAllByAbleDrawPool(groupSeq: Long, userSeq: Long): MutableList<Long>
     fun existsByGroupSeqAndPostSeqAndUserSeq(groupSeq: Long, postSeq: Long, userSeq: Long): Boolean
 
-    fun findByGroupSeqAndPostSeqIn(groupSeq: Long, viewable: Set<Long>, page: Pageable): Page<Post>
-    fun findByGroupSeqAndPostSeqInAndTitleContains(groupSeq: Long, postSeqs: Set<Long>, keyword: String?, page: Pageable): Page<Post>
+    @Query("""
+        select p
+        from Post p
+        where
+            p.groupSeq = :groupSeq
+            and p.postSeq in :postSeqs
+            and (:keyword is null or p.title like concat('%', :keyword, '%'))
+            and (:#{#postType == null || #postType.isEmpty()} = true OR p.postType IN :postType)
+            and (COALESCE(:tags, null) is null or 1=1)
+    """)
+    fun findByGroupSeqAndPostSeqInAndFilter(
+        groupSeq: Long, postSeqs: Set<Long>,
+        keyword: String?,
+        tags: Set<String>,
+        postType: Set<PostType>,
+        page: Pageable): Page<Post>
 
     fun countByGroupSeq(groupSequence: Long): Long
 
