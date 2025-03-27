@@ -3,6 +3,7 @@ package org.jy.jamye.ui
 import org.jy.jamye.application.PostApplicationService
 import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
+import org.jy.jamye.application.dto.TagDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.model.PostType
 import org.jy.jamye.domain.service.PostService
@@ -134,7 +135,8 @@ class PostController(
             title = data.title,
             groupSequence = data.groupSeq,
             type = PostType.BOR),
-            content = PostDto.BoardPost(content = data.content.content)
+            content = PostDto.BoardPost(content = data.content.content),
+            data.tags
         )
         return ResponseDto(data = postSeq, status = HttpStatus.OK)
     }
@@ -230,7 +232,7 @@ class PostController(
     fun searchGroupTag(@PathVariable groupSeq: Long,
                        @RequestParam keyword: String?,
                         @AuthenticationPrincipal user: UserDetails
-    ): ResponseDto<Set<String>> {
+    ): ResponseDto<Set<TagDto.Simple>> {
         val tags = postAppService.getGroupTags(groupSeq, keyword, user.username)
         return ResponseDto(data = tags)
     }

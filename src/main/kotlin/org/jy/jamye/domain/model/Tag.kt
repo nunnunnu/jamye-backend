@@ -3,7 +3,7 @@ package org.jy.jamye.domain.model
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "pi_comment")
+@Table(name = "tag")
 class Tag(
     @Column(name = "tag_name")
     var tagName: String,

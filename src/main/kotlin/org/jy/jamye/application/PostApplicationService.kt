@@ -2,6 +2,7 @@ package org.jy.jamye.application
 
 import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
+import org.jy.jamye.application.dto.TagDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.listener.NotifyInfo
 import org.jy.jamye.domain.model.PostType
@@ -106,10 +107,13 @@ class PostApplicationService(
         return postService.createPostMessageType(post, content, user.sequence, nickNameMap, replySeqMap)
     }
 
-    fun createPostBoard(userId: String, post: PostDto, content: PostDto.BoardPost): Long {
+    fun createPostBoard(userId: String, post: PostDto, content: PostDto.BoardPost, tags: List<TagDto.Simple>): Long {
         val user = userService.getUser(userId)
         post.createdUserSequence = user.sequence!!
-        return postService.createPostBoardType(user.sequence, post, content)
+        val tagSeqs = tags.filter { it.tagSeq != null }.map { it.tagSeq!! }.toMutableSet()
+        tagSeqs.addAll(postService.createTag(tags, post.groupSequence))
+        val postSeq = postService.createPostBoardType(user.sequence, post, content, tagSeqs)
+        return postSeq
     }
 
     @Transactional
@@ -198,7 +202,7 @@ class PostApplicationService(
         commentService.deleteCommentByPost(postSeq)
     }
 
-    fun getGroupTags(groupSeq: Long, keyword: String?, userId: String): Set<String> {
+    fun getGroupTags(groupSeq: Long, keyword: String?, userId: String): Set<TagDto.Simple> {
         val user = userService.getUser(userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
 

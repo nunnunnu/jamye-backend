@@ -1,6 +1,7 @@
 package org.jy.jamye.infra
 
 import org.jy.jamye.application.dto.PostDto
+import org.jy.jamye.application.dto.TagDto
 import org.jy.jamye.domain.model.*
 import org.springframework.stereotype.Service
 
@@ -64,6 +65,14 @@ class PostFactory(
 
     fun createLuckyDraw(userSeq: Long, groupSeq: Long, luckyDrawSeq: Long): UserGroupPost {
         return UserGroupPost(userSequence = userSeq, groupSequence = groupSeq, postSequence = luckyDrawSeq)
+    }
+
+    fun createTag(tags: List<TagDto.Simple>, groupSeq: Long): List<Tag> {
+        return tags.map { Tag(groupSeq = groupSeq, tagName = it.tagName) }
+    }
+
+    fun TagAndPostConnection(postSeq: Long, tagSeqs: MutableSet<Long>): List<PostTagConnection> {
+        return tagSeqs.map { PostTagConnection(postSeq = postSeq, tagSeq = it) }
     }
 
 }

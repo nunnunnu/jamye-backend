@@ -3,6 +3,7 @@ package org.jy.jamye.domain.service
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
+import org.jy.jamye.application.dto.TagDto
 import org.jy.jamye.common.exception.AllPostsAlreadyOwnedException
 import org.jy.jamye.common.exception.PostAccessDeniedException
 import org.jy.jamye.domain.model.*
@@ -247,7 +248,7 @@ class PostService(
         return replyEntitySeqMap.map { it.key to it.value.messageSeq!! }.toMap()
     }
 
-    fun createPostBoardType(userSeq: Long, data: PostDto, detailContent: PostDto.BoardPost): Long {
+    fun createPostBoardType(userSeq: Long, data: PostDto, detailContent: PostDto.BoardPost, tagSeqs: MutableSet<Long>): Long {
         val post = postFactory.createPost(data, PostType.BOR)
         postRepository.save(post)
         val content = postFactory.createPostBoardType(detailContent = detailContent, postSeq = post.postSeq!!)
@@ -258,6 +259,8 @@ class PostService(
             userSeq = userSeq,
             postSeq = post.postSeq!!))
 
+        val tagAndPostConnection = postFactory.TagAndPostConnection(post.postSeq!!, tagSeqs)
+        postTagRepository.saveAll(tagAndPostConnection)
         return post.postSeq!!
     }
 
@@ -421,13 +424,20 @@ class PostService(
         return postRepository.countByGroupSeq(groupSequence)
     }
 
-    fun getTags(groupSeq: Long, keyword: String?): Set<String> {
+    fun getTags(groupSeq: Long, keyword: String?): Set<TagDto.Simple> {
         val tags: List<Tag> = if(keyword.isNullOrBlank()) {
             tagRepository.findByGroupSeq(groupSeq)
         } else {
             tagRepository.findByGroupSeqAndTagNameContains(groupSeq, keyword)
         }
 
-        return tags.map { it.tagName }.toSet()
+        return tags.map { TagDto.Simple(it.tagSeq, it.tagName) }.toSet()
+    }
+
+    @Transactional
+    fun createTag(tags: List<TagDto.Simple>, groupSequence: Long): List<Long> {
+        val createTags = postFactory.createTag(tags.filter { it.tagSeq == null }, groupSequence)
+        tagRepository.saveAll(createTags)
+        return createTags.map { it.tagSeq!! }
     }
 }

@@ -1,11 +1,13 @@
 package org.jy.jamye.ui.post
 
+import org.jy.jamye.application.dto.TagDto
 import java.time.LocalDateTime
 
 data class PostCreateDto<T>(
     val title: String,
     val groupSeq: Long,
-    val content: T
+    val content: T,
+    val tags: List<TagDto.Simple>
 ) {
     data class Message(
         val seq: Long,
