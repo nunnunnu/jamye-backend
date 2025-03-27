@@ -198,4 +198,12 @@ class PostApplicationService(
         commentService.deleteCommentByPost(postSeq)
     }
 
+    fun getGroupTags(groupSeq: Long, keyword: String?, userId: String): Set<String> {
+        val user = userService.getUser(userId)
+        groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
+
+        return postService.getTags(groupSeq, keyword)
+
+    }
+
 }

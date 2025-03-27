@@ -23,6 +23,8 @@ class PostService(
     private val messageImageRepository: MessageImageRepository,
     private val messageNickNameRepository: MessageNickNameRepository,
     private val commentRepository: CommentRepository,
+    private val tagRepository: TagRepository,
+    private val postTagRepository: PostTagRepository
 ) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
         if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
@@ -417,5 +419,15 @@ class PostService(
 
     fun postCountInGroup(groupSequence: Long): Long {
         return postRepository.countByGroupSeq(groupSequence)
+    }
+
+    fun getTags(groupSeq: Long, keyword: String?): Set<String> {
+        val tags: List<Tag> = if(keyword.isNullOrBlank()) {
+            tagRepository.findByGroupSeq(groupSeq)
+        } else {
+            tagRepository.findByGroupSeqAndTagNameContains(groupSeq, keyword)
+        }
+
+        return tags.map { it.tagName }.toSet()
     }
 }

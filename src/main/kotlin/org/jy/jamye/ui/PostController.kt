@@ -225,4 +225,13 @@ class PostController(
                    @AuthenticationPrincipal user: UserDetails) {
         postAppService.deletePost(groupSeq, postSeq, user.username)
     }
+
+    @GetMapping("/tag/{groupSeq}")
+    fun searchGroupTag(@PathVariable groupSeq: Long,
+                       @RequestParam keyword: String?,
+                        @AuthenticationPrincipal user: UserDetails
+    ): ResponseDto<Set<String>> {
+        val tags = postAppService.getGroupTags(groupSeq, keyword, user.username)
+        return ResponseDto(data = tags)
+    }
 }
