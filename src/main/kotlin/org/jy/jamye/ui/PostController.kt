@@ -72,7 +72,8 @@ class PostController(
         @AuthenticationPrincipal user: UserDetails,
         @RequestParam imageMap: Map<String, MultipartFile>,
         @RequestPart data: PostCreateDto<MutableMap<Long, PostDto.MessagePost>>,
-        @RequestPart nickNameMap: Map<String, Long?>
+        @RequestPart nickNameMap: Map<String, Long?>,
+        @RequestPart tags: List<TagDto.Simple> = listOf()
     ): ResponseDto<Long> {
         val sortData = TreeMap(data.content)
         val imageUriMap = imageUriMap(imageMap)
@@ -119,7 +120,8 @@ class PostController(
             ),
             content = contents,
             nickNameMap = nickNameMap,
-            replySeqMap = replyMap
+            replySeqMap = replyMap,
+            tags
         )
         return ResponseDto(data = postSeq, status = HttpStatus.OK)
     }

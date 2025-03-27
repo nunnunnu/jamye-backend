@@ -185,6 +185,7 @@ class PostService(
         userSeq: Long,
         nickNameMap: Map<String, Long?>,
         replySeqMap: MutableMap<String, Long>,
+        tagSeqs: MutableSet<Long>,
     ): Long {
         val post = postFactory.createPost(data, PostType.MSG)
         postRepository.save(post)
@@ -206,6 +207,9 @@ class PostService(
             groupSeq = data.groupSequence,
             userSeq = userSeq,
             postSeq = post.postSeq!!))
+
+        val tagAndPostConnection = postFactory.TagAndPostConnection(post.postSeq!!, tagSeqs)
+        postTagRepository.saveAll(tagAndPostConnection)
 
         return post.postSeq!!
     }

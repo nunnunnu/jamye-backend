@@ -7,7 +7,7 @@ data class PostCreateDto<T>(
     val title: String,
     val groupSeq: Long,
     val content: T,
-    val tags: List<TagDto.Simple>
+    val tags: List<TagDto.Simple> = listOf()
 ) {
     data class Message(
         val seq: Long,
