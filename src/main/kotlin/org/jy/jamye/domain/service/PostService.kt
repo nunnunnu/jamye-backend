@@ -134,6 +134,11 @@ class PostService(
             userGroupPostRepository.findPostSeqByGroupSequenceAndUserSequence(groupSeq, userSeq)
         val posts: Page<Post> = postRepository.findByGroupSeqAndPostSeqInAndFilter(groupSeq, isViewable, keyword, tags, type, page)
 
+        val tagInfo = postTagRepository.findByPostSeqIn(posts.map { it.postSeq!! }.toSet())
+        val tagMap = tagInfo.groupBy({ it.postSeq }, {
+            TagDto.Detail(it.tagSeq, it.tag!!.tagName, it.postTagSeq!!)
+        }).mapValues { it.value.toMutableSet() }.toMutableMap()
+
         return posts.map {
             PostDto.Detail(groupSequence = it.groupSeq,
                 postSequence = it.postSeq!!,
@@ -142,7 +147,8 @@ class PostService(
                 postType = it.postType,
                 createDate = it.createDate,
                 updateDate = it.updateDate,
-                isViewable = isViewable.contains(it.postSeq)
+                isViewable = isViewable.contains(it.postSeq),
+                tags = tagMap.getOrDefault(it.postSeq, mutableSetOf()).toList()
             )
         }
     }

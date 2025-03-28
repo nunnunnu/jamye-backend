@@ -24,7 +24,8 @@ data class PostDto(
         var updateDate: LocalDateTime? = null,
         var createdUserNickName: String? = null,
         val isViewable: Boolean,
-            )
+        var tags: List<TagDto.Detail> = emptyList()
+        )
 
     data class MessagePost(
         var sendUserSeq: Long? = null,

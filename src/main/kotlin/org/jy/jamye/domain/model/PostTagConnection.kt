@@ -9,6 +9,9 @@ class PostTagConnection(
     val postSeq: Long,
     @Column(name = "tag_seq")
     val tagSeq: Long,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tag_seq", updatable = false, insertable = false)
+    var tag: Tag? = null,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pt_seq")
     var postTagSeq: Long? = null,
