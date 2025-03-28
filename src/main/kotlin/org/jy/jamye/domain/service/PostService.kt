@@ -129,10 +129,12 @@ class PostService(
         return postRepository.findByGroupSeqAndPostSeq(groupSequence, postSequence).orElseThrow { throw EntityNotFoundException("잘못된 게시글 번호입니다.") }
     }
 
-    fun getPosts(userSeq: Long, groupSeq: Long, keyword: String?, tags: Set<String>, page: Pageable, type: Set<PostType>): Page<PostDto.Detail> {
+    fun getPosts(userSeq: Long, groupSeq: Long, keyword: String?, tagSeqs: Set<Long>, page: Pageable, type: Set<PostType>): Page<PostDto.Detail> {
+        //보유 게시글만 조회
         val isViewable =
             userGroupPostRepository.findPostSeqByGroupSequenceAndUserSequence(groupSeq, userSeq)
-        val posts: Page<Post> = postRepository.findByGroupSeqAndPostSeqInAndFilter(groupSeq, isViewable, keyword, tags, type, page)
+
+        val posts: Page<Post> = postRepository.findByGroupSeqAndPostSeqInAndFilter(groupSeq, isViewable, keyword, tagSeqs, type, page)
 
         val tagInfo = postTagRepository.findByPostSeqIn(posts.map { it.postSeq!! }.toSet())
         val tagMap = tagInfo.groupBy({ it.postSeq }, {

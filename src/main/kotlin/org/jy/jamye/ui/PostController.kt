@@ -49,10 +49,10 @@ class PostController(
         @AuthenticationPrincipal user: UserDetails,
         @PageableDefault(size = 5, sort = ["createDate"], direction = Sort.Direction.DESC) page: Pageable,
         @RequestParam keyword: String?,
-        @RequestParam tags: Set<String> = setOf(),
+        @RequestParam tagSeqs: Set<Long> = setOf(),
         @RequestParam types: Set<PostType> = setOf(),
     ): ResponseDto<Page<PostDto.Detail>> {
-        val posts = postAppService.getPosts(user.username, groupSequence, page, keyword, tags, types)
+        val posts = postAppService.getPosts(user.username, groupSequence, page, keyword, tagSeqs, types)
         return ResponseDto(data = posts, status = HttpStatus.OK)
     }
 

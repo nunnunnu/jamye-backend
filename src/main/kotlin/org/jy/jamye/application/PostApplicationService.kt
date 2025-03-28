@@ -58,10 +58,10 @@ class PostApplicationService(
         return post
     }
 
-    fun getPosts(userId: String, groupSequence: Long, page: Pageable, keyword: String?, tags: Set<String>, type: Set<PostType>) : Page<PostDto.Detail> {
+    fun getPosts(userId: String, groupSequence: Long, page: Pageable, keyword: String?, tagSeqs: Set<Long>, type: Set<PostType>) : Page<PostDto.Detail> {
         val user = userService.getUser(id = userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSequence)
-        val posts = postService.getPosts(user.sequence, groupSequence, keyword, tags, page, type)
+        val posts = postService.getPosts(user.sequence, groupSequence, keyword, tagSeqs, page, type)
         val userInfoMap = groupService.getGroupInUsersNickName(groupSequence, posts.map { it.createdUserSequence }.toList())
 
         posts.forEach { it.createdUserNickName = userInfoMap[it.createdUserSequence] }

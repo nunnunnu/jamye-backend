@@ -5,6 +5,7 @@ import org.jy.jamye.domain.model.PostType
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Meta
 import org.springframework.data.jpa.repository.Query
 import java.util.Optional
 
@@ -26,20 +27,22 @@ interface PostRepository: JpaRepository<Post, Long> {
     fun countAllByAbleDrawPool(groupSeq: Long, userSeq: Long): MutableList<Long>
     fun existsByGroupSeqAndPostSeqAndUserSeq(groupSeq: Long, postSeq: Long, userSeq: Long): Boolean
 
+    @Meta(comment = "jamye-list") //TODO: 임시로 DISTINCT - 카테시안곱 문제로 성능 모니터링 필요
     @Query("""
-        select p
-        from Post p
-        where
+        SELECT DISTINCT p
+        FROM Post p 
+        LEFT JOIN PostTagConnection t ON t.postSeq = p.postSeq
+        WHERE
             p.groupSeq = :groupSeq
-            and p.postSeq in :postSeqs
-            and (:keyword is null or p.title like concat('%', :keyword, '%'))
-            and (:#{#postType == null || #postType.isEmpty()} = true OR p.postType IN :postType)
-            and (COALESCE(:tags, null) is null or 1=1)
+            AND p.postSeq IN :postSeqs
+            AND (:keyword is null or p.title like concat('%', :keyword, '%'))
+            AND (:#{#postType == null || #postType.isEmpty()} = true OR p.postType IN :postType)
+            AND (:#{#tags == null || #tags.isEmpty()} = true OR t.tagSeq in :tags)
     """)
     fun findByGroupSeqAndPostSeqInAndFilter(
         groupSeq: Long, postSeqs: Set<Long>,
         keyword: String?,
-        tags: Set<String>,
+        tags: Set<Long>,
         postType: Set<PostType>,
         page: Pageable): Page<Post>
 
