@@ -106,7 +106,21 @@ class PostApplicationService(
         groupService.usersInGroupCheckOrThrow(sendUserSeqs, post.groupSequence)
         val tagSeqs = tags.filter { it.tagSeq != null }.map { it.tagSeq!! }.toMutableSet()
         tagSeqs.addAll(postService.createTag(tags, post.groupSequence))
+
+        sendNotifyPostCreate(groupSeq = post.groupSequence, userSeq = user.sequence)
+
         return postService.createPostMessageType(post, content, user.sequence, nickNameMap, replySeqMap, tagSeqs)
+    }
+
+    private fun sendNotifyPostCreate(groupSeq: Long, userSeq: Long) {
+        val userSeqsInGroup = groupService.getUserSeqsInGroup(groupSeq = groupSeq).toMutableSet()
+        userSeqsInGroup.remove(userSeq)
+        val group = groupService.getGroup(userSequence = userSeq, groupSequence = groupSeq)
+        val event = NotifyInfo(
+            message = "[${group.name}] 새로운 잼얘가 등록되었습니다 지금 접속하여 뽑아보세요",
+            userSeqs = userSeqsInGroup
+        )
+        publisher.publishEvent(event)
     }
 
     fun createPostBoard(userId: String, post: PostDto, content: PostDto.BoardPost, tags: List<TagDto.Simple>): Long {
@@ -115,6 +129,9 @@ class PostApplicationService(
         val tagSeqs = tags.filter { it.tagSeq != null }.map { it.tagSeq!! }.toMutableSet()
         tagSeqs.addAll(postService.createTag(tags, post.groupSequence))
         val postSeq = postService.createPostBoardType(user.sequence, post, content, tagSeqs)
+
+        sendNotifyPostCreate(groupSeq = post.groupSequence, userSeq = user.sequence)
+
         return postSeq
     }
 
@@ -137,7 +154,7 @@ class PostApplicationService(
         data.message.values.forEach { it.message.forEach { msg -> msg.seq = seq++ } }
         data.title?.let { if(it.isNotBlank()) postService.updatePost(groupSeq, postSeq, data.title) }
         postService.updateMessagePost(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage, replyMap)
-        sendNotify(groupSeq = groupSeq, postSeq = postSeq)
+        sendNotifyPostUpdate(groupSeq = groupSeq, postSeq = postSeq)
         userService.getNotifyNoReadCount(user.sequence)
     }
 
@@ -177,11 +194,11 @@ class PostApplicationService(
         postService.updateBoardPost(groupSeq, postSeq, data)
 
 
-        sendNotify(groupSeq, postSeq)
+        sendNotifyPostUpdate(groupSeq, postSeq)
         userService.getNotifyNoReadCount(user.sequence)
     }
 
-    private fun sendNotify(groupSeq: Long, postSeq: Long) {
+    private fun sendNotifyPostUpdate(groupSeq: Long, postSeq: Long) {
         val postUserSeqs = postService.getPostUserSeqs(groupSeq, postSeq)
         val group = groupService.getGroupSimpleInfo(groupSeq)
         val post = postService.getPostTitle(groupSeq = groupSeq, postSeq = postSeq)
