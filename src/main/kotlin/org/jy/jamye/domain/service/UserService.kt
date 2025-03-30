@@ -205,4 +205,16 @@ class UserService(
         getNotifyNoReadCount(userSeq)
     }
 
+    fun discordConnect(userId: String, channelId: String) {
+        val user = getUserByIdOrThrow(userId)
+        user.discordConnect(channelId)
+        userRepo.save(user)
+    }
+
+    @Transactional(readOnly = true)
+    fun findDiscordConnectUser(userSeqs: Set<Long>): Set<String> {
+        return userRepo
+            .findBySequenceInAndDiscordChannelIdNotNull(userSeqs).map { it.discordChannelId!! }.toSet()
+    }
+
 }

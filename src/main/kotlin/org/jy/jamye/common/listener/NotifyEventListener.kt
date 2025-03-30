@@ -1,5 +1,6 @@
 package org.jy.jamye.common.listener
 
+import org.jy.jamye.domain.service.DiscordService
 import org.jy.jamye.domain.service.UserService
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
@@ -7,12 +8,17 @@ import org.springframework.stereotype.Component
 
 @Component
 class NotifyEventListener(
-    private val userService: UserService
+    private val userService: UserService,
+    private val discordService: DiscordService
 ) {
     @Async
     @EventListener
     fun notifySend(data: NotifyInfo) {
         userService.notifySend(data.userSeqs, data.groupSeq, data.postSeq, data.message)
+        val findDiscordConnectUser = userService.findDiscordConnectUser(data.userSeqs)
+        if(findDiscordConnectUser.isNotEmpty()) {
+            findDiscordConnectUser.forEach { channelId -> discordService.sendDiscordDm(channelId, data.message) }
+        }
     }
 }
 

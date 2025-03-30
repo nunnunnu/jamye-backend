@@ -13,4 +13,5 @@ interface UserRepository : JpaRepository<User, Long> {
     @Meta(comment = "ID로 유저 정보 조회")
     fun findByUserId(id: String): Optional<User>
     fun findByUserIdAndEmail(userId: String, email: String): Optional<User>
+    fun findBySequenceInAndDiscordChannelIdNotNull(userSeqs: Set<Long>): List<User>
 }

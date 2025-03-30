@@ -5,6 +5,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.http.*
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
+import javax.naming.AuthenticationException
 
 @Service
 class DiscordService {
@@ -13,7 +14,7 @@ class DiscordService {
     private val REDIRECT_URI = "http://localhost:8081/oauth/redirect"
     private val API_ENDPOINT = "https://discord.com/api/v10"
 
-    fun getAccessToken(code: String): String? {
+    fun getAccessToken(code: String): String {
         val restTemplate = RestTemplate()
 
         val headers = HttpHeaders().apply {
@@ -36,11 +37,10 @@ class DiscordService {
             Map::class.java
         )
 
-
-        return response.body?.get("access_token") as? String
+        return response.body?.get("access_token") as? String ?: throw AuthenticationException("디스코드에 연결할 수 없습니다.")
     }
 
-    fun getUserInfo(accessToken: String): String? {
+    fun getUserInfo(accessToken: String): String {
         val restTemplate = RestTemplate()
 
         val headers = HttpHeaders().apply {
@@ -50,12 +50,12 @@ class DiscordService {
         val requestEntity = HttpEntity<Void>(headers)
         val response = restTemplate.exchange("https://discord.com/api/users/@me", HttpMethod.GET, requestEntity, Map::class.java)
 
-        return response.body?.get("id") as? String
+        return response.body?.get("id") as? String ?: throw AuthenticationException("디스코드에 연결할 수 없습니다.")
     }
 
     private val BOT_TOKEN = ""
 
-    fun sendDmToUser(userId: String) {
+    fun sendDmToUser(discordId: String): String {
         val restTemplate = RestTemplate()
         val headers = HttpHeaders().apply {
             set("Authorization", "Bot $BOT_TOKEN")
@@ -63,14 +63,32 @@ class DiscordService {
         }
 
         // 1. DM 채널 생성
-        val channelRequest = HttpEntity(mapOf("recipient_id" to userId), headers)
+        val channelRequest = HttpEntity(mapOf("recipient_id" to discordId), headers)
         val channelResponse = restTemplate.postForEntity("https://discord.com/api/v9/users/@me/channels", channelRequest, Map::class.java)
 
-        val channelId = channelResponse.body?.get("id") as? String ?: return
+        val channelId = channelResponse.body?.get("id") as? String ?: throw AuthenticationException("디스코드에 연결할 수 없습니다.")
 
-        // 2. 메시지 전송
-        val messageRequest = HttpEntity(mapOf("content" to "디스코드 연동이 완료되었습니다!"), headers)
-        restTemplate.postForEntity("https://discord.com/api/v9/channels/$channelId/messages", messageRequest, Void::class.java)
+        //디스코드 전송
+        sendDiscordDm(channelId, "디스코드 연동이 완료되었습니다!")
+        return channelId
+    }
+
+    fun sendDiscordDm(
+        channelId: String,
+        message: String
+    ) {
+        val restTemplate = RestTemplate()
+        val headers = HttpHeaders().apply {
+            set("Authorization", "Bot $BOT_TOKEN")
+            contentType = MediaType.APPLICATION_JSON
+        }
+        val messageRequest = HttpEntity(mapOf("content" to message), headers)
+        restTemplate.postForEntity(
+            "https://discord.com/api/v9/channels/$channelId/messages",
+            messageRequest,
+            Void::class.java
+        )
+
     }
 
 }

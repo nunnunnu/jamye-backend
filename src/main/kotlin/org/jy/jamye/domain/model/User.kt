@@ -19,6 +19,8 @@ class User(
     var email: String,
     @Column(name = "pw")
     private var password: String,
+    @Column(name = "dc_ch")
+    var discordChannelId: String? = null,
     @Column(name = "create_date")
     @CreationTimestamp
     val createDate: LocalDateTime = LocalDateTime.now(),
@@ -50,6 +52,10 @@ class User(
         encodePassword?.let {
             this.password = it
         }
+    }
+
+    fun discordConnect(channelId: String) {
+        this.discordChannelId = channelId
     }
 }
 
