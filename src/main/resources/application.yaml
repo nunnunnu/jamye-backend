@@ -33,6 +33,9 @@ spring:
       auth-code-expiration-millis: 1800000  # 30 * 60 * 1000 == 30분 이메일 인증 코드의 만료 시간(Millisecond)
 jwt:
   secretKey: ${JWT_SECRET_KEY}
+discord:
+  secretKey: ${DISCORD_SECRET_KEY}
+  bot_token_key: ${BOT_TOKEN}
 logging:
   level:
     org:

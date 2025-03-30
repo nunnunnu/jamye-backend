@@ -13,3 +13,5 @@ cloud:
   aws:
     s3:
       bucket: jamye-image-local
+discord:
+  redirect: http://localhost:8081/oauth/redirect

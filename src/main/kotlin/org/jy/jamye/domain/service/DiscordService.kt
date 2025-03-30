@@ -1,5 +1,6 @@
 package org.jy.jamye.domain.service
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import org.springframework.http.*
@@ -9,17 +10,23 @@ import javax.naming.AuthenticationException
 
 @Service
 class DiscordService {
-    private val CLIENT_ID = ""
-    private val CLIENT_SECRET = ""
-    private val REDIRECT_URI = "http://localhost:8081/oauth/redirect"
+    private val CLIENT_ID = "1355801367297523763"
     private val API_ENDPOINT = "https://discord.com/api/v10"
+    @Value("\${discord.secretKey}")
+    var CLIENT_SECRET:String? = null
+    @Value("\${discord.redirect}")
+    var REDIRECT_URI: String? = null
+    @Value("\${discord.bot_token_key}")
+    var BOT_TOKEN:String? = null
+
+
 
     fun getAccessToken(code: String): String {
         val restTemplate = RestTemplate()
 
         val headers = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_FORM_URLENCODED
-            setBasicAuth(CLIENT_ID, CLIENT_SECRET) // Basic Auth 설정
+            setBasicAuth(CLIENT_ID, CLIENT_SECRET!!) // Basic Auth 설정
         }
 
         val body: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>().apply {
@@ -36,7 +43,6 @@ class DiscordService {
             requestEntity,
             Map::class.java
         )
-
         return response.body?.get("access_token") as? String ?: throw AuthenticationException("디스코드에 연결할 수 없습니다.")
     }
 
@@ -52,8 +58,6 @@ class DiscordService {
 
         return response.body?.get("id") as? String ?: throw AuthenticationException("디스코드에 연결할 수 없습니다.")
     }
-
-    private val BOT_TOKEN = ""
 
     fun sendDmToUser(discordId: String): String {
         val restTemplate = RestTemplate()
@@ -88,7 +92,6 @@ class DiscordService {
             messageRequest,
             Void::class.java
         )
-
     }
 
 }
