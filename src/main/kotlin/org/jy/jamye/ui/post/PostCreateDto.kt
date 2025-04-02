@@ -1,6 +1,7 @@
 package org.jy.jamye.ui.post
 
 import org.jy.jamye.application.dto.TagDto
+import org.springframework.beans.factory.annotation.Value
 import java.time.LocalDateTime
 
 data class PostCreateDto<T>(
@@ -21,12 +22,14 @@ data class PostCreateDto<T>(
         val title: String? = null,
         var content: String
     ) {
+        @Value("\${image.url}")
+        var imageUrl: String? = null
         fun replaceUri(imageUriMap: MutableMap<String, Pair<Long, String>>) {
             imageUriMap.forEach { (t, u) ->
                 println(this.content.contains(t))
                 run {
                     this.content = this.content.replace(
-                        t, "http://localhost:8080/api/file/" + u.second
+                        t, imageUrl + "/" + u.second
                     )
                 }
             }

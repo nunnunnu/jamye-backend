@@ -29,4 +29,6 @@ sentry:
     minimum-event-level: info # 최소 이벤트 레벨
     minimum-breadcrumb-level: info # 최소 브래드크럼 레벨
 discord:
-  redirect: https://jamye.p-e.kr/oauth/redirect
+  redirect: http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com/oauth/redirect
+image:
+  url: https://d23eha8a4ssn72.cloudfront.net
