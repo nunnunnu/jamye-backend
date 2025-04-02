@@ -2,8 +2,10 @@ package org.jy.jamye.infra
 
 import org.jy.jamye.domain.model.Message
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Meta
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.transaction.annotation.Transactional
 
 interface MessageRepository: JpaRepository<Message, Long> {
     fun findAllByPostSeqOrderByOrderNumber(postSequence: Long): List<Message>
@@ -14,5 +16,9 @@ interface MessageRepository: JpaRepository<Message, Long> {
         )
     """)
     fun deleteAllByGroupSeq(groupSeq: Long)
+    @Meta(comment = "게시글 내 메세지 모두 삭제")
+    @Transactional
+    @Modifying
+    @Query("delete from Message m where m.postSeq in (:postSeq)")
     fun deleteByPostSeq(postSeq: Long)
 }
