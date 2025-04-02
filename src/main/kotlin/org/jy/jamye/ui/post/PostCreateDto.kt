@@ -22,11 +22,8 @@ data class PostCreateDto<T>(
         val title: String? = null,
         var content: String
     ) {
-        @Value("\${image.url}")
-        var imageUrl: String? = null
-        fun replaceUri(imageUriMap: MutableMap<String, Pair<Long, String>>) {
+        fun replaceUri(imageUriMap: MutableMap<String, Pair<Long, String>>, imageUrl: String?) {
             imageUriMap.forEach { (t, u) ->
-                println(this.content.contains(t))
                 run {
                     this.content = this.content.replace(
                         t, imageUrl + "/" + u.second

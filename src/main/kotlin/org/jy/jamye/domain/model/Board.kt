@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "pi_bi")
 class Board(
-    @Column(name = "dtl")
+    @Column(name = "dtl", columnDefinition = "TEXT")
     var detail: String,
     @Column(name="pi_seq")
     val postSeq: Long,

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -30,6 +31,9 @@ class PostController(
     private val visionService: VisionService,
 ) {
     var log: Logger = LoggerFactory.getLogger(PostController::class.java.name)
+    @Value("\${image.url}")
+    var imageUrl: String? = null
+
     @GetMapping("/{groupSequence}/{postSequence}")
     fun getPost(@PathVariable("groupSequence") groupSequence: Long, @PathVariable("postSequence") postSequence: Long, @AuthenticationPrincipal user: UserDetails):
             ResponseDto<PostDto.PostContent<Any>> {
@@ -132,7 +136,7 @@ class PostController(
                             @RequestPart data: PostCreateDto<PostCreateDto.Board>): ResponseDto<Long> {
         val imageUriMap = imageUriMap(imageMap)
 
-        data.content.replaceUri(imageUriMap)
+        data.content.replaceUri(imageUriMap, imageUrl)
         val postSeq = postAppService.createPostBoard(userId = user.username, post = PostDto(
             title = data.title,
             groupSequence = data.groupSeq,
@@ -218,7 +222,7 @@ class PostController(
         @RequestParam imageMap: Map<String, MultipartFile>,
     ): ResponseDto<String> {
         val imageUriMap = imageUriMap(imageMap)
-        data.replaceUri(imageUriMap)
+        data.replaceUri(imageUriMap, imageUrl)
         postAppService.updateBoardPost(groupSeq, postSeq, data, user.username)
         return ResponseDto(data = data.content, status = HttpStatus.OK)
     }
