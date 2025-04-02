@@ -172,8 +172,7 @@ class UserService(
                 userSeq = it.userSeq
             )
         }
-        result.sortedBy { !it.isRead }
-        return result
+        return result.sortedByDescending { it.createDate }
     }
 
     fun deleteNotify(standardDate: LocalDateTime) {
