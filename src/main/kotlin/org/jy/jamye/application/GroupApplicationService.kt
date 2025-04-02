@@ -9,10 +9,7 @@ import org.jy.jamye.common.exception.AlreadyDeleteVoting
 import org.jy.jamye.common.exception.GroupDeletionPermissionException
 import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.common.listener.NotifyInfo
-import org.jy.jamye.domain.service.GroupService
-import org.jy.jamye.domain.service.GroupVoteService
-import org.jy.jamye.domain.service.UserService
-import org.jy.jamye.domain.service.VisionService
+import org.jy.jamye.domain.service.*
 import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.context.ApplicationEventPublisher
@@ -22,13 +19,15 @@ import java.time.LocalDateTime.now
 
 @Suppress("CAST_NEVER_SUCCEEDS")
 @Service
-class GroupApplicationService(private val userService: UserService,
-                              private val groupService: GroupService,
-                              private val groupUserRepository: GroupUserRepository,
-                              private val redisClient: RedisClient,
-                              private val groupVoteService: GroupVoteService,
-                              private val fileService: VisionService,
-                              private val publisher: ApplicationEventPublisher
+class GroupApplicationService(
+    private val userService: UserService,
+    private val groupService: GroupService,
+    private val groupUserRepository: GroupUserRepository,
+    private val redisClient: RedisClient,
+    private val groupVoteService: GroupVoteService,
+    private val fileService: VisionService,
+    private val publisher: ApplicationEventPublisher,
+    private val postService: PostService
 ) {
     fun getGroupsInUser(id: String): List<GroupDto.UserInfo> {
         val user = userService.getUser(id)
@@ -187,5 +186,11 @@ class GroupApplicationService(private val userService: UserService,
             )
         )
         return voteDto
+    }
+
+    fun getAllPostCountInGroup(groupSeq: Long, userId: String): Long {
+        val user = userService.getUser(userId)
+        groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
+        return postService.postCountInGroup(groupSeq)
     }
 }

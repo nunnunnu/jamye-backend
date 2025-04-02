@@ -432,6 +432,7 @@ class PostService(
         userGroupPostRepository.deleteByPostSequence(postSeq)
     }
 
+    @Transactional(readOnly = true)
     fun postCountInGroup(groupSequence: Long): Long {
         return postRepository.countByGroupSeq(groupSequence)
     }
