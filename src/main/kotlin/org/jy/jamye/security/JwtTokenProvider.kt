@@ -1,6 +1,7 @@
 package org.jy.jamye.security
 
 import io.jsonwebtoken.*
+import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.io.Decoders.BASE64
 import io.jsonwebtoken.security.Keys
 import org.slf4j.Logger
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component
 import java.security.Key
 import java.util.*
 import java.util.stream.Collectors
+import javax.crypto.SecretKey
 
 @Component
 class JwtTokenProvider(
@@ -26,7 +28,9 @@ class JwtTokenProvider(
     val log: Logger = LoggerFactory.getLogger(JwtTokenProvider::class.java)
     private val tokenExpireMinutes = 1//토근 만료시간
     private val refreshExpireMinutes = 60 * 24* 7 //리프레쉬 토큰 만료시간
-    private val key: Key = Keys.hmacShaKeyFor(BASE64.decode(secretKey))
+//    private val key: Key = Keys.hmacShaKeyFor(BASE64.decode(secretKey))
+val key = Keys.hmacShaKeyFor(Base64.getDecoder().decode("F2p8SUX7wbkU7igFv1BKlrd+sDEOAmczvJ/HmAFqULc="))
+
 
     fun generateToken(authentication: Authentication): TokenDto {
         val authorities = authentication.authorities.stream().map { obj: GrantedAuthority -> obj.authority }.collect(
