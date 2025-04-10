@@ -23,8 +23,8 @@ fun main(args: Array<String>) {
 class TestController {
     val log: Logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
     @GetMapping
-    fun test() {
-        println("build test3")
+    fun test(): String {
+        return "build test4"
     }
 
 }
