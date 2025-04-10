@@ -24,6 +24,7 @@ class TestController {
     val log: Logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
     @GetMapping
     fun test(): String {
+        log.info("test log")
         return "build test4"
     }
 
