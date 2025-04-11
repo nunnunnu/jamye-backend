@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "pi_comment")
 class Comment (
-    @Column(name = "cm")
+    @Column(name = "cm", columnDefinition = "TEXT")
     var comment: String,
     @Column(name="gi_seq")
     val groupSeq: Long,

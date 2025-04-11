@@ -26,4 +26,24 @@ interface TagRepository: JpaRepository<Tag, Long> {
             )
         """)
     fun deleteByNoUseTag()
+    @Meta(comment = "태그 총 사용량 업데이트")
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(nativeQuery = true, value = """
+            update
+            tag t
+        join (
+            select
+                pt.tag_seq,
+                count(pt.pt_seq) as totCnt
+            from
+                post_tag_con pt
+            group by
+                pt.tag_seq
+        ) as tot on
+        tot.tag_seq = t.tag_seq 
+        set t.tot_cnt = tot.totCnt
+        where tot.tag_seq = t.tag_seq 
+    """)
+    fun postTotalCount()
 }
