@@ -426,6 +426,7 @@ class PostService(
         messageNickNameRepository.deleteByPostSeq(postSeq)
         messageRepository.deleteByPostSeq(postSeq)
         boardRepository.deleteByPostSeq(postSeq)
+        postTagRepository.deleteByPostSeq(postSeq)
         //post 삭제
         postRepository.deleteById(postSeq)
 
@@ -452,5 +453,10 @@ class PostService(
         val createTags = postFactory.createTag(tags.filter { it.tagSeq == null }, groupSequence)
         tagRepository.saveAll(createTags)
         return createTags.map { it.tagSeq!! }
+    }
+
+    @Transactional
+    fun deleteNoUseTag() {
+        tagRepository.deleteByNoUseTag()
     }
 }

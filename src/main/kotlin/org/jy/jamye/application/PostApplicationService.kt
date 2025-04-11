@@ -220,6 +220,7 @@ class PostApplicationService(
 
         postService.deletePost(groupSeq, postSeq)
         commentService.deleteCommentByPost(postSeq)
+        postService.deleteNoUseTag()
     }
 
     fun getGroupTags(groupSeq: Long, keyword: String?, userId: String, page: Pageable): Slice<TagDto.Simple> {
