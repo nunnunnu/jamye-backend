@@ -11,6 +11,7 @@ import org.jy.jamye.infra.*
 import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -437,14 +438,13 @@ class PostService(
         return postRepository.countByGroupSeq(groupSequence)
     }
 
-    fun getTags(groupSeq: Long, keyword: String?): Set<TagDto.Simple> {
-        val tags: List<Tag> = if(keyword.isNullOrBlank()) {
-            tagRepository.findByGroupSeq(groupSeq)
+    fun getTags(groupSeq: Long, keyword: String?, page: Pageable): Slice<TagDto.Simple> {
+        val tags: Slice<Tag> = if(keyword.isNullOrBlank()) {
+            tagRepository.findByGroupSeq(groupSeq, page)
         } else {
-            tagRepository.findByGroupSeqAndTagNameContains(groupSeq, keyword)
+            tagRepository.findByGroupSeqAndTagNameContains(groupSeq, keyword, page)
         }
-
-        return tags.map { TagDto.Simple(it.tagSeq, it.tagName) }.toSet()
+        return tags.map { TagDto.Simple(it.tagSeq, it.tagName) }
     }
 
     @Transactional

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import java.util.*
@@ -237,9 +238,10 @@ class PostController(
     @GetMapping("/tag/{groupSeq}")
     fun searchGroupTag(@PathVariable groupSeq: Long,
                        @RequestParam keyword: String?,
-                        @AuthenticationPrincipal user: UserDetails
-    ): ResponseDto<Set<TagDto.Simple>> {
-        val tags = postAppService.getGroupTags(groupSeq, keyword, user.username)
+                        @AuthenticationPrincipal user: UserDetails,
+                       @PageableDefault(size = 10, direction = Sort.Direction.DESC) page: Pageable,
+    ): ResponseDto<Slice<TagDto.Simple>> {
+        val tags = postAppService.getGroupTags(groupSeq, keyword, user.username, page)
         return ResponseDto(data = tags)
     }
 }

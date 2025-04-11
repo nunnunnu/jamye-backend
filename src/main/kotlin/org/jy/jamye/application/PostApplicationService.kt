@@ -14,6 +14,7 @@ import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -221,11 +222,11 @@ class PostApplicationService(
         commentService.deleteCommentByPost(postSeq)
     }
 
-    fun getGroupTags(groupSeq: Long, keyword: String?, userId: String): Set<TagDto.Simple> {
+    fun getGroupTags(groupSeq: Long, keyword: String?, userId: String, page: Pageable): Slice<TagDto.Simple> {
         val user = userService.getUser(userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
 
-        return postService.getTags(groupSeq, keyword)
+        return postService.getTags(groupSeq, keyword, page)
 
     }
 
