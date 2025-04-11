@@ -7,6 +7,7 @@ import org.hibernate.exception.ConstraintViolationException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.TypeMismatchException
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -24,8 +25,9 @@ import org.springframework.web.multipart.MultipartException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
 
 @RestControllerAdvice
-class ExceptionHandler {
+class ExceptionHandler(private val env: Environment) {
     val log: Logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
+
 
     @ExceptionHandler(IllegalArgumentException::class,
         MethodArgumentNotValidException::class,
@@ -43,7 +45,7 @@ class ExceptionHandler {
         HttpRequestMethodNotSupportedException::class
     )
     fun handleException(e: Exception): ResponseEntity<ErrorResponseDto> {
-        log.warn(e.printStackTrace().toString())
+        log.info("error1:" + e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.BAD_REQUEST.value(),
             message = e.message
@@ -52,7 +54,7 @@ class ExceptionHandler {
 
     @ExceptionHandler(BasicException::class)
     fun basicException(e: BasicException): ResponseEntity<ErrorResponseDto> {
-        log.warn(e.printStackTrace().toString())
+        log.info("error2:"+e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = e.status.value(),
             error = e.status.reasonPhrase,
@@ -64,7 +66,7 @@ class ExceptionHandler {
     @ExceptionHandler(BadCredentialsException::class
     )
     fun authExceptionHandler(e: Exception): ResponseEntity<ErrorResponseDto> {
-        log.warn(e.printStackTrace().toString())
+        log.info("error3:"+e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.FORBIDDEN.value(),
             message = e.message
@@ -72,20 +74,19 @@ class ExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handle500Exception(e: Exception): ResponseEntity<ErrorResponseDto> {
-        Sentry.captureException(e); //sentry 에러 전송
-        return ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ErrorResponseDto(message = e.message, status = 500))
-    }
-
     @ExceptionHandler(Exception::class)
     fun exception(e: Exception): ResponseEntity<ErrorResponseDto> {
-        Sentry.captureException(e); //sentry 에러 전송
-        log.warn(e.printStackTrace().toString())
+        log.info("4:"+ e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.BAD_REQUEST.value(),
-            message = e.message
+            message = e.message,
+            code = ErrorCode.SERVER_ERROR
         ), HttpStatus.BAD_REQUEST)
     }
+
+    	private fun reportErrorToSentry(e: Exception) {
+            if (!env.activeProfiles.contains("local")) return
+
+            Sentry.captureException(e); //sentry 에러 전송
+	}
 }
