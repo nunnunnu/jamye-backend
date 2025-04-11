@@ -273,7 +273,8 @@ class PostService(
             postSeq = post.postSeq!!))
 
         val tagAndPostConnection = postFactory.TagAndPostConnection(post.postSeq!!, tagSeqs)
-        postTagRepository.saveAll(tagAndPostConnection)
+        postTagRepository.saveAll(tagAndPostConnection) //
+
         return post.postSeq!!
     }
 
@@ -450,6 +451,9 @@ class PostService(
 
     @Transactional
     fun createTag(tags: List<TagDto.Simple>, groupSequence: Long): List<Long> {
+        val tagEntityMap =
+            tagRepository.findByTagNameIn(tags.filter { it.tagSeq == null }.map { it.tagName }.toSet()).associate { it.tagName to it.tagSeq }
+        tags.forEach { it.tagSeq = tagEntityMap[it.tagName] }
         val createTags = postFactory.createTag(tags.filter { it.tagSeq == null }, groupSequence)
         tagRepository.saveAll(createTags)
         return createTags.map { it.tagSeq!! }
