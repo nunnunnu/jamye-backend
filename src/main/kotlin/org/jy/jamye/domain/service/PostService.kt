@@ -465,10 +465,12 @@ class PostService(
         return PostDto.Count(totalCount = totalCount, haveCount = haveCount)
     }
 
-    fun getTags(groupSeq: Long, keyword: String?, page: Pageable): Slice<TagDto.Simple> {
+    fun getTags(groupSeq: Long, keyword: String?, page: Pageable, userSeq: Long): Slice<TagDto.Simple> {
         val tags: Slice<Tag> = if(keyword.isNullOrBlank()) {
-            tagRepository.findByGroupSeq(groupSeq, page)
+            //보유한 잼얘의 태그만 조회
+            tagRepository.findSliceByGroupSeqAndUserSeq(groupSeq = groupSeq, page = page, userSeq =  userSeq)
         } else {
+            //보유상관없이 검색어 조회
             tagRepository.findByGroupSeqAndTagNameContains(groupSeq, keyword, page)
         }
         return tags.map { TagDto.Simple(it.tagSeq, it.tagName) }

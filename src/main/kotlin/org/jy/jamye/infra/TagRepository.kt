@@ -10,7 +10,20 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.transaction.annotation.Transactional
 
 interface TagRepository: JpaRepository<Tag, Long> {
-    fun findByGroupSeq(groupSeq: Long, page: Pageable): Slice<Tag>
+    @Meta(comment = "보유한 잼얘의 태그 slicing 조회")
+    @Query("""
+        SELECT t
+        FROM Tag t
+        WHERE 
+            t.groupSeq = :groupSeq
+            AND EXISTS (
+                SELECT 1 
+                FROM PostTagConnection pc
+                INNER JOIN UserGroupPost up ON up.userSequence = :userSeq AND up.postSequence = pc.postSeq 
+                where pc.tagSeq = t.tagSeq
+            )
+    """)
+    fun findSliceByGroupSeqAndUserSeq(groupSeq: Long, userSeq: Long,page: Pageable): Slice<Tag>
     fun findByGroupSeqAndTagNameContains(groupSeq: Long, keyword: String, page: Pageable) : Slice<Tag>
     @Meta(comment = "미사용 태그 삭제")
     @Transactional

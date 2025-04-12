@@ -232,7 +232,7 @@ class PostApplicationService(
         val user = userService.getUser(userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
 
-        return postService.getTags(groupSeq, keyword, page)
+        return postService.getTags(groupSeq, keyword, page, user.sequence)
 
     }
 
