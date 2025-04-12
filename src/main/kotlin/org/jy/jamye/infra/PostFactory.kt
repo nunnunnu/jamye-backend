@@ -71,7 +71,7 @@ class PostFactory(
         return tags.map { Tag(groupSeq = groupSeq, tagName = it.tagName) }
     }
 
-    fun TagAndPostConnection(postSeq: Long, tagSeqs: MutableSet<Long>): List<PostTagConnection> {
+    fun TagAndPostConnection(postSeq: Long, tagSeqs: Set<Long>): List<PostTagConnection> {
         return tagSeqs.map { PostTagConnection(postSeq = postSeq, tagSeq = it) }
     }
 

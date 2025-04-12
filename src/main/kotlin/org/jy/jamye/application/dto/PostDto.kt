@@ -74,7 +74,8 @@ data class PostDto(
         var createDate: LocalDateTime,
         var updateDate: LocalDateTime,
         val postType: PostType,
-        val content: T
+        val content: T,
+        val tags: List<TagDto.Detail>
     )
 
     data class MessageNickNameInfo(
@@ -86,7 +87,9 @@ data class PostDto(
         val message: MutableMap<Long, MessagePost>,
         val deleteMessage: Set<Long> = setOf(),
         val deleteImage: Set<Long> = setOf(),
-        val title: String? = null
+        val title: String? = null,
+        val tagDisconnected: Set<Long> = setOf(),
+        val tags: List<TagDto.Detail> = emptyList()
     )
 
     class BoardUpdate (

@@ -49,6 +49,7 @@ class PostService(
 
     fun getPost(groupSequence: Long, postSequence: Long): PostDto.PostContent<Any> {
         val post = getPostOrThrow(groupSequence, postSequence)
+        val tagsInPost = getTagsInPost(postSequence)
         val result = PostDto.PostContent(
             groupSequence = post.groupSeq,
             postSequence = post.postSeq!!,
@@ -60,7 +61,8 @@ class PostService(
             content = if (post.postType == PostType.MSG) getMessagePost(postSequence)
                     else PostDto.BoardPost(
                         content = getBoardPostOrThrow(postSequence).detail
-                    )
+                    ),
+            tags = tagsInPost
             )
         return result
     }
@@ -217,8 +219,7 @@ class PostService(
             userSeq = userSeq,
             postSeq = post.postSeq!!))
 
-        val tagAndPostConnection = postFactory.TagAndPostConnection(post.postSeq!!, tagSeqs)
-        postTagRepository.saveAll(tagAndPostConnection)
+        tagPostConnect(post.postSeq!!, tagSeqs)
 
         return post.postSeq!!
     }
@@ -272,12 +273,17 @@ class PostService(
             userSeq = userSeq,
             postSeq = post.postSeq!!))
 
-        val tagAndPostConnection = postFactory.TagAndPostConnection(post.postSeq!!, tagSeqs)
-        postTagRepository.saveAll(tagAndPostConnection) //
+        tagPostConnect(post.postSeq!!, tagSeqs) //
 
         return post.postSeq!!
     }
 
+    fun tagPostConnect(postSeq: Long, tagSeqs: Set<Long>) {
+        val tagAndPostConnection = postFactory.TagAndPostConnection(postSeq, tagSeqs)
+        postTagRepository.saveAll(tagAndPostConnection)
+    }
+
+    @Transactional(readOnly = true)
     fun updateAbleCheckOrThrow(groupSeq: Long, postSeq: Long, userSeq: Long) {
         if(!postRepository.existsByGroupSeqAndPostSeqAndUserSeq(groupSeq, postSeq, userSeq)) {
             throw EntityNotFoundException("본인 작성 게시글이 아닙니다")
@@ -393,6 +399,19 @@ class PostService(
         boardRepository.save(board)
     }
 
+    private fun postTagUpdate(postSeq: Long, tagDisconnected: Set<Long>, tags: List<TagDto.Detail>, groupSeq: Long) {
+        //tag 연결 끊기
+        postTagRepository.deleteByPostSeqAndPostTagSeqIn(postSeq, tagDisconnected)
+
+        //신규 생성 태그
+        val createTags = createTag(tags.map { TagDto.Simple(it.tagSeq, it.tagName) }, groupSeq)
+
+        //신규생성태그 - post 연결관계 생성
+        tagPostConnect(postSeq, createTags)
+
+        deleteNoUseTag() //현재 미사용 태그 삭제
+    }
+
     fun getPostUserSeqs(groupSeq: Long, postSeq: Long): Set<Long> {
         return userGroupPostRepository.findAllByPostSequenceAndGroupSequence(groupSeq = groupSeq, postSeq = postSeq)
             .map { it.userSequence }.toSet()
@@ -402,9 +421,10 @@ class PostService(
         return boardRepository.findByPostSeq(postSeq).orElseThrow { EntityNotFoundException("잘못된 게시글 번호입니다.") }
     }
 
-    fun updatePost(groupSeq: Long, postSeq: Long, title: String) {
+    fun updatePost(groupSeq: Long, postSeq: Long, title: String, tagDisconnected: Set<Long>, tags: List<TagDto.Detail>) {
         val post = getPostOrThrow(groupSequence = groupSeq, postSequence = postSeq)
         post.titleUpdate(title)
+        postTagUpdate(postSeq, tagDisconnected, tags, groupSeq)
     }
 
     fun createTempUser(
@@ -450,17 +470,29 @@ class PostService(
     }
 
     @Transactional
-    fun createTag(tags: List<TagDto.Simple>, groupSequence: Long): List<Long> {
+    fun createTag(tags: List<TagDto.Simple>, groupSequence: Long): Set<Long> {
         val tagEntityMap =
             tagRepository.findByTagNameIn(tags.filter { it.tagSeq == null }.map { it.tagName }.toSet()).associate { it.tagName to it.tagSeq }
         tags.forEach { it.tagSeq = tagEntityMap[it.tagName] }
         val createTags = postFactory.createTag(tags.filter { it.tagSeq == null }, groupSequence)
         tagRepository.saveAll(createTags)
-        return createTags.map { it.tagSeq!! }
+        return createTags.map { it.tagSeq!! }.toSet()
     }
 
     @Transactional
     fun deleteNoUseTag() {
         tagRepository.deleteByNoUseTag()
     }
+
+    @Transactional(readOnly = true)
+    fun getTagsInPost(postSequence: Long): List<TagDto.Detail> {
+        return postTagRepository.findByPostSeq(postSequence).map {
+            TagDto.Detail(
+                it.tagSeq,
+                it.tag!!.tagName,
+                it.postTagSeq!!
+            )
+        }
+    }
+
 }

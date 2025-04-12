@@ -153,7 +153,7 @@ class PostApplicationService(
 
         var seq = 1L
         data.message.values.forEach { it.message.forEach { msg -> msg.seq = seq++ } }
-        data.title?.let { if(it.isNotBlank()) postService.updatePost(groupSeq, postSeq, data.title) }
+        data.title?.let { if(it.isNotBlank()) postService.updatePost(groupSeq, postSeq, data.title, data.tagDisconnected, data.tags) }
         postService.updateMessagePost(groupSeq, postSeq, data.message.values, data.deleteMessage, data.deleteImage, replyMap)
         sendNotifyPostUpdate(groupSeq = groupSeq, postSeq = postSeq)
         userService.getNotifyNoReadCount(user.sequence)
@@ -191,9 +191,14 @@ class PostApplicationService(
     fun updateBoardPost(groupSeq: Long, postSeq: Long, data: PostCreateDto.Board, userId: String) {
         val user = userService.getUser(userId)
         postService.updateAbleCheckOrThrow(groupSeq = groupSeq, postSeq = postSeq, userSeq = user.sequence!!)
-        data.title?.let { if(it.isNotBlank()) postService.updatePost(groupSeq, postSeq, data.title) }
+        data.title?.let { if(it.isNotBlank()) postService.updatePost(
+            groupSeq,
+            postSeq,
+            data.title,
+            data.tagDisconnected,
+            data.tags
+        ) }
         postService.updateBoardPost(groupSeq, postSeq, data)
-
 
         sendNotifyPostUpdate(groupSeq, postSeq)
         userService.getNotifyNoReadCount(user.sequence)

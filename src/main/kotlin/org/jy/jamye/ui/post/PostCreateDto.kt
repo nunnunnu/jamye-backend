@@ -1,7 +1,6 @@
 package org.jy.jamye.ui.post
 
 import org.jy.jamye.application.dto.TagDto
-import org.springframework.beans.factory.annotation.Value
 import java.time.LocalDateTime
 
 data class PostCreateDto<T>(
@@ -20,7 +19,9 @@ data class PostCreateDto<T>(
 
     data class Board(
         val title: String? = null,
-        var content: String
+        var content: String,
+        var tags: List<TagDto.Detail> = listOf(),
+        var tagDisconnected: Set<Long> = setOf()
     ) {
         fun replaceUri(imageUriMap: MutableMap<String, Pair<Long, String>>, imageUrl: String?) {
             imageUriMap.forEach { (t, u) ->
