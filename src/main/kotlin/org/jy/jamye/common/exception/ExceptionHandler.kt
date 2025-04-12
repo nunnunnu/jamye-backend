@@ -45,7 +45,6 @@ class ExceptionHandler(private val env: Environment) {
         HttpRequestMethodNotSupportedException::class
     )
     fun handleException(e: Exception): ResponseEntity<ErrorResponseDto> {
-        log.info("error1:" + e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.BAD_REQUEST.value(),
             message = e.message
@@ -54,7 +53,6 @@ class ExceptionHandler(private val env: Environment) {
 
     @ExceptionHandler(BasicException::class)
     fun basicException(e: BasicException): ResponseEntity<ErrorResponseDto> {
-        log.info("error2:"+e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = e.status.value(),
             error = e.status.reasonPhrase,
@@ -66,7 +64,6 @@ class ExceptionHandler(private val env: Environment) {
     @ExceptionHandler(BadCredentialsException::class
     )
     fun authExceptionHandler(e: Exception): ResponseEntity<ErrorResponseDto> {
-        log.info("error3:"+e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.FORBIDDEN.value(),
             message = e.message
@@ -76,7 +73,8 @@ class ExceptionHandler(private val env: Environment) {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception::class)
     fun exception(e: Exception): ResponseEntity<ErrorResponseDto> {
-        log.info("4:"+ e.printStackTrace().toString())
+        log.info(e.printStackTrace().toString())
+        reportErrorToSentry(e)
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.BAD_REQUEST.value(),
             message = e.message,
