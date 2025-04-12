@@ -47,5 +47,5 @@ interface TagRepository: JpaRepository<Tag, Long> {
     """)
     fun postTotalCount()
     @Meta(comment = "이미 등록된 tag 찾기")
-    fun findByTagNameIn(toSet: Set<String>): List<Tag>
+    fun findByTagNameInAndGroupSeq(toSet: Set<String>, groupSeq: Long): List<Tag>
 }

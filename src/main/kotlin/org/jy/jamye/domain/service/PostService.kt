@@ -471,12 +471,17 @@ class PostService(
 
     @Transactional
     fun createTag(tags: List<TagDto.Simple>, groupSequence: Long): Set<Long> {
+        if(tags.isEmpty()) {
+            return setOf()
+        }
         val tagEntityMap =
-            tagRepository.findByTagNameIn(tags.filter { it.tagSeq == null }.map { it.tagName }.toSet()).associate { it.tagName to it.tagSeq }
+            tagRepository.findByTagNameInAndGroupSeq(tags.map { it.tagName }.toSet(), groupSequence).associate { it.tagName to it.tagSeq }
         tags.forEach { it.tagSeq = tagEntityMap[it.tagName] }
         val createTags = postFactory.createTag(tags.filter { it.tagSeq == null }, groupSequence)
         tagRepository.saveAll(createTags)
-        return createTags.map { it.tagSeq!! }.toSet()
+        val result = createTags.map { it.tagSeq!! }.toMutableSet()
+        result.addAll(tags.filter { it.tagSeq != null }.map { it.tagSeq!! }.toMutableSet())
+        return result
     }
 
     @Transactional
