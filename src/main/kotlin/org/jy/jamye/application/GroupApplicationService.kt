@@ -3,6 +3,7 @@ package org.jy.jamye.application
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
+import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyDeleteVoting
@@ -188,9 +189,9 @@ class GroupApplicationService(
         return voteDto
     }
 
-    fun getAllPostCountInGroup(groupSeq: Long, userId: String): Long {
+    fun getAllPostCountInGroup(groupSeq: Long, userId: String): PostDto.Count {
         val user = userService.getUser(userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
-        return postService.postCountInGroup(groupSeq)
+        return postService.postCountInGroup(groupSeq, user.sequence)
     }
 }

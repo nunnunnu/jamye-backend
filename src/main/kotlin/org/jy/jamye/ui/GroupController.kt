@@ -3,6 +3,7 @@ package org.jy.jamye.ui
 import org.jy.jamye.application.GroupApplicationService
 import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
+import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.service.GroupService
@@ -154,7 +155,7 @@ class GroupController(private val groupAppService: GroupApplicationService,
     fun getAllPostCountInGroup(
         @PathVariable("groupSeq") groupSeq: Long,
         @AuthenticationPrincipal user: UserDetails
-    ): ResponseDto<Long> {
+    ): ResponseDto<PostDto.Count> {
         val allPostCountInGroup = groupAppService.getAllPostCountInGroup(groupSeq, user.username)
         return ResponseDto(data = allPostCountInGroup)
     }

@@ -19,4 +19,5 @@ interface UserGroupPostRepository: JpaRepository<UserGroupPost, Long> {
     @Modifying
     @Query("delete from UserGroupPost e where e.postSequence = :postSeq")
     fun deleteByPostSequence(postSeq: Long)
+    fun countByUserSequenceAndGroupSequence(userSeq: Long, groupSequence: Long): Long
 }

@@ -456,8 +456,13 @@ class PostService(
     }
 
     @Transactional(readOnly = true)
-    fun postCountInGroup(groupSequence: Long): Long {
-        return postRepository.countByGroupSeq(groupSequence)
+    fun postCountInGroup(groupSequence: Long, userSeq: Long): PostDto.Count {
+        val totalCount = postRepository.countByGroupSeq(groupSequence)
+        val haveCount = userGroupPostRepository.countByUserSequenceAndGroupSequence(
+            userSeq = userSeq,
+            groupSequence = groupSequence
+        )
+        return PostDto.Count(totalCount = totalCount, haveCount = haveCount)
     }
 
     fun getTags(groupSeq: Long, keyword: String?, page: Pageable): Slice<TagDto.Simple> {

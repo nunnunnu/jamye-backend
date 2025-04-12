@@ -95,6 +95,11 @@ data class PostDto(
     class BoardUpdate (
         val content: String
     )
+
+    class Count(
+        val totalCount: Long,
+        val haveCount: Long
+    )
 }
 
 data class MessageNickNameDto (
