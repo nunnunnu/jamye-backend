@@ -27,17 +27,21 @@ interface PostRepository: JpaRepository<Post, Long> {
     fun countAllByAbleDrawPool(groupSeq: Long, userSeq: Long): MutableList<Long>
     fun existsByGroupSeqAndPostSeqAndUserSeq(groupSeq: Long, postSeq: Long, userSeq: Long): Boolean
 
-    @Meta(comment = "jamye-list") //TODO: 임시로 DISTINCT - 카테시안곱 문제로 성능 모니터링 필요
+    @Meta(comment = "jamye-list")
     @Query("""
-        SELECT DISTINCT p
-        FROM Post p 
-        LEFT JOIN PostTagConnection t ON t.postSeq = p.postSeq
+        SELECT p FROM Post p
         WHERE
             p.groupSeq = :groupSeq
             AND p.postSeq IN :postSeqs
-            AND (:keyword is null or p.title like concat('%', :keyword, '%'))
+            AND (:keyword is null OR p.title LIKE concat('%', :keyword, '%'))
             AND (:#{#postType == null || #postType.isEmpty()} = true OR p.postType IN :postType)
-            AND (:#{#tags == null || #tags.isEmpty()} = true OR t.tagSeq in :tags)
+            AND (
+                :#{#tags == null || #tags.isEmpty()} = true OR 
+                EXISTS (
+                    SELECT 1 FROM PostTagConnection t 
+                    WHERE t.postSeq = p.postSeq AND t.tagSeq IN :tags
+                )
+            )
     """)
     fun findByGroupSeqAndPostSeqInAndFilter(
         groupSeq: Long, postSeqs: Set<Long>,
