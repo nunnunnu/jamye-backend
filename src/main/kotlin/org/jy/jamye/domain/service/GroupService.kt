@@ -12,13 +12,14 @@ import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.Group
 import org.jy.jamye.domain.model.GroupUser
 import org.jy.jamye.infra.GroupFactory
+import org.jy.jamye.infra.GroupReader
 import org.jy.jamye.infra.GroupRepository
 import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -32,7 +33,8 @@ class GroupService(
     private val groupFactory: GroupFactory,
     private val publisher: ApplicationEventPublisher,
     private val groupUserRepository: GroupUserRepository,
-    private val redisClient: RedisClient
+    private val redisClient: RedisClient,
+    private val groupReader: GroupReader
 ) {
 
     var log: Logger = LoggerFactory.getLogger(GroupService::class.java)
@@ -50,11 +52,11 @@ class GroupService(
     }
 
     @Transactional
-    fun createGroup(userSequence: Long, data: GroupDto, masterUserInfo: UserInGroupDto.Simple): GroupDto.Detail {
-        val group = groupFactory.createGroup(userSequence, data)
+    fun createGroup(userSeq: Long, data: GroupDto, masterUserInfo: UserInGroupDto.Simple): GroupDto.Detail {
+        val group = groupFactory.createGroup(userSeq, data)
         groupRepo.save(group)
         val groupMaster =
-            groupFactory.createGroupMasterConnection(group.sequence!!, userSequence, masterUserInfo, group)
+            groupFactory.createGroupMasterConnection(group.sequence!!, userSeq, masterUserInfo, group)
         groupUserRepo.save(groupMaster)
         return GroupDto.Detail(groupSequence = group.sequence!!, name = group.name, description = group.description,
             imageUrl = group.imageUrl, createDate = group.createDate, updateDate = group.updateDate,
@@ -70,10 +72,6 @@ class GroupService(
         )
     }
 
-    fun findByIdOrThrow(groupSequence: Long): Group {
-        return groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
-    }
-
     @Transactional(readOnly = true)
     fun getGroup(userSequence: Long, groupSequence: Long): GroupDto.Detail {
         val usersInGroup = groupUserRepo.findAllByGroupSequence(groupSequence)
@@ -83,7 +81,7 @@ class GroupService(
 
         val masterInfo = usersInGroup.first { it.grade == Grade.MASTER }
 
-        val group = findByIdOrThrow(groupSequence)
+        val group = groupReader.findByIdOrThrow(groupSequence)
 
         return GroupDto.Detail(
             groupSequence = group.sequence!!,
@@ -113,15 +111,13 @@ class GroupService(
     }
 
     fun userInGroupCheckOrThrow(userSeq: Long, groupSeq: Long) {
-        if (!groupUserRepo.existsByUserSequenceAndGroupSequence(userSeq, groupSeq)) {
-            throw BadCredentialsException("Group user does not exist")
-        }
+        groupReader.userInGroupCheckOrThrow(userSeq, groupSeq)
     }
 
     fun usersInGroupCheckOrThrow(usersSeqInGroup: Set<Long>, groupSequence: Long) {
         val userInGroupCount = groupUserRepo.countByUserSequenceInAndGroupSequence(usersSeqInGroup, groupSequence)
         if (userInGroupCount != usersSeqInGroup.size) {
-            throw BadCredentialsException("Group user does not exist")
+            throw MemberNotInGroupException()
         }
     }
 
@@ -263,6 +259,7 @@ class GroupService(
     }
 
     @Transactional
+    @CacheEvict(cacheNames = ["groupExistCache"], key = "#groupSeq+#userSeq")
     fun leaveGroup(groupSeq: Long, userSeq: Long) {
         val countByGroupSequence = groupUserRepo.countByGroupSequence(groupSeq)
         if(countByGroupSequence == 1L) {
@@ -280,8 +277,9 @@ class GroupService(
     }
 
     @Transactional
+    @CacheEvict(value = ["groupCache"])
     fun updateGroupInfo(groupSeq: Long, data: GroupPostDto.Update, imageUri: String?): GroupDto {
-        val group = findByIdOrThrow(groupSeq)
+        val group = groupReader.findByIdOrThrow(groupSeq)
         group.updateInfo(data.name, imageUri, data.description)
         return GroupDto(
             name = group.name,

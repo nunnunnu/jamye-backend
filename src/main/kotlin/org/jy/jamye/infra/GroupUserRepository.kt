@@ -3,6 +3,7 @@ package org.jy.jamye.infra
 import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.domain.model.Grade
 import org.jy.jamye.domain.model.GroupUser
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
