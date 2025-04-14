@@ -9,7 +9,7 @@ data class UserDto (
     val id: String,
     val email: String,
     @JsonIgnore
-    val password: String? = null,
+    var password: String? = null,
     val createDate: LocalDateTime? = null,
     var updateDate: LocalDateTime? = null
 )

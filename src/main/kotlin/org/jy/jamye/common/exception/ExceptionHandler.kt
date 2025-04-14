@@ -45,6 +45,7 @@ class ExceptionHandler(private val env: Environment) {
         HttpRequestMethodNotSupportedException::class
     )
     fun handleException(e: Exception): ResponseEntity<ErrorResponseDto> {
+        log.info(e.printStackTrace().toString())
         return ResponseEntity(ErrorResponseDto(
             status = HttpStatus.BAD_REQUEST.value(),
             message = e.message

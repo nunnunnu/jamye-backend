@@ -22,12 +22,9 @@ class CacheJob(
     fun refreshCache() {
         log.info("[tagCache reload]")
         val cache: Cache = cacheManager.getCache(CacheConfig.CacheType.TAG_CACHE.cacheName)!!
-        println(cache)
         val groupTagMap:Map<Long, List<Tag>> = tagRepository.findAll().groupBy{ it.groupSeq }
         cache.clear()
         val groupSeq = groupTagMap.keys.toSet()
         groupTagMap.entries.forEach {(groupSeq, tag) ->  cache.put(groupSeq, tag) }
-        println(groupTagMap)
-        groupSeq.forEach { println(cache[it]) }
     }
 }
