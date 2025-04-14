@@ -26,7 +26,7 @@ class JwtTokenProvider(
     private val authBuilder: AuthenticationManagerBuilder
 ) {
     val log: Logger = LoggerFactory.getLogger(JwtTokenProvider::class.java)
-    private val tokenExpireMinutes = 1//토근 만료시간
+    private val tokenExpireMinutes = 60 //엑세스 토근 만료시간
     private val refreshExpireMinutes = 60 * 24* 7 //리프레쉬 토큰 만료시간
     private val key: Key = Keys.hmacShaKeyFor(BASE64.decode(secretKey))
 
