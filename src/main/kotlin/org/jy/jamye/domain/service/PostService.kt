@@ -9,6 +9,7 @@ import org.jy.jamye.common.exception.PostAccessDeniedException
 import org.jy.jamye.domain.model.*
 import org.jy.jamye.infra.*
 import org.jy.jamye.ui.post.PostCreateDto
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
@@ -26,10 +27,11 @@ class PostService(
     private val messageNickNameRepository: MessageNickNameRepository,
     private val commentRepository: CommentRepository,
     private val tagRepository: TagRepository,
-    private val postTagRepository: PostTagRepository
+    private val postTagRepository: PostTagRepository,
+    private val postReader: PostReader
 ) {
     fun postCheck(groupSequence: Long, postSequence: Long, userSequence: Long) {
-        if(!userGroupPostRepository.existsByUserSequenceAndGroupSequenceAndPostSequence(userSequence, groupSequence, postSequence)) {
+        if(!postReader.postCheck(userSeq = userSequence, groupSeq = groupSequence, postSeq = postSequence)) {
             throw PostAccessDeniedException()
         }
     }
@@ -441,7 +443,8 @@ class PostService(
     }
 
     @Transactional
-    fun deletePost(groupSeq: Long, postSeq: Long) {
+    @CacheEvict(cacheNames = ["postExistCache"], key = "#groupSeq+#postSeq+#userSeq")
+    fun deletePost(groupSeq: Long, postSeq: Long, userSeq: Long) {
         //post detail 삭제
         messageImageRepository.deleteByPostSeq(postSeq)
         messageNickNameRepository.deleteByPostSeq(postSeq)

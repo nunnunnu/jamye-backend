@@ -49,6 +49,7 @@ public class CacheConfig {
     USER_CACHE("userCache", 60 * 60 * 24, 1000),
     GROUP_CACHE("groupCache", 60 * 60 * 24, 1000),
     GROUP_EXIST_CACHE("groupExistCache", 60 * 60 * 24 * 7, 1000),
+    POST_EXIST_CACHE("postExistCache", 60 * 60 * 24, 1000),
     ;
 
   }

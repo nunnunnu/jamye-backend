@@ -223,7 +223,7 @@ class PostApplicationService(
 
         postService.postCheck(groupSeq, postSeq, user.sequence)
 
-        postService.deletePost(groupSeq, postSeq)
+        postService.deletePost(groupSeq, postSeq, user.sequence)
         commentService.deleteCommentByPost(postSeq)
         postService.deleteNoUseTag()
     }
