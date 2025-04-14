@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component
 import java.security.Key
 import java.util.*
 import java.util.stream.Collectors
-import javax.crypto.SecretKey
 
 @Component
 class JwtTokenProvider(

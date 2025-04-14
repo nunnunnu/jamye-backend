@@ -13,10 +13,12 @@ import org.jy.jamye.domain.model.Notify
 import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.NotifyRepository
 import org.jy.jamye.infra.UserFactory
+import org.jy.jamye.infra.UserReader
 import org.jy.jamye.infra.UserRepository
 import org.jy.jamye.security.TokenDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.support.GenericMessage
 import org.springframework.security.authentication.BadCredentialsException
@@ -33,7 +35,8 @@ class UserService(
     private val tokenProvider: JwtTokenProvider,
     private val redisClient: RedisClient,
     private val notifyRepository: NotifyRepository,
-    private val messagingTemplate: SimpMessagingTemplate
+    private val messagingTemplate: SimpMessagingTemplate,
+    private val userReader: UserReader
 ) {
     val log = LoggerFactory.getLogger(UserService::class.java)
     @Transactional
@@ -57,13 +60,14 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun getUser(id: String): UserDto {
-        val user = getUserByIdOrThrow(id)
+        val user = userReader.getUserByIdOrThrow(id)
         return UserDto(sequence = user.sequence, id = user.userId, email = user.email, createDate = user.createDate, updateDate = user.updateDate)
     }
 
     @Transactional
+    @CacheEvict(cacheNames = ["userCache"], key = "#id")
     fun updateUser(id: String, data: UserUpdateDto): UserDto {
-        val user = getUserByIdOrThrow(id)
+        val user = userReader.getUserByIdOrThrow(id)
         if (!passwordEncoder.matches(data.oldPassword, user.password)) {
             throw BadCredentialsException("비밀번호를 다시 확인해주세요.")
         }
@@ -74,12 +78,9 @@ class UserService(
 
     }
 
-    private fun getUserByIdOrThrow(id: String): User {
-        return userRepo.findByUserId(id).orElseThrow { NonExistentUser() }
-    }
-
+    @CacheEvict(cacheNames = ["userCache"], key = "#id")
     fun deleteUser(id: String, password: String): Long {
-        val user = getUserByIdOrThrow(id)
+        val user = userReader.getUserByIdOrThrow(id)
         if (!passwordEncoder.matches(password, user.password)) {
             throw PasswordErrorException()
         }
@@ -205,7 +206,7 @@ class UserService(
     }
 
     fun discordConnect(userId: String, channelId: String) {
-        val user = getUserByIdOrThrow(userId)
+        val user = userReader.getUserByIdOrThrow(userId)
         user.discordConnect(channelId)
         userRepo.save(user)
     }
