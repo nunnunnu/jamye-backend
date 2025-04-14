@@ -119,7 +119,6 @@ class UserService(
     fun getAccessToken(refreshToken: String): TokenDto {
         val userId = redisClient.getIdByRefreshToken(refreshToken)
         if (tokenProvider.isRefreshTokenExpired(refreshToken)) {
-            // TODO: 만료토큰 관리로직 추가 필요
             log.info("[getAccessToken] 만료된 refresh 토큰 = {}", refreshToken)
             throw IllegalArgumentException("만료된 토큰")
         }

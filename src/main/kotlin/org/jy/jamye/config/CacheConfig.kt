@@ -50,6 +50,7 @@ public class CacheConfig {
     GROUP_CACHE("groupCache", 60 * 60 * 24, 1000),
     GROUP_EXIST_CACHE("groupExistCache", 60 * 60 * 24 * 7, 1000),
     POST_EXIST_CACHE("postExistCache", 60 * 60 * 24, 1000),
+    TAG_CACHE("tagCache", 60 * 60, 1000),
     ;
 
   }

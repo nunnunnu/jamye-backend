@@ -228,12 +228,18 @@ class PostApplicationService(
         postService.deleteNoUseTag()
     }
 
-    fun getGroupTags(groupSeq: Long, keyword: String?, userId: String, page: Pageable): Slice<TagDto.Simple> {
+    fun getGroupTags(groupSeq: Long, userId: String, page: Pageable): Slice<TagDto.Simple> {
         val user = userService.getUser(userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
 
-        return postService.getTags(groupSeq, keyword, page, user.sequence)
+        return postService.getTags(groupSeq, page, user.sequence)
+    }
 
+    fun getGroupAllTags(groupSeq: Long, keyword: String, userId: String): List<TagDto.Simple> {
+        val user = userService.getUser(userId)
+        groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
+
+        return postService.getGroupAllTags(groupSeq, keyword)
     }
 
 }

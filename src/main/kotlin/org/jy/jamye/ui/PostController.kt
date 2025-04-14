@@ -237,11 +237,19 @@ class PostController(
 
     @GetMapping("/tag/{groupSeq}")
     fun searchGroupTag(@PathVariable groupSeq: Long,
-                       @RequestParam keyword: String?,
                         @AuthenticationPrincipal user: UserDetails,
                        @PageableDefault(size = 10, sort = ["postUseTotalCount"], direction = Sort.Direction.DESC) page: Pageable,
     ): ResponseDto<Slice<TagDto.Simple>> {
-        val tags = postAppService.getGroupTags(groupSeq, keyword, user.username, page)
+        val tags = postAppService.getGroupTags(groupSeq, user.username, page)
+        return ResponseDto(data = tags)
+    }
+
+    @GetMapping("/tag/all/{groupSeq}")
+    fun searchGroupAllTag(@PathVariable groupSeq: Long,
+                       @RequestParam keyword: String,
+                        @AuthenticationPrincipal user: UserDetails,
+    ): ResponseDto<List<TagDto.Simple>> {
+        val tags = postAppService.getGroupAllTags(groupSeq, keyword, user.username)
         return ResponseDto(data = tags)
     }
 }
