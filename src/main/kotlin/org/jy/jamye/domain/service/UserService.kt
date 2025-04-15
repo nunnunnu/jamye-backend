@@ -201,6 +201,7 @@ class UserService(
         getNotifyNoReadCount(userSeq)
     }
 
+    @CacheEvict(cacheNames = ["userCache"], key = "#userId")
     fun discordConnect(userId: String, channelId: String) {
         val user = userReader.getUserByIdOrThrow(userId)
         user.discordConnect(channelId)
