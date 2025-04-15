@@ -6,6 +6,7 @@ import org.jy.jamye.application.dto.NotifyDto
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
+import org.jy.jamye.domain.model.LoginType
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.security.TokenDto
 import org.jy.jamye.ui.post.LoginPostDto
@@ -13,6 +14,7 @@ import org.jy.jamye.ui.post.UserPasswordDto
 import org.jy.jamye.ui.post.UserPostDto
 import org.jy.jamye.ui.post.UserUpdateDto
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.validation.annotation.Validated
@@ -34,6 +36,7 @@ class UserController(
 
     @PostMapping("/login")
     fun login(@RequestBody data: LoginPostDto) : ResponseDto<UserLoginDto> {
+        LoginType.entries.forEach{ if(it.basicPassword.equals(data.password)) throw throw BadCredentialsException("로그인 정보를 다시 확인해주세요") }
         val user = userService.login(data.id, data.password)
         return ResponseDto(data = user, status = HttpStatus.OK)
     }
