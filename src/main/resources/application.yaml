@@ -34,8 +34,11 @@ spring:
 jwt:
   secretKey: ${JWT_SECRET_KEY}
 discord:
+  clientId: ${DISCORD_CLIENT_ID}
   secretKey: ${DISCORD_SECRET_KEY}
   bot_token_key: ${BOT_TOKEN}
+kakao:
+  clientId: ${KAKAO_CLIENT_ID}
 logging:
   level:
     org:

@@ -3,7 +3,7 @@ package org.jy.jamye.ui
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.service.DiscordService
 import org.jy.jamye.domain.service.UserService
-import org.springframework.http.ResponseEntity
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
@@ -26,5 +26,13 @@ class DiscordController(
         userService.discordConnect(user.username, channelId)
 
         return ResponseDto()
+    }
+
+    @Value("\${discord.clientId}")
+    private val discordClientId: String? = null
+
+    @GetMapping("/client-id")
+    fun getDiscordClientId(): ResponseDto<String> {
+        return ResponseDto(data = discordClientId)
     }
 }

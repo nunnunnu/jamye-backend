@@ -1,6 +1,7 @@
 package org.jy.jamye.application.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.jy.jamye.domain.model.LoginType
 import org.jy.jamye.security.TokenDto
 import java.time.LocalDateTime
 
@@ -11,7 +12,8 @@ data class UserDto (
     @JsonIgnore
     var password: String? = null,
     val createDate: LocalDateTime? = null,
-    var updateDate: LocalDateTime? = null
+    var updateDate: LocalDateTime? = null,
+    val loginType: LoginType? = LoginType.NOMAL,
 )
 
 data class UserLoginDto(

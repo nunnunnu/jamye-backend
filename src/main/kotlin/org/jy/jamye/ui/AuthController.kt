@@ -1,7 +1,10 @@
 package org.jy.jamye.ui
 
 import jakarta.servlet.http.HttpServletResponse
+import org.jy.jamye.application.dto.UserLoginDto
+import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.service.KakaoAuthService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -10,8 +13,16 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/oauth")
 class AuthController(private val kakaoAuthService: KakaoAuthService) {
+    @Value("\${kakao.clientId}")
+    private val kakaoClientId: String? = null
+
+    @GetMapping("/kakao/client-id")
+    fun getKakaoClientId(): ResponseDto<String> {
+        return ResponseDto(data = kakaoClientId)
+    }
     @GetMapping("/kakao/callback")
-    fun handleKakaoAccessToken(@RequestParam code: String, response: HttpServletResponse) {
-        kakaoAuthService.kakaoLogin(code = code, response = response)
+    fun handleKakaoAccessToken(@RequestParam code: String, response: HttpServletResponse): ResponseDto<UserLoginDto> {
+        val kakaoLogin = kakaoAuthService.kakaoLogin(code = code, response = response)
+        return ResponseDto(data = kakaoLogin)
     }
 }

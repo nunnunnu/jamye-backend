@@ -23,7 +23,8 @@ class CommentAppService(
     fun getComment(userId: String, groupSeq: Long, postSeq: Long): List<CommentDto> {
         val user = userService.getUser(userId)
         postService.postCheck(groupSeq, postSeq, user.sequence!!)
-        val usersInGroup = groupService.getUsersInGroup(groupSeq, user.sequence).map { it.userSequence to it.nickname }.toMap()
+        val usersInGroup =
+            groupService.getUsersInGroup(groupSeq, user.sequence).associate { it.userSequence to it.nickname }
         val comments = commentService.getComment(groupSeq, postSeq)
         comments.forEach { it.nickName = usersInGroup[it.userSeq] }
         return comments

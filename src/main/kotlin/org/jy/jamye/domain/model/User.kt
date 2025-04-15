@@ -21,6 +21,9 @@ class User(
     private var password: String,
     @Column(name = "dc_ch")
     var discordChannelId: String? = null,
+    @Column(name = "type")
+    @Enumerated(value = EnumType.STRING)
+    var loginType: LoginType? = LoginType.NOMAL,
     @Column(name = "create_date")
     @CreationTimestamp
     val createDate: LocalDateTime = LocalDateTime.now(),
@@ -62,4 +65,7 @@ class User(
 
 enum class Role {
     ROLE_USER
+}
+enum class LoginType {
+    NOMAL, KAKAO, GOOGLE
 }

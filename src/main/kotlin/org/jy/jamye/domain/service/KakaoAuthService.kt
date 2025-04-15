@@ -3,43 +3,29 @@ package org.jy.jamye.domain.service
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletResponse
-import lombok.RequiredArgsConstructor
 import org.jy.jamye.application.dto.UserDto
+import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.client.RedisClient
-import org.jy.jamye.domain.model.User
-import org.jy.jamye.infra.UserFactory
-import org.jy.jamye.infra.UserRepository
 import org.jy.jamye.security.JwtTokenProvider
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
-import java.time.LocalDate
 import java.util.*
 
 @Service
 class KakaoAuthService(
-    private val passwordEncoder: PasswordEncoder,
-    private val userRepository: UserRepository,
     private val jwtTokenProvider: JwtTokenProvider,
     private val authBuilder: AuthenticationManagerBuilder,
     private val redisClient: RedisClient,
-    private val userFactory: UserFactory,
+    private val userService: UserService
 ){
-
     @Throws(JsonProcessingException::class)
-    fun kakaoLogin(code: String, response: HttpServletResponse): Long {
+    fun kakaoLogin(code: String, response: HttpServletResponse): UserLoginDto {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         val accessToken = getAccessToken(code)
 
@@ -47,22 +33,12 @@ class KakaoAuthService(
         val kakaoUserInfo = getKakaoUserInfo(accessToken)
 
         // 3. 카카오ID로 회원가입 처리
-        val kakaoUser = registerKakaoUserIfNeed(kakaoUserInfo)
+        val userLogin = userService.registerKakaoUserIfNeed(kakaoUserInfo)
+        val token = userLogin.token
 
-        // 4. 강제 로그인 처리
-        var authentication: Authentication = forceLogin(kakaoUser)
+        redisClient.setValue(token.refreshToken, kakaoUserInfo.id)
 
-        val authenticationToken =
-            UsernamePasswordAuthenticationToken(kakaoUser.userId, kakaoUser.password)
-
-        authentication =
-            authBuilder.getObject().authenticate(authenticationToken)
-
-        val refreshToken: String = jwtTokenProvider.generateToken(authentication).refreshToken
-
-        redisClient.setValue(refreshToken, kakaoUser.email)
-
-        return kakaoUserInfo.sequence!!
+        return userLogin
     }
 
     @Throws(JsonProcessingException::class)
@@ -117,26 +93,11 @@ class KakaoAuthService(
         val objectMapper = ObjectMapper()
         val jsonNode = objectMapper.readTree(responseBody)
 
-        val seq = jsonNode["id"].asLong()
         val id = jsonNode["id"].asText()
+        val kakaoAccount = jsonNode["kakao_account"]
+        val email = kakaoAccount?.get("email")?.asText() ?: throw IllegalArgumentException("카카오 로그인에 실패하였습니다.")
 
-        return UserDto(sequence = seq, email = id, id = id)
+        return UserDto(email = email, id = id)
     }
 
-    private fun registerKakaoUserIfNeed(kakaoUserInfo: UserDto): User {
-        var user = userRepository.findByUserId(kakaoUserInfo.id).orElse(null)
-        if(user == null) {
-            kakaoUserInfo.password = UUID.randomUUID().toString()
-            user = userFactory.create(kakaoUserInfo)
-            userRepository.save(user)
-        }
-        return user
-    }
-
-    private fun forceLogin(kakaoUser: User): Authentication {
-        val userDetails: UserDetails = kakaoUser
-        val authentication: Authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
-        SecurityContextHolder.getContext().authentication = authentication
-        return authentication
-    }
 }

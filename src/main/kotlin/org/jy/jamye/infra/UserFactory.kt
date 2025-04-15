@@ -3,6 +3,7 @@ package org.jy.jamye.infra
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.common.exception.AlreadyRegisteredIdException
 import org.jy.jamye.common.exception.DuplicateEmailException
+import org.jy.jamye.domain.model.LoginType
 import org.jy.jamye.domain.model.Role
 import org.jy.jamye.domain.model.User
 import org.slf4j.Logger
@@ -28,5 +29,11 @@ class UserFactory(
         }
         val encode = passwordEncoder.encode(user.password)
         return User(userId = user.id, email = user.email, password = encode, role = Role.ROLE_USER)
+    }
+
+    private val kakaoLoginPassword = "[KAKAO]PASSWORD"
+    fun createKakao(user: UserDto): User {
+        val encode = passwordEncoder.encode(kakaoLoginPassword)
+        return User(userId = user.id, email = user.email, password = encode, role = Role.ROLE_USER, loginType = LoginType.KAKAO)
     }
 }

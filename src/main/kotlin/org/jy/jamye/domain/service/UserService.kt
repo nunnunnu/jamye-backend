@@ -6,11 +6,9 @@ import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.client.RedisClient
-import org.jy.jamye.common.exception.NonExistentUser
 import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
 import org.jy.jamye.domain.model.Notify
-import org.jy.jamye.domain.model.User
 import org.jy.jamye.infra.NotifyRepository
 import org.jy.jamye.infra.UserFactory
 import org.jy.jamye.infra.UserReader
@@ -20,7 +18,6 @@ import org.jy.jamye.ui.post.UserUpdateDto
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.messaging.simp.SimpMessagingTemplate
-import org.springframework.messaging.support.GenericMessage
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -61,7 +58,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun getUser(id: String): UserDto {
         val user = userReader.getUserByIdOrThrow(id)
-        return UserDto(sequence = user.sequence, id = user.userId, email = user.email, createDate = user.createDate, updateDate = user.updateDate)
+        return UserDto(sequence = user.sequence, id = user.userId, email = user.email, createDate = user.createDate, updateDate = user.updateDate, loginType = user.loginType)
     }
 
     @Transactional
@@ -214,6 +211,19 @@ class UserService(
     fun findDiscordConnectUser(userSeqs: Set<Long>): Set<String> {
         return userRepo
             .findBySequenceInAndDiscordChannelIdNotNull(userSeqs).map { it.discordChannelId!! }.toSet()
+    }
+
+    fun registerKakaoUserIfNeed(kakaoUserInfo: UserDto): UserLoginDto {
+        var user = userRepo.findByUserId(kakaoUserInfo.id).orElse(null)
+        if(user == null) {
+            user = userFactory.createKakao(kakaoUserInfo)
+            userRepo.save(user)
+        }
+        val token = tokenProvider.getAccessToken(user.userId, user.password)
+        return UserLoginDto(sequence = user.sequence!!,
+            id = user.userId,
+            email = user.email,
+            token = token)
     }
 
 }
