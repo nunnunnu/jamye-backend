@@ -1,5 +1,7 @@
 package org.jy.jamye.domain.service
 
+import org.jy.jamye.application.dto.PostDto
+import org.jy.jamye.domain.model.PostType
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -77,16 +79,29 @@ class DiscordService {
         return channelId
     }
 
+    @Value("\${front.url}")
+    private val frontUrl: String? = null
+
     fun sendDiscordDm(
         channelId: String,
-        message: String
+        message: String,
+        groupSeq: Long? = null,
+        postSeq: Long? = null,
+        postType: PostType? = null
     ) {
+        var msg = message
         val restTemplate = RestTemplate()
         val headers = HttpHeaders().apply {
             set("Authorization", "Bot $BOT_TOKEN")
             contentType = MediaType.APPLICATION_JSON
         }
-        val messageRequest = HttpEntity(mapOf("content" to message), headers)
+        if (groupSeq != null) {
+            msg += "\n[그룹 링크: $frontUrl/group$groupSeq]"
+            if (postSeq != null && postType != null) {
+                msg += "\n[잼얘 링크: $frontUrl/jamye/${postType.url}$postSeq]"
+            }
+        }
+        val messageRequest = HttpEntity(mapOf("content" to msg), headers)
         restTemplate.postForEntity(
             "https://discord.com/api/v9/channels/$channelId/messages",
             messageRequest,

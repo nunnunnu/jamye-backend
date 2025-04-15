@@ -34,3 +34,5 @@ image:
   url: https://d23eha8a4ssn72.cloudfront.net
 kakao:
   redirect: https://jamye.p-e.kr/oauth/kakao
+front:
+  url: https://jamye.p-e.kr

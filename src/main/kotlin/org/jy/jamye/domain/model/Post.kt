@@ -39,6 +39,6 @@ class Post(
     }
 }
 
-enum class PostType(val koName: String) {
-    MSG("Message"), BOR("Board");
+enum class PostType(val koName: String, val url: String) {
+    MSG("Message", "message"), BOR("Board", "board");
 }
