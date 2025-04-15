@@ -1,7 +1,9 @@
 package org.jy.jamye.domain.service
 
 import jakarta.persistence.EntityNotFoundException
+import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
+import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyJoinedGroupException
@@ -20,6 +22,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -34,7 +37,8 @@ class GroupService(
     private val publisher: ApplicationEventPublisher,
     private val groupUserRepository: GroupUserRepository,
     private val redisClient: RedisClient,
-    private val groupReader: GroupReader
+    private val groupReader: GroupReader,
+    private val messagingTemplate: SimpMessagingTemplate
 ) {
 
     var log: Logger = LoggerFactory.getLogger(GroupService::class.java)
@@ -49,6 +53,10 @@ class GroupService(
                 totalUsers = totalUserCount.getOrDefault(group.sequence, 0)
             )
         }
+    }
+
+    fun getAllMyGroupSeqs(userSeq: Long): Set<Long> {
+        return groupUserRepo.findAllByUserSequence(userSeq).map { it.groupSequence }.toSet()
     }
 
     @Transactional
@@ -137,6 +145,7 @@ class GroupService(
         return groupRepo.findById(groupSequence).orElseThrow { throw EntityNotFoundException() }
     }
 
+    @Transactional(readOnly = true)
     fun userIsMaster(userSequence: Long, groupSequence: Long): Boolean {
         return groupUserRepo.existsByUserSequenceAndGroupSequenceAndGrade(userSequence, groupSequence, Grade.MASTER)
     }
@@ -319,6 +328,18 @@ class GroupService(
     fun hasParticipatedInDeletionVote(groupSeq: Long, userSequence: Long): Boolean {
         val group = redisClient.getDeleteVoteMap()[groupSeq] ?: return false
         return group.agreeUserSeqs.contains(userSequence) || group.disagreeUserSeqs.contains(userSequence)
+    }
+
+    fun getDeleteVoteMapInMyGroup(userSeq: Long): Map<Long, DeleteVote> {
+        val allMyGroupSeqs = getAllMyGroupSeqs(userSeq)
+        val deleteVoteMap = redisClient.getDeleteVoteMap()
+        val filterMap = deleteVoteMap.filter { allMyGroupSeqs.contains(it.key) }
+        log.info("[그룹 삭제 투표]socket 알람 전송]")
+        messagingTemplate.convertAndSend(
+            "/alarm/group/delete/$userSeq",
+            filterMap
+        )
+        return filterMap
     }
 }
 

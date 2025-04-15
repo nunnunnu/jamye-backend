@@ -41,7 +41,7 @@ class GroupVoteEndJob(
             } else if(voteInfo.hasRevoted) {
                 message = "[2차 투표] ${group.name}의 삭제투표가 완료되었습니다. 과반수가 삭제 비동의(${deleteAgree.size}/${voteInfo.standardVoteCount}명)로 인해 그룹이 삭제되지 않았습니다. 삭제투표에 동의한 인원은 자동 그룹 탈퇴되었습니다."
                 log.info("[2차 투표] $groupSeq: ${deleteAgree.size}/${voteInfo.standardVoteCount}명 과반수 달성 불가")
-                groupService.deleteUsers(groupSeq, deleteAgree)
+//                groupService.deleteUsers(groupSeq, deleteAgree)
                 postService.deleteUserAllPostInGroup(deleteAgree, groupSeq)
             } else {
                 message = "[1차투표 종료] ${group.name}의 삭제투표가 완료되었습니다. 과반수가 삭제 비동의(${deleteAgree.size}/${voteInfo.standardVoteCount}명)로 인해 그룹이 삭제되지 않았습니다."

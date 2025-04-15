@@ -179,7 +179,7 @@ class UserService(
     }
     fun getNotifyNoReadCount(userSeq: Long): Long {
         val unreadCount = notifyRepository.countByUserSeqAndIsRead(userSeq, false)
-        println("메시지 전송 중: ${userSeq}에게 /queue/unread-count로 $unreadCount 전송")
+        log.info("메시지 전송 중: ${userSeq}에게 /queue/unread-count로 $unreadCount 전송")
         messagingTemplate.convertAndSend("/alarm/receive/$userSeq", unreadCount)
 
         return unreadCount

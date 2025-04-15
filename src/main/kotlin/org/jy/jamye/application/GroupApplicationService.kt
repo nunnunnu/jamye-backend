@@ -1,20 +1,20 @@
 package org.jy.jamye.application
 
 import jakarta.persistence.EntityNotFoundException
-import org.jy.jamye.application.dto.DeleteVote
-import org.jy.jamye.application.dto.GroupDto
-import org.jy.jamye.application.dto.PostDto
-import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.application.dto.*
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyDeleteVoting
 import org.jy.jamye.common.exception.GroupDeletionPermissionException
 import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.common.listener.NotifyInfo
 import org.jy.jamye.domain.service.*
+import org.jy.jamye.infra.GroupRepository
 import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
+import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime.now
 
@@ -28,8 +28,10 @@ class GroupApplicationService(
     private val groupVoteService: GroupVoteService,
     private val fileService: VisionService,
     private val publisher: ApplicationEventPublisher,
-    private val postService: PostService
+    private val postService: PostService,
+    private val groupRepository: GroupRepository,
 ) {
+    private val log = LoggerFactory.getLogger(GroupApplicationService::class.java)
     fun getGroupsInUser(id: String): List<GroupDto.UserInfo> {
         val user = userService.getUser(id)
         return groupService.getGroupInUser(user.sequence!!)
@@ -61,6 +63,7 @@ class GroupApplicationService(
         return groupService.inviteUser(user.sequence!!, data)
     }
 
+    @Transactional
     fun deleteGroupWithResult(id: String, groupSeq: Long): Boolean {
         val user = userService.getUser(id)
         if (!groupService.userIsMaster(user.sequence!!, groupSeq)) {
@@ -77,19 +80,20 @@ class GroupApplicationService(
         if (deleteVoteMap.containsKey(groupSeq)) {
             throw AlreadyDeleteVoting()
         } else {
-            val voteAbleNumber =
-                groupUserRepository.countByGroupSequenceAndCreateDateGreaterThan(groupSeq, now().minusDays(7))
+            val voteAbleUser =
+                groupUserRepository.findByGroupSequenceAndCreateDateGreaterThan(groupSeq, now().minusDays(7)).map { it.userSequence }
 
-            val endDateTime = now().plusMinutes(1)
+            val endDateTime = now().plusDays(7)
             val deleteVote = DeleteVote(
                 startDateTime = now().toString(),
                 endDateTime = endDateTime.toString(),
-                standardVoteCount = voteAbleNumber,
+                standardVoteCount = voteAbleUser.size,
                 agreeUserSeqs = mutableSetOf(user.sequence),
                 disagreeUserSeqs = mutableSetOf(),
                 hasRevoted = redisClient.reVoteCheckAndDeleteReVoteInfo("waitingReVote-${groupSeq}"),
             )
             deleteVoteMap[groupSeq] = deleteVote
+            voteAbleUser.forEach { groupService.getDeleteVoteMapInMyGroup(it) }
             try {
                 groupVoteService.scheduleVoteEndJob(groupSeq, endDateTime = endDateTime)
             } catch (e: Exception) {
@@ -194,4 +198,14 @@ class GroupApplicationService(
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
         return postService.postCountInGroup(groupSeq, user.sequence)
     }
+
+    fun getDeleteVoteInMyGroup(userId: String): Map<Long, DeleteVote> {
+        val user = userService.getUser(userId)
+        val filterMap = groupService.getDeleteVoteMapInMyGroup(user.sequence!!)
+        val groupSeqs = filterMap.keys
+        val groupNameMap = groupRepository.findAllById(groupSeqs).associate { it.sequence to it.name }
+        filterMap.entries.forEach { (groupSeq, voteInfo) -> voteInfo.groupName = groupNameMap[groupSeq] }
+        return filterMap
+    }
+
 }

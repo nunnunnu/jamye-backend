@@ -40,13 +40,14 @@ data class GroupDto(
 data class DeleteVote(
     var startDateTime: String,
     var endDateTime: String,
-    var standardVoteCount: Long,
+    var standardVoteCount: Int,
     var agreeUserSeqs: MutableSet<Long> = mutableSetOf(),
     var disagreeUserSeqs: MutableSet<Long> = mutableSetOf<Long>(),
     var hasRevoted: Boolean
 ): Serializable {
     var isWaitingDeleteReVoted: Boolean = false
     var isNowVoting: Boolean = true
+    var groupName: String? = null
     fun startDateAsLocalDateTime(): LocalDateTime {
         return LocalDateTime.parse(startDateTime)  // String을 LocalDateTime으로 변환
     }

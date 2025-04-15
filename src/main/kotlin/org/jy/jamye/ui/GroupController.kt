@@ -160,4 +160,9 @@ class GroupController(private val groupAppService: GroupApplicationService,
         return ResponseDto(data = allPostCountInGroup)
     }
 
+    @GetMapping("/all/delete-vote-info")
+    fun getAllDeleteVoteIngGroup(@AuthenticationPrincipal user: UserDetails): ResponseDto<Map<Long, DeleteVote>> {
+        val deleteVote = groupAppService.getDeleteVoteInMyGroup(user.username)
+        return ResponseDto(data = deleteVote)
+    }
 }
