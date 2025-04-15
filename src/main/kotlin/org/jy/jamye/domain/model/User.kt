@@ -66,6 +66,6 @@ class User(
 enum class Role {
     ROLE_USER
 }
-enum class LoginType {
-    NOMAL, KAKAO, GOOGLE
+enum class LoginType(val basicPassword: String?) {
+    NOMAL(null), KAKAO("[KAKAO]PASSWORD"), GOOGLE("[GOOGLE]PASSWORD")
 }

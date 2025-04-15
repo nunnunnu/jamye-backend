@@ -3,18 +3,18 @@ package org.jy.jamye.ui
 import jakarta.servlet.http.HttpServletResponse
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
-import org.jy.jamye.domain.service.KakaoAuthService
+import org.jy.jamye.domain.service.SocialAuthService
+import org.jy.jamye.security.TokenDto
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/oauth")
-class AuthController(private val kakaoAuthService: KakaoAuthService) {
+class AuthController(private val socialAuthService: SocialAuthService) {
     @Value("\${kakao.clientId}")
     private val kakaoClientId: String? = null
+    @Value("\${google.client-id}")
+    private val googleClientId: String? = null
 
     @GetMapping("/kakao/client-id")
     fun getKakaoClientId(): ResponseDto<String> {
@@ -22,7 +22,17 @@ class AuthController(private val kakaoAuthService: KakaoAuthService) {
     }
     @GetMapping("/kakao/callback")
     fun handleKakaoAccessToken(@RequestParam code: String, response: HttpServletResponse): ResponseDto<UserLoginDto> {
-        val kakaoLogin = kakaoAuthService.kakaoLogin(code = code, response = response)
+        val kakaoLogin = socialAuthService.kakaoLogin(code = code, response = response)
         return ResponseDto(data = kakaoLogin)
+    }
+    @PostMapping("/google")
+    fun googleLogin(@RequestBody request: TokenDto.GoogleToken): ResponseDto<UserLoginDto> {
+        val googleLogin = socialAuthService.googleLogin(request.token)
+        return ResponseDto(data = googleLogin)
+    }
+
+    @GetMapping("/google/client-id")
+    fun getGoogleClientId(): ResponseDto<String> {
+        return ResponseDto(data = googleClientId)
     }
 }

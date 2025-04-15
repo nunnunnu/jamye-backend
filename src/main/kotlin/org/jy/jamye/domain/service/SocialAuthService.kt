@@ -2,16 +2,16 @@ package org.jy.jamye.domain.service
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.gson.GsonFactory
 import jakarta.servlet.http.HttpServletResponse
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.client.RedisClient
-import org.jy.jamye.security.JwtTokenProvider
+import org.jy.jamye.domain.model.LoginType
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate
 import java.util.*
 
 @Service
-class KakaoAuthService(
+class SocialAuthService(
     private val redisClient: RedisClient,
     private val userService: UserService
 ){
@@ -32,7 +32,7 @@ class KakaoAuthService(
         val kakaoUserInfo = getKakaoUserInfo(accessToken)
 
         // 3. 카카오ID로 회원가입 처리
-        val userLogin = userService.registerKakaoUserIfNeed(kakaoUserInfo)
+        val userLogin = userService.registerUserIfNeed(kakaoUserInfo, LoginType.KAKAO)
         val token = userLogin.token
 
         redisClient.setValue(token.refreshToken, kakaoUserInfo.id)
@@ -101,4 +101,35 @@ class KakaoAuthService(
         return UserDto(email = email, id = id)
     }
 
+    @Value("\${google.client-id}")
+    private var googleClientId: String? = null
+
+    fun googleLogin(token: String): UserLoginDto {
+        val googleIdToken = GoogleIdTokenVerifier.Builder(
+            NetHttpTransport(), GsonFactory.getDefaultInstance()
+        )
+            .setAudience(listOf(googleClientId))
+            .build()
+            .verify(token)
+
+        if(googleIdToken == null) {
+            throw IllegalArgumentException("현재 구글로그인이 불가능합니다")
+        }
+
+            val payload = googleIdToken.payload
+            val id = payload["sub"] as String
+            val email = payload["email"] as String
+
+        val userLogin = userService.registerUserIfNeed(
+            UserDto(
+                id = id,
+                email = email
+            ), type = LoginType.GOOGLE
+        )
+        val tokenInfo = userLogin.token
+
+        redisClient.setValue(tokenInfo.refreshToken, id)
+
+        return userLogin
+    }
 }

@@ -31,9 +31,8 @@ class UserFactory(
         return User(userId = user.id, email = user.email, password = encode, role = Role.ROLE_USER)
     }
 
-    private val kakaoLoginPassword = "[KAKAO]PASSWORD"
-    fun createKakao(user: UserDto): User {
-        val encode = passwordEncoder.encode(kakaoLoginPassword)
-        return User(userId = user.id, email = user.email, password = encode, role = Role.ROLE_USER, loginType = LoginType.KAKAO)
+    fun createSocial(user: UserDto, type: LoginType): User {
+        val encode = passwordEncoder.encode(type.basicPassword)
+        return User(userId = user.id, email = user.email, password = encode, role = Role.ROLE_USER, loginType = type)
     }
 }

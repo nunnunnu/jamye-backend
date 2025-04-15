@@ -47,7 +47,8 @@ logging:
           jdbc:
             bind: trace
     root: info
-
+google:
+  client-id: ${GOOGLE_CLIENT_ID}
 
 cloud:
   aws:

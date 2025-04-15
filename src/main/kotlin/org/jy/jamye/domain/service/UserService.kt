@@ -8,6 +8,7 @@ import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
+import org.jy.jamye.domain.model.LoginType
 import org.jy.jamye.domain.model.Notify
 import org.jy.jamye.infra.NotifyRepository
 import org.jy.jamye.infra.UserFactory
@@ -214,10 +215,10 @@ class UserService(
             .findBySequenceInAndDiscordChannelIdNotNull(userSeqs).map { it.discordChannelId!! }.toSet()
     }
 
-    fun registerKakaoUserIfNeed(kakaoUserInfo: UserDto): UserLoginDto {
+    fun registerUserIfNeed(kakaoUserInfo: UserDto, type: LoginType): UserLoginDto {
         var user = userRepo.findByUserId(kakaoUserInfo.id).orElse(null)
         if(user == null) {
-            user = userFactory.createKakao(kakaoUserInfo)
+            user = userFactory.createSocial(kakaoUserInfo, type)
             userRepo.save(user)
         }
         val token = tokenProvider.getAccessToken(user.userId, user.password)
@@ -226,5 +227,4 @@ class UserService(
             email = user.email,
             token = token)
     }
-
 }
