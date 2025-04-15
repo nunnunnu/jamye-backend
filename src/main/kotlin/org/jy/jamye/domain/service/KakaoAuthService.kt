@@ -7,6 +7,7 @@ import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.security.JwtTokenProvider
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -19,8 +20,6 @@ import java.util.*
 
 @Service
 class KakaoAuthService(
-    private val jwtTokenProvider: JwtTokenProvider,
-    private val authBuilder: AuthenticationManagerBuilder,
     private val redisClient: RedisClient,
     private val userService: UserService
 ){
@@ -41,6 +40,8 @@ class KakaoAuthService(
         return userLogin
     }
 
+    @Value("\${kakao.redirect}")
+    private var kakaoRedirectUrl: String? = null
     @Throws(JsonProcessingException::class)
     private fun getAccessToken(code: String): String {
         // HTTP Header 생성
@@ -51,7 +52,7 @@ class KakaoAuthService(
         val body: MultiValueMap<String, String> = LinkedMultiValueMap()
         body.add("grant_type", "authorization_code")
         body.add("client_id", "25166c7ef56c4e3be1613096d91a88f6")
-        body.add("redirect_uri", "http://localhost:8081//oauth/kakao") //todo: 변경 필요
+        body.add("redirect_uri", kakaoRedirectUrl)
         body.add("code", code)
 
         // HTTP 요청 보내기

@@ -17,3 +17,5 @@ discord:
   redirect: http://localhost:8081/oauth/redirect
 image:
   url: http://jamye-image-local.s3-website.ap-northeast-2.amazonaws.com
+kakao:
+  redirect: http://localhost:8081/oauth/kakao
