@@ -49,6 +49,7 @@ data class DeleteVote(
     var isWaitingDeleteReVoted: Boolean = false
     var isNowVoting: Boolean = true
     var groupName: String? = null
+    var alreadyVoteCheck: Boolean? = null
     fun startDateAsLocalDateTime(): LocalDateTime {
         return LocalDateTime.parse(startDateTime)  // String을 LocalDateTime으로 변환
     }
@@ -56,6 +57,20 @@ data class DeleteVote(
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     fun endDateAsLocalDateTime(): LocalDateTime {
         return LocalDateTime.parse(endDateTime)  // String을 LocalDateTime으로 변환
+    }
+
+    fun alreadyVoteCheck(userSeq: Long): Boolean {
+        this.alreadyVoteCheck = (this.agreeUserSeqs.contains(userSeq) || this.disagreeUserSeqs.contains(userSeq))
+        return alreadyVoteCheck!!
+    }
+
+    fun addVote(type: VoteType, userSeq: Long) {
+        if(type == VoteType.AGREE) this.agreeUserSeqs.add(userSeq)
+        else this.disagreeUserSeqs.add(userSeq)
+    }
+
+    enum class VoteType() {
+        AGREE, DISAGREE
     }
 
     constructor() : this(

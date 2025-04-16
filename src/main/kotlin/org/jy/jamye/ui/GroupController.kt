@@ -88,7 +88,7 @@ class GroupController(private val groupAppService: GroupApplicationService,
     @PostMapping("/vote/{type}/{groupSeq}")
     fun groupDeleteVote(
         @AuthenticationPrincipal user: UserDetails,
-        @PathVariable("type") type: String,
+        @PathVariable("type") type: DeleteVote.VoteType,
         @PathVariable("groupSeq") groupSeq: Long,
     )
     : ResponseDto<Nothing> {

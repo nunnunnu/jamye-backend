@@ -107,18 +107,17 @@ class GroupApplicationService(
         return false
     }
 
-    fun deleteGroupVote(userId: String, type: String, groupSeq: Long) {
+    fun deleteGroupVote(userId: String, type: DeleteVote.VoteType, groupSeq: Long) {
         val user = userService.getUser(userId)
         val deleteVoteMap = redisClient.getDeleteVoteMap()
         val deleteVote = deleteVoteMap[groupSeq]
         deleteVote?.let {
             val userSeq = user.sequence!!
 
-            if(it.agreeUserSeqs.contains(userSeq) || it.disagreeUserSeqs.contains(userSeq)) {
+            if(it.alreadyVoteCheck(userSeq)) {
                 throw IllegalArgumentException("이미 투표에 참여하셨습니다.")
             }
-            if(type == "agree") it.agreeUserSeqs.add(userSeq)
-            else it.disagreeUserSeqs.add(userSeq)
+            it.addVote(type, userSeq)
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
     }
@@ -204,7 +203,12 @@ class GroupApplicationService(
         val filterMap = groupService.getDeleteVoteMapInMyGroup(user.sequence!!)
         val groupSeqs = filterMap.keys
         val groupNameMap = groupRepository.findAllById(groupSeqs).associate { it.sequence to it.name }
-        filterMap.entries.forEach { (groupSeq, voteInfo) -> voteInfo.groupName = groupNameMap[groupSeq] }
+        filterMap.entries.forEach { (groupSeq, voteInfo) ->
+                run {
+                voteInfo.alreadyVoteCheck(userSeq = user.sequence)
+                voteInfo.groupName = groupNameMap[groupSeq]
+            }
+        }
         return filterMap
     }
 
