@@ -38,7 +38,7 @@ data class GroupDto(
     }
 }
 
-data class DeleteVote(
+open class DeleteVote(
     var startDateTime: String,
     var endDateTime: String,
     var standardVoteCount: Int,
@@ -46,30 +46,20 @@ data class DeleteVote(
     var disagreeUserSeqs: MutableSet<Long> = mutableSetOf<Long>(),
     var hasRevoted: Boolean
 ): Serializable {
-    var isWaitingDeleteReVoted: Boolean = false
     var isNowVoting: Boolean = true
-    var groupName: String? = null
-    var alreadyVoteCheck: Boolean? = null
-    fun startDateAsLocalDateTime(): LocalDateTime {
-        return LocalDateTime.parse(startDateTime)  // String을 LocalDateTime으로 변환
-    }
-
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    fun endDateAsLocalDateTime(): LocalDateTime {
-        return LocalDateTime.parse(endDateTime)  // String을 LocalDateTime으로 변환
-    }
-
-    fun alreadyVoteCheck(userSeq: Long): Boolean {
-        this.alreadyVoteCheck = (this.agreeUserSeqs.contains(userSeq) || this.disagreeUserSeqs.contains(userSeq))
-        return alreadyVoteCheck!!
-    }
-
     fun addVote(type: VoteType, userSeq: Long) {
         if(type == VoteType.AGREE) this.agreeUserSeqs.add(userSeq)
         else this.disagreeUserSeqs.add(userSeq)
     }
+    fun alreadyVoteCheck(userSeq: Long): Boolean {
+        return (this.agreeUserSeqs.contains(userSeq) || this.disagreeUserSeqs.contains(userSeq))
+    }
 
-    enum class VoteType() {
+    fun endDateAsLocalDateTime(): LocalDateTime {
+        return LocalDateTime.parse(endDateTime)  // String을 LocalDateTime으로 변환
+    }
+
+    enum class VoteType {
         AGREE, DISAGREE
     }
 
@@ -84,8 +74,16 @@ data class DeleteVote(
         this.isNowVoting = false
     }
 
-    data class VoteDto (
-            val isNowVoting: Boolean,
-            val hasUserInDeletionVote: Boolean
-        )
+    class Detail(
+        val deleteVote: DeleteVote,
+        val userSeq: Long,
+        var hasUserInDeletionVote: Boolean? = null,
+        var isWaitingDeleteReVoted: Boolean? = null,
+        val alreadyVoteCheck: Boolean = deleteVote.alreadyVoteCheck(userSeq),
+        val groupName: String? = null,
+        val groupSeq: Long? = null,
+        val endDateAsLocalDateTime: LocalDateTime? = deleteVote.endDateAsLocalDateTime()
+    ): DeleteVote() {
+
+    }
 }

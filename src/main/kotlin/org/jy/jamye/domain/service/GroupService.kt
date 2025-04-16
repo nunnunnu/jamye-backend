@@ -317,12 +317,8 @@ class GroupService(
         return totalUser
     }
 
-    fun isDeletionVoteInProgress(groupSeq: Long): Boolean {
-        val group = redisClient.getDeleteVoteMap()[groupSeq]
-        if (group != null) {
-            return group.isNowVoting
-        }
-        return false
+    fun isDeletionVoteInProgress(groupSeq: Long): DeleteVote {
+        return redisClient.getDeleteVoteMap()[groupSeq]?: throw IllegalArgumentException()
     }
 
     fun hasParticipatedInDeletionVote(groupSeq: Long, userSequence: Long): Boolean {

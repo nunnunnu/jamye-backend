@@ -1,6 +1,7 @@
 package org.jy.jamye.application
 
 import jakarta.persistence.EntityNotFoundException
+import org.hibernate.sql.Delete
 import org.jy.jamye.application.dto.*
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyDeleteVoting
@@ -120,6 +121,7 @@ class GroupApplicationService(
             it.addVote(type, userSeq)
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
+        groupService.getDeleteVoteMapInMyGroup(userSeq = user.sequence!!)
     }
 
     fun getInviteGroup(userId: String, inviteCode: String): GroupDto {
@@ -164,14 +166,15 @@ class GroupApplicationService(
 
     }
 
-    fun isGroupDeletionVoteInProgress(groupSeq: Long, userId: String): DeleteVote {
+    fun isGroupDeletionVoteInProgress(groupSeq: Long, userId: String): DeleteVote.Detail {
         val user = userService.getUser(userId)
         groupService.userInGroupCheckOrThrow(groupSeq = groupSeq, userSeq = user.sequence!!)
 
         val deleteVoteMap = redisClient.getDeleteVoteMap()
         val deleteVoteInfo = deleteVoteMap.getOrDefault(groupSeq, DeleteVote())
-        deleteVoteInfo.isWaitingDeleteReVoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
-        return deleteVoteInfo
+        val detail = DeleteVote.Detail(deleteVoteInfo, user.sequence)
+        detail.isWaitingDeleteReVoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
+        return detail
     }
 
     fun updateGroupInfo(userId: String, groupSeq: Long, data: GroupPostDto.Update, imageUri: String?): GroupDto {
@@ -180,15 +183,19 @@ class GroupApplicationService(
         return groupService.updateGroupInfo(groupSeq, data, imageUri)
     }
 
-    fun isDeletionVoteInProgress(groupSeq: Long, userId: String): DeleteVote.VoteDto {
+    fun isDeletionVoteInProgress(groupSeq: Long, userId: String): DeleteVote.Detail {
         val user = userService.getUser(userId)
-        val voteDto = DeleteVote.VoteDto(
-            isNowVoting = groupService.isDeletionVoteInProgress(groupSeq),
-            hasUserInDeletionVote = groupService.hasParticipatedInDeletionVote(
-                groupSeq = groupSeq,
-                userSequence = user.sequence!!
+        val deleteVote = groupService.isDeletionVoteInProgress(groupSeq)
+        val voteDto = deleteVote.let {
+            DeleteVote.Detail(
+                deleteVote = it,
+                userSeq = user.sequence!!,
+                hasUserInDeletionVote = groupService.hasParticipatedInDeletionVote(
+                    groupSeq = groupSeq,
+                    userSequence = user.sequence
+                )
             )
-        )
+        }
         return voteDto
     }
 
@@ -198,18 +205,22 @@ class GroupApplicationService(
         return postService.postCountInGroup(groupSeq, user.sequence)
     }
 
-    fun getDeleteVoteInMyGroup(userId: String): Map<Long, DeleteVote> {
+    fun getDeleteVoteInMyGroup(userId: String): Map<Long, DeleteVote.Detail> {
         val user = userService.getUser(userId)
         val filterMap = groupService.getDeleteVoteMapInMyGroup(user.sequence!!)
         val groupSeqs = filterMap.keys
         val groupNameMap = groupRepository.findAllById(groupSeqs).associate { it.sequence to it.name }
+        val result = mutableMapOf<Long, DeleteVote.Detail>()
         filterMap.entries.forEach { (groupSeq, voteInfo) ->
-                run {
-                voteInfo.alreadyVoteCheck(userSeq = user.sequence)
-                voteInfo.groupName = groupNameMap[groupSeq]
-            }
+            result[groupSeq] = DeleteVote.Detail(
+                groupSeq = groupSeq,
+                deleteVote = voteInfo,
+                userSeq = user.sequence,
+                alreadyVoteCheck = voteInfo.alreadyVoteCheck(userSeq = user.sequence),
+                groupName = groupNameMap[groupSeq]
+            )
         }
-        return filterMap
+        return result
     }
 
 }
