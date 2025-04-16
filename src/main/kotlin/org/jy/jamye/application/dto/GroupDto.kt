@@ -38,7 +38,7 @@ data class GroupDto(
     }
 }
 
-open class DeleteVote(
+data class DeleteVote(
     var startDateTime: String,
     var endDateTime: String,
     var standardVoteCount: Int,
@@ -74,7 +74,7 @@ open class DeleteVote(
         this.isNowVoting = false
     }
 
-    class Detail(
+    data class Detail(
         val deleteVote: DeleteVote,
         val userSeq: Long,
         var hasUserInDeletionVote: Boolean? = null,
@@ -82,8 +82,8 @@ open class DeleteVote(
         val alreadyVoteCheck: Boolean = deleteVote.alreadyVoteCheck(userSeq),
         val groupName: String? = null,
         val groupSeq: Long? = null,
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         val endDateAsLocalDateTime: LocalDateTime? = deleteVote.endDateAsLocalDateTime()
-    ): DeleteVote() {
-
+    ) {
     }
 }
