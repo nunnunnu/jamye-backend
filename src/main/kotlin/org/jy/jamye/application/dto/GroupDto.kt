@@ -1,5 +1,6 @@
 package org.jy.jamye.application.dto
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.io.Serializable
 import java.time.LocalDateTime
 
@@ -52,6 +53,7 @@ data class DeleteVote(
         return LocalDateTime.parse(startDateTime)  // String을 LocalDateTime으로 변환
     }
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     fun endDateAsLocalDateTime(): LocalDateTime {
         return LocalDateTime.parse(endDateTime)  // String을 LocalDateTime으로 변환
     }
