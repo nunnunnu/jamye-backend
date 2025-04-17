@@ -1,5 +1,6 @@
 package org.jy.jamye.ui
 
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.jy.jamye.application.UserApplicationService
 import org.jy.jamye.application.dto.NotifyDto
@@ -113,6 +114,15 @@ class UserController(
     @DeleteMapping("/notify/delete/{notifySeq}")
     fun notifyDelete(@AuthenticationPrincipal user: UserDetails, @PathVariable notifySeq: Long) : ResponseDto<Nothing> {
         userAppService.deleteNotify(user.username, notifySeq)
+        return ResponseDto()
+    }
+
+    @PostMapping("/logout")
+    fun logout(@AuthenticationPrincipal user: UserDetails, request: HttpServletRequest) : ResponseDto<Nothing> {
+        val authHeader = request.getHeader("Authorization")
+        val accessToken = authHeader.substringAfter("Bearer ")
+        val refreshToken = request.getHeader("refreshToken")
+        userAppService.logout(user.username, accessToken, refreshToken!!)
         return ResponseDto()
     }
 }

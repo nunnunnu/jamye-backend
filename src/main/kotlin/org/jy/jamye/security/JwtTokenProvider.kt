@@ -1,9 +1,9 @@
 package org.jy.jamye.security
 
 import io.jsonwebtoken.*
-import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.io.Decoders.BASE64
 import io.jsonwebtoken.security.Keys
+import org.jy.jamye.common.client.RedisClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -22,7 +22,8 @@ import java.util.stream.Collectors
 @Component
 class JwtTokenProvider(
     @Value("\${jwt.secretKey}") secretKey: String,
-    private val authBuilder: AuthenticationManagerBuilder
+    private val authBuilder: AuthenticationManagerBuilder,
+    private val redisClient: RedisClient
 ) {
     val log: Logger = LoggerFactory.getLogger(JwtTokenProvider::class.java)
     private val tokenExpireMinutes = 60 //엑세스 토근 만료시간
@@ -67,6 +68,9 @@ class JwtTokenProvider(
     fun validateToken(token: String): Boolean { //토큰이 유효한지 검사
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
+            if (redisClient.getValue("BLACKLIST$token") != null) {
+                return false
+            }
             return true
         } catch (e: SecurityException) {
             log.warn("Invalid JWT Token$e") //등록안됨

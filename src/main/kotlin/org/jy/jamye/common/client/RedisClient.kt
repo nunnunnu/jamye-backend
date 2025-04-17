@@ -92,4 +92,16 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
     fun setIdByRefreshToken(refreshToken: String, userId: String) {
         setValue(refreshToken, userId)
     }
+
+    fun setBlackList(accessToken: String) {
+        setValue("BLACKLIST${accessToken}", accessToken)
+
+    }
+
+    fun deleteRefreshToken(refreshToken: String, userId: String) {
+        val refreshId = getValue(refreshToken)
+        if(refreshId != null && refreshId == userId) {
+            redisTemplate.delete(refreshToken)
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package org.jy.jamye.application
 
 import org.jy.jamye.application.dto.NotifyDto
+import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.domain.service.GroupService
 import org.jy.jamye.domain.service.UserService
 import org.jy.jamye.infra.UserRepository
@@ -12,6 +13,7 @@ class UserApplicationService(
     private val userService: UserService,
     private val groupService: GroupService,
     private val userRepository: UserRepository,
+    private val redisClient: RedisClient,
 ) {
     @Transactional
     fun deleteUser(username: String, password: String) {
@@ -53,5 +55,10 @@ class UserApplicationService(
     fun deleteNotify(userId: String, notifySeq: Long) {
         val user = userService.getUser(userId)
         userService.deleteNotify(user.sequence!!, notifySeq)
+    }
+
+    fun logout(userId: String, accessToken: String, refreshToken: String) {
+        redisClient.setBlackList(accessToken)
+        redisClient.deleteRefreshToken(refreshToken, userId)
     }
 }
