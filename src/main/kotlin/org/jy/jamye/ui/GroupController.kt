@@ -49,6 +49,12 @@ class GroupController(private val groupAppService: GroupApplicationService,
         return ResponseDto(data = result)
     }
 
+    @GetMapping("/name/{groupSeq}")
+    fun getGroupName(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails): ResponseDto<GroupDto> {
+        val result = groupAppService.getGroupSimple(user.username, groupSeq)
+        return ResponseDto(data = result)
+    }
+
     @GetMapping("/invite/{groupSeq}")
     fun inviteGroupCode(@AuthenticationPrincipal user: UserDetails, @PathVariable groupSeq: Long): ResponseDto<String> {
         val groupInviteCode: String = groupAppService.inviteGroupCode(user.username, groupSeq)
@@ -84,7 +90,7 @@ class GroupController(private val groupAppService: GroupApplicationService,
         groupService.nickNameDuplicateCheck(groupSeq, nickName = nickName)
         return ResponseDto()
     }
-    
+
     @PostMapping("/vote/{type}/{groupSeq}")
     fun groupDeleteVote(
         @AuthenticationPrincipal user: UserDetails,

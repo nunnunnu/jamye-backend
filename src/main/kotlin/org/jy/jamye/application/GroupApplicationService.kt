@@ -48,6 +48,12 @@ class GroupApplicationService(
         return groupService.getGroup(user.sequence!!, groupSeq)
     }
 
+    fun getGroupSimple(userId: String, groupSeq: Long): GroupDto {
+        val user = userService.getUser(userId)
+        groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSeq)
+        return groupService.getGroupSimpleInfo(groupSeq)
+    }
+
     fun inviteGroupCode(userId: String, groupSeq: Long) : String{
         val user = userService.getUser(userId)
         val groupInviteCode = groupService.inviteCodePublish(user.sequence!!, groupSeq)

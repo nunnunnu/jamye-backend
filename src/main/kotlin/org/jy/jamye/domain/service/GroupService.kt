@@ -3,7 +3,6 @@ package org.jy.jamye.domain.service
 import jakarta.persistence.EntityNotFoundException
 import org.jy.jamye.application.dto.DeleteVote
 import org.jy.jamye.application.dto.GroupDto
-import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyJoinedGroupException
@@ -38,7 +37,8 @@ class GroupService(
     private val groupUserRepository: GroupUserRepository,
     private val redisClient: RedisClient,
     private val groupReader: GroupReader,
-    private val messagingTemplate: SimpMessagingTemplate
+    private val messagingTemplate: SimpMessagingTemplate,
+    private val groupRepository: GroupRepository
 ) {
 
     var log: Logger = LoggerFactory.getLogger(GroupService::class.java)
@@ -286,10 +286,11 @@ class GroupService(
     }
 
     @Transactional
-    @CacheEvict(value = ["groupCache"])
+    @CacheEvict(value = ["groupCache"], key = "#groupSeq")
     fun updateGroupInfo(groupSeq: Long, data: GroupPostDto.Update, imageUri: String?): GroupDto {
         val group = groupReader.findByIdOrThrow(groupSeq)
         group.updateInfo(data.name, imageUri, data.description)
+        groupRepository.save(group)
         return GroupDto(
             name = group.name,
             imageUrl = group.imageUrl,
