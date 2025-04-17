@@ -3,6 +3,7 @@ package org.jy.jamye.application.dto
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.io.Serializable
 import java.time.LocalDateTime
+import kotlin.math.ceil
 
 data class GroupDto(
     var name: String,
@@ -59,6 +60,10 @@ data class DeleteVote(
         return LocalDateTime.parse(endDateTime)  // String을 LocalDateTime으로 변환
     }
 
+    fun resultCheck(): Boolean {
+        return this.agreeUserSeqs.size >= (ceil(this.standardVoteCount.toDouble()/2))
+    }
+
     enum class VoteType {
         AGREE, DISAGREE
     }
@@ -75,15 +80,15 @@ data class DeleteVote(
     }
 
     data class Detail(
-        val deleteVote: DeleteVote,
+        val deleteVote: DeleteVote? = null,
         val userSeq: Long,
         var hasUserInDeletionVote: Boolean? = null,
         var isWaitingDeleteReVoted: Boolean? = null,
-        val alreadyVoteCheck: Boolean = deleteVote.alreadyVoteCheck(userSeq),
+        val alreadyVoteCheck: Boolean = deleteVote?.alreadyVoteCheck(userSeq) ?: false,
         val groupName: String? = null,
         val groupSeq: Long? = null,
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-        val endDateAsLocalDateTime: LocalDateTime? = deleteVote.endDateAsLocalDateTime()
+        val endDateAsLocalDateTime: LocalDateTime? = deleteVote?.endDateAsLocalDateTime()
     ) {
     }
 }

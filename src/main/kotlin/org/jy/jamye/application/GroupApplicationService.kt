@@ -105,23 +105,36 @@ class GroupApplicationService(
         val group = groupService.getGroupSimpleInfo(groupSeq)
         val event = NotifyInfo(message = group.name + "그룹의 그룹 삭제 투표가 실시되었습니다. 과반수 동의 시 자동 삭제됩니다.", groupSeq = groupSeq, userSeqs = totalUser)
         publisher.publishEvent(event)
+        val userSeqsInGroup = groupService.getUserSeqsInGroup(groupSeq)
+        userSeqsInGroup.forEach { groupService.getDeleteVoteMapInMyGroup(it) }
+        deleteVoteMap.remove(groupSeq)
         return false
     }
 
     fun deleteGroupVote(userId: String, type: DeleteVote.VoteType, groupSeq: Long) {
         val user = userService.getUser(userId)
         val deleteVoteMap = redisClient.getDeleteVoteMap()
-        val deleteVote = deleteVoteMap[groupSeq]
-        deleteVote?.let {
-            val userSeq = user.sequence!!
+        val deleteVote = deleteVoteMap[groupSeq] ?: throw IllegalArgumentException("그룹 삭제투표 진행중인 그룹이 아닙니다.")
+        val userSeq = user.sequence!!
 
-            if(it.alreadyVoteCheck(userSeq)) {
-                throw IllegalArgumentException("이미 투표에 참여하셨습니다.")
-            }
-            it.addVote(type, userSeq)
+        if(deleteVote.alreadyVoteCheck(userSeq)) {
+            throw IllegalArgumentException("이미 투표에 참여하셨습니다.")
+        }
+        deleteVote.addVote(type, userSeq)
+
+        if (deleteVote.resultCheck()) {
+            val group = groupService.getGroupSimpleInfo(groupSeq)
+            val userSeqsInGroup = groupService.getUserSeqsInGroup(groupSeq)
+            val message = "${group.name}의 삭제 투표가 완료되었습니다. 과반수 삭제 동의(${deleteVote.agreeUserSeqs.size}/${deleteVote.standardVoteCount}명)로 인해 그룹이 자동 삭제되었습니다."
+            log.info("$groupSeq: 과반수 삭제 동의 ${deleteVote.agreeUserSeqs.size}/${deleteVote.standardVoteCount}명")
+            groupService.deleteGroup(groupSeq)
+            val event = NotifyInfo(groupSeq = groupSeq, userSeqs = userSeqsInGroup, message = message)
+            publisher.publishEvent(event)
+            userSeqsInGroup.forEach { groupService.getDeleteVoteMapInMyGroup(it) }
+            deleteVoteMap.remove(groupSeq)
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
-        groupService.getDeleteVoteMapInMyGroup(userSeq = user.sequence!!)
+        groupService.getDeleteVoteMapInMyGroup(userSeq = user.sequence)
     }
 
     fun getInviteGroup(userId: String, inviteCode: String): GroupDto {
@@ -171,7 +184,7 @@ class GroupApplicationService(
         groupService.userInGroupCheckOrThrow(groupSeq = groupSeq, userSeq = user.sequence!!)
 
         val deleteVoteMap = redisClient.getDeleteVoteMap()
-        val deleteVoteInfo = deleteVoteMap.getOrDefault(groupSeq, DeleteVote())
+        val deleteVoteInfo = deleteVoteMap[groupSeq]
         val detail = DeleteVote.Detail(deleteVoteInfo, user.sequence)
         detail.isWaitingDeleteReVoted = redisClient.reVoteCheck("waitingReVote-${groupSeq}")
         return detail
