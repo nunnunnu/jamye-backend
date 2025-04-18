@@ -25,7 +25,7 @@ class TestController {
     @GetMapping
     fun test(): String {
         log.info("test log")
-        return "build test4"
+        return "build test2"
     }
 
 }
