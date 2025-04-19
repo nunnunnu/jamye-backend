@@ -6,7 +6,10 @@ import jakarta.transaction.Transactional
 import org.jy.jamye.domain.user.model.User
 import org.jy.jamye.infra.*
 import org.jy.jamye.infra.group.GroupFactory
+import org.jy.jamye.infra.group.GroupRepository
+import org.jy.jamye.infra.user.GroupUserRepository
 import org.jy.jamye.infra.user.UserFactory
+import org.jy.jamye.infra.user.UserRepository
 import org.jy.jamye.security.JwtTokenProvider
 import org.jy.jamye.ui.user.UserController
 import org.springframework.beans.factory.annotation.Autowired

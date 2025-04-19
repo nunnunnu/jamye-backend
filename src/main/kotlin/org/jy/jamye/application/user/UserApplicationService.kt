@@ -48,8 +48,6 @@ class UserApplicationService(
     fun deleteReadNotify(userId: String) {
         val user = userService.getUser(userId)
         userService.deleteNotify(user.sequence!!)
-
-
     }
 
     fun deleteNotify(userId: String, notifySeq: Long) {

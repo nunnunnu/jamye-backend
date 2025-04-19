@@ -30,7 +30,8 @@ class PostController(
     private val postService: PostService,
     private val visionService: VisionService,
 ) {
-    var log: Logger = LoggerFactory.getLogger(PostController::class.java.name)
+    val log: Logger = LoggerFactory.getLogger(PostController::class.java.name)
+
     @Value("\${image.url}")
     var imageUrl: String? = null
 

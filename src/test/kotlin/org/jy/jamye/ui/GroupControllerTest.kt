@@ -3,11 +3,11 @@ package org.jy.jamye.ui
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.domain.group.model.Group
 import org.jy.jamye.domain.user.model.User
-import org.jy.jamye.infra.GroupUserRepository
 import org.jy.jamye.infra.group.GroupFactory
-import org.jy.jamye.infra.GroupRepository
 import org.jy.jamye.infra.user.UserFactory
-import org.jy.jamye.infra.UserRepository
+import org.jy.jamye.infra.group.GroupRepository
+import org.jy.jamye.infra.user.GroupUserRepository
+import org.jy.jamye.infra.user.UserRepository
 import org.jy.jamye.ui.group.GroupController
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

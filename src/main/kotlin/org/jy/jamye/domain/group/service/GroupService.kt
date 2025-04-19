@@ -41,7 +41,7 @@ class GroupService(
     private val groupRepository: GroupRepository
 ) {
 
-    var log: Logger = LoggerFactory.getLogger(GroupService::class.java)
+    val log: Logger = LoggerFactory.getLogger(GroupService::class.java)
     @Transactional(readOnly = true)
     fun getGroupInUser(userSequence: Long): List<GroupDto.UserInfo> {
         val groupConnection = groupUserRepo.findAllByUserSequence(userSequence)
@@ -192,24 +192,33 @@ class GroupService(
     }
 
     fun autoTransferMasterPrivileges(userSeq: Long, deleteAgree: Set<Long> = setOf(), groupSeqs: MutableSet<Long> = mutableSetOf()) {
+        log.info("[마스터 권한 자동 양도] - start")
         val masterInfo = mutableListOf<GroupUser>()
         if(groupSeqs.isEmpty()) {
+            log.info("[마스터 권한 자동 양도] - 1. 모든 그룹의 권한 양도")
             masterInfo.addAll(groupUserRepo.findAllByUserSequenceAndGrade(userSeq, Grade.MASTER))
             groupSeqs.addAll(masterInfo.map { it.groupSequence })
         } else {
+            log.info("[마스터 권한 자동 양도] - 1. 특정 그룹의 권한 양도")
             masterInfo.addAll(groupUserRepo.findAllByUserSequenceAndGradeAndGroupSequenceIn(userSeq, Grade.MASTER, groupSeqs))
         }
 
-        if (masterInfo.isEmpty()) { //해당 유저가 운영자인 그룹이 없음
+        if (masterInfo.isEmpty()) {
+            log.info("[마스터 권한 자동 양도] end - 해당 유저가 운영자인 그룹이 없음")
             return
         }
+        log.info("[마스터 권한 자동 양도] 2. 유저 - 그룹 연결 삭제")
         groupUserRepo.deleteAllById(masterInfo.map { it.groupUserSequence })
 
+        log.info("[마스터 권한 자동 양도] 3. 그룹 별 마스터 제외 가장 오래된 회원 조회")
         val groupOldestUser = groupUserRepo.findByGroupOldestUser(groupSeqs, deleteAgree)
         if (groupOldestUser.isNotEmpty()) {
+            log.info("[마스터 권한 자동 양도] 4. 각 회원에게 마스터 권한 자동 양도")
             groupUserRepo.assignMasterToOldestUser(groupOldestUser.map { it.groupUserSequence!! })
+            log.info("[마스터 권한 자동 양도] 4. 각 회원에게 마스터 권한 자동 양도 - jpa flush")
             groupUserRepo.flush()
         }
+        log.info("[마스터 권한 자동 양도] - start")
     }
 
     fun deleteGroup(groupSeq: Long) {

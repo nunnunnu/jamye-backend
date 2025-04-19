@@ -97,12 +97,14 @@ class JwtTokenProvider(
     }
 
     fun getAccessToken(id: String, password: String): TokenDto {
+        log.info("[엑세스 토큰 조회] - start")
         val authenticationToken =
             UsernamePasswordAuthenticationToken(id, password)
 
         val authentication: Authentication =
             authBuilder.getObject().authenticate(authenticationToken)
 
+        log.info("[엑세스 토큰 조회] - end")
         return generateToken(authentication)
     }
 

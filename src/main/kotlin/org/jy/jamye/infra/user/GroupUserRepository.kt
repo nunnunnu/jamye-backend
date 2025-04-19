@@ -5,6 +5,7 @@ import org.jy.jamye.domain.user.model.Grade
 import org.jy.jamye.domain.user.model.GroupUser
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Meta
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.transaction.annotation.Transactional
@@ -34,6 +35,7 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
             SET gu.grade = 'MASTER'
             WHERE gu.groupUserSequence IN (:groupUserSeqs) 
     """)
+    @Meta(comment = "마스터 권한 자동 양도")
     fun assignMasterToOldestUser(groupUserSeqs: List<Long>)
     fun findByUserSequence(sequence: Long): GroupUser
 

@@ -16,6 +16,7 @@ import org.jy.jamye.infra.user.NotifyRepository
 import org.jy.jamye.infra.user.UserRepository
 import org.jy.jamye.security.TokenDto
 import org.jy.jamye.ui.user.UserUpdateDto
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.messaging.simp.SimpMessagingTemplate
@@ -36,19 +37,26 @@ class UserService(
     private val messagingTemplate: SimpMessagingTemplate,
     private val userReader: UserReader
 ) {
-    val log = LoggerFactory.getLogger(UserService::class.java)
+    val log: Logger = LoggerFactory.getLogger(UserService::class.java)
+
     @Transactional
     fun createUser(data: UserDto): Long {
+        log.info("[createUser] user entity 생성")
         val user = userFactory.create(data)
+        log.info("[createUser] user entity 저장")
         userRepo.save(user)
         return user.sequence!!
     }
 
     @Transactional(readOnly = true)
     fun login(id: String, password: String): UserLoginDto {
-        val user = userRepo.findByUserId(id).orElseThrow { throw BadCredentialsException("로그인 정보를 다시 확인해주세요") }
+        val user = userRepo.findByUserId(id).orElseThrow {
+            log.info("[login] 로그인 정보 조회 실패")
+            throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
+        }
+        log.info("[login] 로그인 정보 조회 성공")
         if (!passwordEncoder.matches(password, user.password)) {
-            log.debug("[login] 로그인 실패 = {}", id)
+            log.info("[login] 로그인 실패 - 비밀번호 오류")
             throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
         }
         val token = tokenProvider.getAccessToken(user.userId, user.password)
@@ -58,6 +66,7 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun getUser(id: String): UserDto {
+        log.info("[유저 정보 조회]")
         val user = userReader.getUserByIdOrThrow(id)
         return UserDto(sequence = user.sequence, id = user.userId, email = user.email, createDate = user.createDate, updateDate = user.updateDate, loginType = user.loginType)
     }
@@ -67,9 +76,11 @@ class UserService(
     fun updateUser(id: String, data: UserUpdateDto): UserDto {
         val user = userReader.getUserByIdOrThrow(id)
         if (!passwordEncoder.matches(data.oldPassword, user.password)) {
+            log.info("[유저 정보 수정] 실패 - 비밀번호 오류")
             throw BadCredentialsException("비밀번호를 다시 확인해주세요.")
         }
-        val encodePassword = if (StringUtils.hasText(data.newPassword)) passwordEncoder.encode(data.newPassword) else null
+        val encodePassword =
+            if (StringUtils.hasText(data.newPassword)) passwordEncoder.encode(data.newPassword) else null
 
         user.updateUserInfo(data.email, encodePassword)
         return UserDto(sequence = user.sequence, id = user.userId, email = user.email, updateDate = user.updateDate, createDate = user.createDate)
@@ -80,8 +91,10 @@ class UserService(
     fun deleteUser(id: String, password: String): Long {
         val user = userReader.getUserByIdOrThrow(id)
         if (!passwordEncoder.matches(password, user.password)) {
+            log.info("[유저 탈퇴] 실패 - 비밀번호 오류")
             throw PasswordErrorException()
         }
+        log.info("[유저 탈퇴] 유저 정보 삭제")
         userRepo.deleteById(user.sequence!!)
         return user.sequence!!
     }
@@ -107,8 +120,12 @@ class UserService(
     }
 
     fun passwordCheck(id: String, password: String) {
-        val user = userRepo.findByUserId(id).orElseThrow { throw BadCredentialsException("로그인 정보를 다시 확인해주세요") }
+        val user = userRepo.findByUserId(id).orElseThrow {
+            log.info("[비밀번호 검증] 아이디 오류")
+            throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
+        }
         if (!passwordEncoder.matches(password, user.password)) {
+            log.info("[비밀번호 검증] 비밀번호 오류 오류")
             throw PasswordErrorException("비밀번호가 잘못되었습니다.")
         }
     }
@@ -117,12 +134,12 @@ class UserService(
     fun getAccessToken(refreshToken: String): TokenDto {
         val userId = redisClient.getIdByRefreshToken(refreshToken)
         if (tokenProvider.isRefreshTokenExpired(refreshToken)) {
-            log.info("[getAccessToken] 만료된 refresh 토큰 = {}", refreshToken)
+            log.info("[access token 재발급] 만료된 refresh 토큰 = {}", refreshToken)
             throw IllegalArgumentException("만료된 토큰")
         }
         val user = userRepo.findByUserId(userId)
             .orElseThrow {
-                log.info("[getAccessToken] refresh 토큰의 유저 정보가 존재하지않음 = {}", userId)
+                log.info("[access token 재발급] refresh 토큰의 유저 정보가 존재하지않음 = {}", userId)
                 throw IllegalArgumentException("refresh 토큰의 유저 정보가 존재하지않습니다.")
             }
 
@@ -143,9 +160,13 @@ class UserService(
 
     @Transactional
     fun viewNotify(notifySeq: Long): NotifyDto {
-        val notify = notifyRepository.findById(notifySeq).orElseThrow { EntityNotFoundException() }
+        val notify = notifyRepository.findById(notifySeq).orElseThrow {
+            log.info("[알람함 읽음 처리] 실패 - 번호 없음")
+            throw EntityNotFoundException()
+        }
         notify.read()
         notifyRepository.save(notify)
+        log.info("[알람함 읽음 처리] 읽음 정보 update")
         return NotifyDto(
             groupSeq = notify.groupSeq,
             postSeq = notify.postSeq,
@@ -159,6 +180,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun getNotifyList(userSeq: Long): List<NotifyDto> {
         val notifyList = notifyRepository.findAllByUserSeq(userSeq)
+        log.info("[알람함 조회] 모든 알람 조회 ${notifyList.size}")
         val result = notifyList.map {
             NotifyDto(
                 groupSeq = it.groupSeq,
@@ -170,6 +192,7 @@ class UserService(
                 userSeq = it.userSeq
             )
         }
+        log.info("[알람함 조회] 생성일자 descending 정렬")
         return result.sortedByDescending { it.createDate }
     }
 
@@ -178,10 +201,11 @@ class UserService(
         log.info("[notifyDeleteJob] 알람함 삭제 진행 ${count}개")
     }
     fun getNotifyNoReadCount(userSeq: Long): Long {
+        log.info("[안읽은 알람 갯수 socket 채널 전송] start")
         val unreadCount = notifyRepository.countByUserSeqAndIsRead(userSeq, false)
         log.info("메시지 전송 중: ${userSeq}에게 /queue/unread-count로 $unreadCount 전송")
         messagingTemplate.convertAndSend("/alarm/receive/$userSeq", unreadCount)
-
+        log.info("[안읽은 알람 갯수 socket 채널 전송] end")
         return unreadCount
     }
 
@@ -204,6 +228,7 @@ class UserService(
 
     @CacheEvict(cacheNames = ["userCache"], key = "#userId")
     fun discordConnect(userId: String, channelId: String) {
+        log.info("[알람함 discord 연동] discord 채널 아이디 유저정보 저장")
         val user = userReader.getUserByIdOrThrow(userId)
         user.discordConnect(channelId)
         userRepo.save(user)
@@ -216,11 +241,15 @@ class UserService(
     }
 
     fun registerUserIfNeed(kakaoUserInfo: UserDto, type: LoginType): UserLoginDto {
+        log.info("[${type.name} 인증코드 - user 정보 조회] 3. ${type.name}ID로 회원가입 처리 - user 정보 조회")
         var user = userRepo.findByUserId(kakaoUserInfo.id).orElse(null)
         if(user == null) {
+            log.info("[${type.name} 인증코드 - user 정보 조회] 3. ${type.name}ID로 회원가입 처리 - 미가입 회원 -> 강제 회원가입 처리")
             user = userFactory.createSocial(kakaoUserInfo, type)
             userRepo.save(user)
+            log.info("[${type.name} 인증코드 - user 정보 조회] 3. ${type.name}ID로 회원가입 처리 - 미가입 회원 강제 회원가입 성공")
         }
+        log.info("[${type.name} 인증코드 - user 정보 조회] 3. ${type.name}ID로 회원가입 처리 - 엑세스 토큰 발급")
         val token = tokenProvider.getAccessToken(user.userId, user.password)
         return UserLoginDto(sequence = user.sequence!!,
             id = user.userId,
