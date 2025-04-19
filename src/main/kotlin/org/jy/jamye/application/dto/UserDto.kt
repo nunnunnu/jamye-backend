@@ -1,7 +1,7 @@
 package org.jy.jamye.application.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.jy.jamye.domain.model.LoginType
+import org.jy.jamye.domain.user.model.LoginType
 import org.jy.jamye.security.TokenDto
 import java.time.LocalDateTime
 

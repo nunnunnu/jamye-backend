@@ -1,14 +1,11 @@
 package org.jy.jamye.job
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jy.jamye.config.CacheConfig
-import org.jy.jamye.domain.model.Tag
-import org.jy.jamye.infra.TagRepository
+import org.jy.jamye.domain.post.model.Tag
+import org.jy.jamye.infra.post.TagRepository
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
-import org.springframework.cache.caffeine.CaffeineCache
-import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 

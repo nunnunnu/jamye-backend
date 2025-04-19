@@ -7,8 +7,8 @@ import org.jy.jamye.application.dto.NotifyDto
 import org.jy.jamye.application.dto.UserDto
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
-import org.jy.jamye.domain.model.LoginType
-import org.jy.jamye.domain.service.UserService
+import org.jy.jamye.domain.user.model.LoginType
+import org.jy.jamye.domain.user.service.UserService
 import org.jy.jamye.security.TokenDto
 import org.jy.jamye.ui.post.LoginPostDto
 import org.jy.jamye.ui.post.UserPasswordDto

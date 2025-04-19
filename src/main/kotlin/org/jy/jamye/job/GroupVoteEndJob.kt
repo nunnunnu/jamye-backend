@@ -2,15 +2,14 @@ package org.jy.jamye.job
 
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.listener.NotifyInfo
-import org.jy.jamye.domain.service.GroupService
-import org.jy.jamye.domain.service.PostService
+import org.jy.jamye.domain.group.service.GroupService
+import org.jy.jamye.domain.post.service.PostService
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
-import kotlin.math.ceil
 
 @Component
 class GroupVoteEndJob(

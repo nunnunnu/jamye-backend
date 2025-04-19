@@ -1,44 +1,26 @@
 package org.jy.jamye.ui
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.BeforeEach
-import org.jy.jamye.application.dto.DeleteVote
-import org.jy.jamye.application.dto.GroupDto
-import org.jy.jamye.application.dto.UserDto
-import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.client.RedisClient
-import org.jy.jamye.common.exception.*
-import org.jy.jamye.domain.model.Grade
-import org.jy.jamye.domain.model.Group
-import org.jy.jamye.domain.model.User
+import org.jy.jamye.domain.group.model.Group
+import org.jy.jamye.domain.user.model.User
 import org.jy.jamye.infra.GroupUserRepository
-import org.jy.jamye.infra.GroupFactory
+import org.jy.jamye.infra.group.GroupFactory
 import org.jy.jamye.infra.GroupRepository
-import org.jy.jamye.infra.UserFactory
+import org.jy.jamye.infra.user.UserFactory
 import org.jy.jamye.infra.UserRepository
-import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpStatus
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.transaction.annotation.Transactional
-import kotlin.test.fail
 
 @SpringBootTest
 @Transactional
 class GroupControllerTest @Autowired constructor(val groupController: GroupController,
-                                      val userRepo: UserRepository,
-                                      val userFactory: UserFactory,
-                                      val groupUserRepository: GroupUserRepository,
-                                      val groupRepository: GroupRepository,
-                                      val groupFactory: GroupFactory,
-    val redisClient: RedisClient) {
+                                                 val userRepo: UserRepository,
+                                                 val userFactory: UserFactory,
+                                                 val groupUserRepository: GroupUserRepository,
+                                                 val groupRepository: GroupRepository,
+                                                 val groupFactory: GroupFactory,
+                                                 val redisClient: RedisClient) {
 
     private var setupUser: User? = null
     val name = "testGroup"

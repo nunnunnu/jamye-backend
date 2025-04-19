@@ -3,7 +3,7 @@ package org.jy.jamye.ui
 import jakarta.servlet.http.HttpServletResponse
 import org.jy.jamye.application.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
-import org.jy.jamye.domain.service.SocialAuthService
+import org.jy.jamye.domain.user.service.SocialAuthService
 import org.jy.jamye.security.TokenDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.*

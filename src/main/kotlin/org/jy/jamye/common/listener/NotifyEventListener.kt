@@ -1,8 +1,8 @@
 package org.jy.jamye.common.listener
 
-import org.jy.jamye.domain.service.DiscordService
-import org.jy.jamye.domain.service.PostService
-import org.jy.jamye.domain.service.UserService
+import org.jy.jamye.domain.user.service.DiscordService
+import org.jy.jamye.domain.post.service.PostService
+import org.jy.jamye.domain.user.service.UserService
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component

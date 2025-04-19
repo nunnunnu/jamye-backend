@@ -1,7 +1,7 @@
 package org.jy.jamye.application.dto
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import org.jy.jamye.domain.model.Grade
+import org.jy.jamye.domain.user.model.Grade
 import java.time.LocalDateTime
 
 data class UserInGroupDto (

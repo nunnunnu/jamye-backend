@@ -1,16 +1,19 @@
 package org.jy.jamye.application
 
 import jakarta.persistence.EntityNotFoundException
-import org.hibernate.sql.Delete
 import org.jy.jamye.application.dto.*
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyDeleteVoting
 import org.jy.jamye.common.exception.GroupDeletionPermissionException
 import org.jy.jamye.common.exception.InvalidInviteCodeException
 import org.jy.jamye.common.listener.NotifyInfo
-import org.jy.jamye.domain.service.*
-import org.jy.jamye.infra.GroupRepository
-import org.jy.jamye.infra.GroupUserRepository
+import org.jy.jamye.domain.group.service.GroupService
+import org.jy.jamye.domain.group.service.GroupVoteService
+import org.jy.jamye.domain.post.service.PostService
+import org.jy.jamye.domain.post.service.VisionService
+import org.jy.jamye.domain.user.service.UserService
+import org.jy.jamye.infra.group.GroupRepository
+import org.jy.jamye.infra.user.GroupUserRepository
 import org.jy.jamye.ui.post.GroupPostDto
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
@@ -19,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime.now
 
-@Suppress("CAST_NEVER_SUCCEEDS")
 @Service
 class GroupApplicationService(
     private val userService: UserService,

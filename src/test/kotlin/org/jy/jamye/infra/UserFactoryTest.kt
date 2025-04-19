@@ -1,17 +1,10 @@
 package org.jy.jamye.infra
 
 import jakarta.transaction.Transactional
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.jy.jamye.application.dto.UserDto
-import org.jy.jamye.common.exception.AlreadyRegisteredIdException
-import org.jy.jamye.common.exception.DuplicateEmailException
+import org.jy.jamye.infra.user.UserFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.crypto.password.PasswordEncoder
-import kotlin.test.Test
 
 @SpringBootTest
 @Transactional

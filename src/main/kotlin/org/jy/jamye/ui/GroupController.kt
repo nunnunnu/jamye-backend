@@ -6,8 +6,8 @@ import org.jy.jamye.application.dto.GroupDto
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.application.dto.UserInGroupDto
 import org.jy.jamye.common.io.ResponseDto
-import org.jy.jamye.domain.service.GroupService
-import org.jy.jamye.domain.service.VisionService
+import org.jy.jamye.domain.group.service.GroupService
+import org.jy.jamye.domain.post.service.VisionService
 import org.jy.jamye.ui.post.GroupPostDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -19,7 +19,8 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping("/api/group")
 class GroupController(private val groupAppService: GroupApplicationService,
                       private val groupService: GroupService,
-                    private val visionService: VisionService) {
+                      private val visionService: VisionService
+) {
     @GetMapping("/list")
     fun groups(@AuthenticationPrincipal user: UserDetails) :  ResponseDto<List<GroupDto.UserInfo>> {
         val groups = groupAppService.getGroupsInUser(user.username)

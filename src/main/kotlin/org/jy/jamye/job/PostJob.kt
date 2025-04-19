@@ -1,7 +1,7 @@
 package org.jy.jamye.job
 
 import org.jy.jamye.common.client.RedisClient
-import org.jy.jamye.infra.TagRepository
+import org.jy.jamye.infra.post.TagRepository
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component

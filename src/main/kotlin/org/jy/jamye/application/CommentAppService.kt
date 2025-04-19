@@ -2,11 +2,11 @@ package org.jy.jamye.application
 
 import org.jy.jamye.application.dto.CommentDto
 import org.jy.jamye.common.listener.NotifyInfo
-import org.jy.jamye.domain.service.CommentService
-import org.jy.jamye.domain.service.GroupService
-import org.jy.jamye.domain.service.PostService
-import org.jy.jamye.domain.service.UserService
-import org.jy.jamye.infra.CommentRepository
+import org.jy.jamye.domain.post.service.CommentService
+import org.jy.jamye.domain.group.service.GroupService
+import org.jy.jamye.domain.post.service.PostService
+import org.jy.jamye.domain.user.service.UserService
+import org.jy.jamye.infra.post.CommentRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

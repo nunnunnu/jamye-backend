@@ -1,8 +1,8 @@
 package org.jy.jamye.ui
 
 import org.jy.jamye.common.io.ResponseDto
-import org.jy.jamye.domain.service.DiscordService
-import org.jy.jamye.domain.service.UserService
+import org.jy.jamye.domain.user.service.DiscordService
+import org.jy.jamye.domain.user.service.UserService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails

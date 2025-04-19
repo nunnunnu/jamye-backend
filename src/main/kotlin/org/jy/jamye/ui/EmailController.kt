@@ -4,9 +4,8 @@ import org.jy.jamye.application.EmailApplicationService
 import org.jy.jamye.application.dto.EmailDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.common.listener.EmailEvent
-import org.jy.jamye.domain.service.EmailService
+import org.jy.jamye.domain.user.service.EmailService
 import org.jy.jamye.ui.post.FindPassword
-import org.jy.jamye.ui.post.UserPostDto
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus

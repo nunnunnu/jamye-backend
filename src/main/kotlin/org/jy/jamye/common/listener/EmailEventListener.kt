@@ -1,6 +1,6 @@
 package org.jy.jamye.common.listener
 
-import org.jy.jamye.domain.service.EmailService
+import org.jy.jamye.domain.user.service.EmailService
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component

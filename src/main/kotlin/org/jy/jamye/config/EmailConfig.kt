@@ -1,6 +1,5 @@
 package org.jy.jamye.config
 
-import org.jy.jamye.domain.service.EmailService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

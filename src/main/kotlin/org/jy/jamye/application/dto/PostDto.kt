@@ -1,6 +1,6 @@
 package org.jy.jamye.application.dto
 
-import org.jy.jamye.domain.model.PostType
+import org.jy.jamye.domain.post.model.PostType
 import java.time.LocalDateTime
 
 data class PostDto(

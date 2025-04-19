@@ -5,9 +5,9 @@ import org.jy.jamye.application.dto.MessageNickNameDto
 import org.jy.jamye.application.dto.PostDto
 import org.jy.jamye.application.dto.TagDto
 import org.jy.jamye.common.io.ResponseDto
-import org.jy.jamye.domain.model.PostType
-import org.jy.jamye.domain.service.PostService
-import org.jy.jamye.domain.service.VisionService
+import org.jy.jamye.domain.post.model.PostType
+import org.jy.jamye.domain.post.service.PostService
+import org.jy.jamye.domain.post.service.VisionService
 import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal

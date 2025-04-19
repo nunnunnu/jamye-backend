@@ -1,34 +1,15 @@
 package org.jy.jamye.ui
 
 import jakarta.persistence.EntityManager
-import jakarta.persistence.EntityNotFoundException
 import jakarta.persistence.PersistenceContext
 import jakarta.transaction.Transactional
-import jakarta.validation.ConstraintViolationException
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.jy.jamye.application.dto.GroupDto
-import org.jy.jamye.application.dto.UserDto
-import org.jy.jamye.application.dto.UserInGroupDto
-import org.jy.jamye.common.exception.AlreadyRegisteredIdException
-import org.jy.jamye.common.exception.DuplicateEmailException
-import org.jy.jamye.common.exception.PasswordErrorException
-import org.jy.jamye.domain.model.Grade
-import org.jy.jamye.domain.model.Role
-import org.jy.jamye.domain.model.User
+import org.jy.jamye.domain.user.model.User
 import org.jy.jamye.infra.*
+import org.jy.jamye.infra.group.GroupFactory
+import org.jy.jamye.infra.user.UserFactory
 import org.jy.jamye.security.JwtTokenProvider
-import org.jy.jamye.ui.post.LoginPostDto
-import org.jy.jamye.ui.post.UserPasswordDto
-import org.jy.jamye.ui.post.UserPostDto
-import org.jy.jamye.ui.post.UserUpdateDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpStatus
-import org.springframework.security.authentication.BadCredentialsException
-import kotlin.test.Test
 
 @SpringBootTest
 @Transactional

@@ -1,15 +1,15 @@
 package org.jy.jamye.application
 
 import org.jy.jamye.common.util.StringUtils.generateRandomCode
-import org.jy.jamye.domain.service.EmailService
-import org.jy.jamye.domain.service.UserService
+import org.jy.jamye.domain.user.service.EmailService
+import org.jy.jamye.domain.user.service.UserService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class EmailApplicationService(
-        private val userService: UserService,
-        private val emailService: EmailService
+    private val userService: UserService,
+    private val emailService: EmailService
 ) {
     @Transactional
     fun findUserAndSendEmail(id: String, email: String) {

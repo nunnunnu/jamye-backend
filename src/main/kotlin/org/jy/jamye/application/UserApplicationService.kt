@@ -2,9 +2,9 @@ package org.jy.jamye.application
 
 import org.jy.jamye.application.dto.NotifyDto
 import org.jy.jamye.common.client.RedisClient
-import org.jy.jamye.domain.service.GroupService
-import org.jy.jamye.domain.service.UserService
-import org.jy.jamye.infra.UserRepository
+import org.jy.jamye.domain.group.service.GroupService
+import org.jy.jamye.domain.user.service.UserService
+import org.jy.jamye.infra.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
