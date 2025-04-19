@@ -1,7 +1,7 @@
 package org.jy.jamye.infra.post
 
-import org.jy.jamye.application.dto.PostDto
-import org.jy.jamye.application.dto.TagDto
+import org.jy.jamye.application.post.dto.PostDto
+import org.jy.jamye.application.post.dto.TagDto
 import org.jy.jamye.domain.user.model.UserGroupPost
 import org.jy.jamye.domain.post.model.*
 import org.jy.jamye.infra.group.GroupRepository

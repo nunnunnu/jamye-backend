@@ -1,9 +1,9 @@
 package org.jy.jamye.domain.post.service
 
 import jakarta.persistence.EntityNotFoundException
-import org.jy.jamye.application.dto.MessageNickNameDto
-import org.jy.jamye.application.dto.PostDto
-import org.jy.jamye.application.dto.TagDto
+import org.jy.jamye.application.post.dto.MessageNickNameDto
+import org.jy.jamye.application.post.dto.PostDto
+import org.jy.jamye.application.post.dto.TagDto
 import org.jy.jamye.common.exception.AllPostsAlreadyOwnedException
 import org.jy.jamye.common.exception.PostAccessDeniedException
 import org.jy.jamye.domain.post.model.*
@@ -104,7 +104,8 @@ class PostService(
                 )
                 messageResponse[key++] = messagePost!!
             } else if(messagePost!!.sendUserSeq == it.messageNickNameSeq) {
-                messagePost!!.message.add(PostDto.MessageSequence(
+                messagePost!!.message.add(
+                    PostDto.MessageSequence(
                     ++seq,
                     it.content,
                     imageUri = imageUriMap.getOrDefault(it.messageSeq, mutableSetOf()),

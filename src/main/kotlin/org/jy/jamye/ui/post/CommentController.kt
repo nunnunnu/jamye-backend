@@ -1,9 +1,8 @@
-package org.jy.jamye.ui
+package org.jy.jamye.ui.post
 
-import org.jy.jamye.application.CommentAppService
-import org.jy.jamye.application.dto.CommentDto
+import org.jy.jamye.application.post.CommentAppService
+import org.jy.jamye.application.post.dto.CommentDto
 import org.jy.jamye.common.io.ResponseDto
-import org.jy.jamye.ui.post.CommentPostDto
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*

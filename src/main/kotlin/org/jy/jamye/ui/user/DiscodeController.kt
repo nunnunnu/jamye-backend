@@ -1,4 +1,4 @@
-package org.jy.jamye.ui
+package org.jy.jamye.ui.user
 
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.user.service.DiscordService

@@ -2,7 +2,7 @@ package org.jy.jamye.domain.user.service
 
 import jakarta.mail.MessagingException
 import lombok.extern.slf4j.Slf4j
-import org.jy.jamye.application.dto.EmailDto
+import org.jy.jamye.application.user.dto.EmailDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.util.StringUtils.generateRandomCode
 import org.slf4j.LoggerFactory

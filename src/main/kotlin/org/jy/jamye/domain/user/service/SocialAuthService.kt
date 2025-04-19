@@ -6,8 +6,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import jakarta.servlet.http.HttpServletResponse
-import org.jy.jamye.application.dto.UserDto
-import org.jy.jamye.application.dto.UserLoginDto
+import org.jy.jamye.application.user.dto.UserDto
+import org.jy.jamye.application.user.dto.UserLoginDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.domain.user.model.LoginType
 import org.springframework.beans.factory.annotation.Value

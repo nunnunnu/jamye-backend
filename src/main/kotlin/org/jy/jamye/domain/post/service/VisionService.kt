@@ -10,7 +10,7 @@ import com.google.cloud.vision.v1.Image
 import com.google.cloud.vision.v1.ImageAnnotatorClient
 import com.google.protobuf.ByteString
 import jakarta.servlet.http.HttpServletRequest
-import org.jy.jamye.application.dto.PostDto.*
+import org.jy.jamye.application.post.dto.PostDto.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpHeaders

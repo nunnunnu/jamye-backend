@@ -1,4 +1,4 @@
-package org.jy.jamye.application.dto
+package org.jy.jamye.application.post.dto
 
 import org.jy.jamye.domain.post.model.PostType
 import java.time.LocalDateTime

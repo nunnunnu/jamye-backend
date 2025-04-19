@@ -1,7 +1,7 @@
 package org.jy.jamye.domain.post.service
 
 import jakarta.persistence.EntityNotFoundException
-import org.jy.jamye.application.dto.CommentDto
+import org.jy.jamye.application.post.dto.CommentDto
 import org.jy.jamye.domain.post.model.Comment
 import org.jy.jamye.infra.post.CommentRepository
 import org.jy.jamye.infra.post.CommentFactory

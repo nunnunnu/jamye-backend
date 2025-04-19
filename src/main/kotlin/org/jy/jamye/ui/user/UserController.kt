@@ -1,19 +1,15 @@
-package org.jy.jamye.ui
+package org.jy.jamye.ui.user
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
-import org.jy.jamye.application.UserApplicationService
-import org.jy.jamye.application.dto.NotifyDto
-import org.jy.jamye.application.dto.UserDto
-import org.jy.jamye.application.dto.UserLoginDto
+import org.jy.jamye.application.user.UserApplicationService
+import org.jy.jamye.application.user.dto.NotifyDto
+import org.jy.jamye.application.user.dto.UserDto
+import org.jy.jamye.application.user.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.user.model.LoginType
 import org.jy.jamye.domain.user.service.UserService
 import org.jy.jamye.security.TokenDto
-import org.jy.jamye.ui.post.LoginPostDto
-import org.jy.jamye.ui.post.UserPasswordDto
-import org.jy.jamye.ui.post.UserPostDto
-import org.jy.jamye.ui.post.UserUpdateDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.annotation.AuthenticationPrincipal

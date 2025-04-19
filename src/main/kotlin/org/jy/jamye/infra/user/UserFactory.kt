@@ -1,6 +1,6 @@
 package org.jy.jamye.infra.user
 
-import org.jy.jamye.application.dto.UserDto
+import org.jy.jamye.application.user.dto.UserDto
 import org.jy.jamye.common.exception.AlreadyRegisteredIdException
 import org.jy.jamye.common.exception.DuplicateEmailException
 import org.jy.jamye.domain.user.model.LoginType

@@ -1,6 +1,6 @@
-package org.jy.jamye.application
+package org.jy.jamye.application.post
 
-import org.jy.jamye.application.dto.CommentDto
+import org.jy.jamye.application.post.dto.CommentDto
 import org.jy.jamye.common.listener.NotifyInfo
 import org.jy.jamye.domain.post.service.CommentService
 import org.jy.jamye.domain.group.service.GroupService

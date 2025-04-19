@@ -8,6 +8,7 @@ import org.jy.jamye.infra.group.GroupFactory
 import org.jy.jamye.infra.GroupRepository
 import org.jy.jamye.infra.user.UserFactory
 import org.jy.jamye.infra.UserRepository
+import org.jy.jamye.ui.group.GroupController
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional

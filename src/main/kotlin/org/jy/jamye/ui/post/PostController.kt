@@ -1,14 +1,13 @@
-package org.jy.jamye.ui
+package org.jy.jamye.ui.post
 
-import org.jy.jamye.application.PostApplicationService
-import org.jy.jamye.application.dto.MessageNickNameDto
-import org.jy.jamye.application.dto.PostDto
-import org.jy.jamye.application.dto.TagDto
+import org.jy.jamye.application.post.PostApplicationService
+import org.jy.jamye.application.post.dto.MessageNickNameDto
+import org.jy.jamye.application.post.dto.PostDto
+import org.jy.jamye.application.post.dto.TagDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.post.model.PostType
 import org.jy.jamye.domain.post.service.PostService
 import org.jy.jamye.domain.post.service.VisionService
-import org.jy.jamye.ui.post.PostCreateDto
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -92,8 +91,10 @@ class PostController(
         sortData.entries.forEach { (key, value) ->
             value.message.sortBy { it.seq }
             value.message.forEach {
-                contents.add(PostDto.MessagePost(
-                    message = mutableListOf(PostDto.MessageSequence(
+                contents.add(
+                    PostDto.MessagePost(
+                    message = mutableListOf(
+                        PostDto.MessageSequence(
                         seq = ++seq,
                         message = it.message,
                         isReply = it.isReply,
@@ -134,7 +135,8 @@ class PostController(
     @PostMapping("/board")
     fun createPostBoardType(@AuthenticationPrincipal user: UserDetails,
                             @RequestParam imageMap: Map<String, MultipartFile>,
-                            @RequestPart data: PostCreateDto<PostCreateDto.Board>): ResponseDto<Long> {
+                            @RequestPart data: PostCreateDto<PostCreateDto.Board>
+    ): ResponseDto<Long> {
         val imageUriMap = imageUriMap(imageMap)
 
         data.content.replaceUri(imageUriMap, imageUrl)

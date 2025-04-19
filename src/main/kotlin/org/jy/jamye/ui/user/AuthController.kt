@@ -1,7 +1,7 @@
-package org.jy.jamye.ui
+package org.jy.jamye.ui.user
 
 import jakarta.servlet.http.HttpServletResponse
-import org.jy.jamye.application.dto.UserLoginDto
+import org.jy.jamye.application.user.dto.UserLoginDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.user.service.SocialAuthService
 import org.jy.jamye.security.TokenDto

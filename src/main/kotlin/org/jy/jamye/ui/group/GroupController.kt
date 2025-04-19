@@ -1,10 +1,10 @@
-package org.jy.jamye.ui
+package org.jy.jamye.ui.group
 
-import org.jy.jamye.application.GroupApplicationService
-import org.jy.jamye.application.dto.DeleteVote
-import org.jy.jamye.application.dto.GroupDto
-import org.jy.jamye.application.dto.PostDto
-import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.application.group.GroupApplicationService
+import org.jy.jamye.application.group.DeleteVote
+import org.jy.jamye.application.group.GroupDto
+import org.jy.jamye.application.post.dto.PostDto
+import org.jy.jamye.application.user.dto.UserInGroupDto
 import org.jy.jamye.common.io.ResponseDto
 import org.jy.jamye.domain.group.service.GroupService
 import org.jy.jamye.domain.post.service.VisionService

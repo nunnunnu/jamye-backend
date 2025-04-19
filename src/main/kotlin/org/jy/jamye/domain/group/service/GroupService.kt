@@ -1,9 +1,9 @@
 package org.jy.jamye.domain.group.service
 
 import jakarta.persistence.EntityNotFoundException
-import org.jy.jamye.application.dto.DeleteVote
-import org.jy.jamye.application.dto.GroupDto
-import org.jy.jamye.application.dto.UserInGroupDto
+import org.jy.jamye.application.group.DeleteVote
+import org.jy.jamye.application.group.GroupDto
+import org.jy.jamye.application.user.dto.UserInGroupDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyJoinedGroupException
 import org.jy.jamye.common.exception.DuplicateGroupNicknameException
@@ -68,7 +68,8 @@ class GroupService(
         groupUserRepo.save(groupMaster)
         return GroupDto.Detail(groupSequence = group.sequence!!, name = group.name, description = group.description,
             imageUrl = group.imageUrl, createDate = group.createDate, updateDate = group.updateDate,
-            users = listOf(UserInGroupDto(
+            users = listOf(
+                UserInGroupDto(
                 nickname = groupMaster.nickname,
                 imageUrl = groupMaster.imageUrl,
                 createDate = groupMaster.createDate,
@@ -76,7 +77,8 @@ class GroupService(
                 grade = groupMaster.grade,
                 groupUserSequence = groupMaster.groupUserSequence!!,
                 userSequence = groupMaster.userSequence,
-                groupSequence = group.sequence!!))
+                groupSequence = group.sequence!!)
+            )
         )
     }
 

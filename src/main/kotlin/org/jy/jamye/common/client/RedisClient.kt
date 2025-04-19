@@ -2,7 +2,7 @@ package org.jy.jamye.common.client
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.jy.jamye.application.dto.DeleteVote
+import org.jy.jamye.application.group.DeleteVote
 import org.jy.jamye.common.exception.SessionExpiredException
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component

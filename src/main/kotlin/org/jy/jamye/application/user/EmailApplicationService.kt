@@ -1,4 +1,4 @@
-package org.jy.jamye.application
+package org.jy.jamye.application.user
 
 import org.jy.jamye.common.util.StringUtils.generateRandomCode
 import org.jy.jamye.domain.user.service.EmailService

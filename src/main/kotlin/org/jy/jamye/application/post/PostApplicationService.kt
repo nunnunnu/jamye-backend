@@ -1,8 +1,8 @@
-package org.jy.jamye.application
+package org.jy.jamye.application.post
 
-import org.jy.jamye.application.dto.MessageNickNameDto
-import org.jy.jamye.application.dto.PostDto
-import org.jy.jamye.application.dto.TagDto
+import org.jy.jamye.application.post.dto.MessageNickNameDto
+import org.jy.jamye.application.post.dto.PostDto
+import org.jy.jamye.application.post.dto.TagDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.listener.NotifyInfo
 import org.jy.jamye.domain.post.model.PostType

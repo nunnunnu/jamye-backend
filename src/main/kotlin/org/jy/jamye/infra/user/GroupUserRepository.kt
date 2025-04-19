@@ -1,6 +1,6 @@
 package org.jy.jamye.infra.user
 
-import org.jy.jamye.application.dto.GroupDto
+import org.jy.jamye.application.group.GroupDto
 import org.jy.jamye.domain.user.model.Grade
 import org.jy.jamye.domain.user.model.GroupUser
 import org.springframework.data.jpa.repository.EntityGraph

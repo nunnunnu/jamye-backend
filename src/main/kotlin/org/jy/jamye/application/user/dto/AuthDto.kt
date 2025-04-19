@@ -1,4 +1,4 @@
-package org.jy.jamye.application.dto
+package org.jy.jamye.application.user.dto
 
 import org.jy.jamye.security.TokenDto
 

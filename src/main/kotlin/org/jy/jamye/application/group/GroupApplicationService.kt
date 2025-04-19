@@ -1,7 +1,8 @@
-package org.jy.jamye.application
+package org.jy.jamye.application.group
 
 import jakarta.persistence.EntityNotFoundException
-import org.jy.jamye.application.dto.*
+import org.jy.jamye.application.post.dto.PostDto
+import org.jy.jamye.application.user.dto.UserInGroupDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.AlreadyDeleteVoting
 import org.jy.jamye.common.exception.GroupDeletionPermissionException

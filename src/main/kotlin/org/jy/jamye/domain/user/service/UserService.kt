@@ -1,10 +1,10 @@
 package org.jy.jamye.domain.user.service
 
 import jakarta.persistence.EntityNotFoundException
-import org.jy.jamye.application.dto.NotifyDto
+import org.jy.jamye.application.user.dto.NotifyDto
 import org.jy.jamye.security.JwtTokenProvider
-import org.jy.jamye.application.dto.UserDto
-import org.jy.jamye.application.dto.UserLoginDto
+import org.jy.jamye.application.user.dto.UserDto
+import org.jy.jamye.application.user.dto.UserLoginDto
 import org.jy.jamye.common.client.RedisClient
 import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
@@ -15,7 +15,7 @@ import org.jy.jamye.infra.user.UserReader
 import org.jy.jamye.infra.user.NotifyRepository
 import org.jy.jamye.infra.user.UserRepository
 import org.jy.jamye.security.TokenDto
-import org.jy.jamye.ui.post.UserUpdateDto
+import org.jy.jamye.ui.user.UserUpdateDto
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.messaging.simp.SimpMessagingTemplate

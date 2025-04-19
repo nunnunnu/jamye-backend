@@ -1,4 +1,4 @@
-package org.jy.jamye.ui.post
+package org.jy.jamye.ui.user
 
 import jakarta.validation.constraints.NotBlank
 

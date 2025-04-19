@@ -1,6 +1,7 @@
-package org.jy.jamye.application.dto
+package org.jy.jamye.application.group
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import org.jy.jamye.application.user.dto.UserInGroupDto
 import java.io.Serializable
 import java.time.LocalDateTime
 import kotlin.math.ceil

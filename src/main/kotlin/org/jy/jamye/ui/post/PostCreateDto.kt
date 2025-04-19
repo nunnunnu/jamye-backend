@@ -1,6 +1,6 @@
 package org.jy.jamye.ui.post
 
-import org.jy.jamye.application.dto.TagDto
+import org.jy.jamye.application.post.dto.TagDto
 import java.time.LocalDateTime
 
 data class PostCreateDto<T>(

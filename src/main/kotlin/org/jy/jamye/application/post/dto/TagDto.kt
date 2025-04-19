@@ -1,4 +1,4 @@
-package org.jy.jamye.application.dto
+package org.jy.jamye.application.post.dto
 
 class TagDto {
     data class Simple(

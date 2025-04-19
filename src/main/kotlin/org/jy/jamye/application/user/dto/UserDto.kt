@@ -1,4 +1,4 @@
-package org.jy.jamye.application.dto
+package org.jy.jamye.application.user.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.jy.jamye.domain.user.model.LoginType
