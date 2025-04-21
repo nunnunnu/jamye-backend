@@ -1,0 +1,38 @@
+spring:
+  config:
+    activate:
+      on-profile: dev1
+  datasource:
+    url: jdbc:mysql://jamye-service.cfek882iekrl.ap-northeast-2.rds.amazonaws.com/jamye_prod
+    username: jm
+    password: jamye123!
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database: mysql
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+server:
+  port: 8080
+cloud:
+  aws:
+    s3:
+      bucket: jamye-image
+sentry:
+  dsn: https://5a64bba9caa96ae5187c36b3c208d4d2@o4507389505699840.ingest.us.sentry.io/4508822101819392
+  traces-sample-rate: 1.0 # 전송할 트랜잭션의 양 1 = 100% \
+  max-request-body-size: always # requestBody 캐치 설정
+  logging:
+    minimum-event-level: info # 최소 이벤트 레벨
+    minimum-breadcrumb-level: info # 최소 브래드크럼 레벨
+discord:
+  redirect: https://jamye.p-e.kr/oauth/redirect
+image:
+  url: https://d23eha8a4ssn72.cloudfront.net
+kakao:
+  redirect: https://jamye.p-e.kr/oauth/kakao
+front:
+  url: https://jamye.p-e.kr
