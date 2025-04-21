@@ -37,3 +37,12 @@ kakao:
   redirect: https://jamye.p-e.kr/oauth/kakao
 front:
   url: https://jamye.p-e.kr
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always  # 선택: 상세 정보도 보고 싶을 때
