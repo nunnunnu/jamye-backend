@@ -24,7 +24,7 @@ class TestController {
     val log: Logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
     @GetMapping
     fun test(): String {
-        log.info("test log")
+        log.info("무중단배포 테스트")
         return "build test3"
     }
 
