@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: jamye-db
+      MYSQL_DATABASE: jamye-db
+      MYSQL_USER: jamye-db
+      MYSQL_PASSWORD: jamye-db
+    ports:
+      - 3306:3306
+  redis:
+    image: redis:latest
+    container_name: redis_test
+    ports:
+      - 6379:6379
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    restart: always
+  spring-boot-app:
+    image: jamye-backend-app
+    container_name: spring-boot-container
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/jamye-db
+      SPRING_DATASOURCE_USERNAME: jamye-db
+      SPRING_DATASOURCE_PASSWORD: jamye-db
+      BOT_TOKEN: ${BOT_TOKEN}
+      CLOUD_AWS_CREDENTIALS_ACCESSKEY: ${CLOUD_AWS_CREDENTIALS_ACCESSKEY}
+      CLOUD_AWS_CREDENTIALS_SECRETKEY: ${CLOUD_AWS_CREDENTIALS_SECRETKEY}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+      DISCORD_SECRET_KEY: ${DISCORD_SECRET_KEY}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}

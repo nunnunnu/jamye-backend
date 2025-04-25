@@ -3,9 +3,10 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: jdbc:mysql://localhost:3306/jamye
-    username: root
-    password: 1234
+    url: jdbc:mysql://localhost:3306/jamye_db
+    username: jamye_db
+    password: jamye_db
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update

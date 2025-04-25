@@ -38,7 +38,9 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
         val mapper = ObjectMapper()
 
         val deleteVoteMap: MutableMap<Long, DeleteVote> = if (redisTemplate.opsForValue().get("deleteVotes").isNullOrBlank()) HashMap()
-        else mapper.readValue(redisTemplate.opsForValue().get("deleteVotes"), object : TypeReference<MutableMap<Long, DeleteVote>>() {})
+            else mapper.readValue(
+                redisTemplate.opsForValue().get("deleteVotes"),
+                object : TypeReference<MutableMap<Long, DeleteVote>>() {})
 
         return deleteVoteMap
     }
@@ -47,7 +49,9 @@ class RedisClient(private val redisTemplate: RedisTemplate<String, String>) {
         val mapper = ObjectMapper()
 
         val luckyDrawMap: MutableMap<String, Int> = if (redisTemplate.opsForValue().get("luckyDraw").isNullOrBlank()) HashMap()
-        else mapper.readValue(redisTemplate.opsForValue().get("luckyDraw"), object : TypeReference<MutableMap<String, Int>>() {})
+            else mapper.readValue(
+                redisTemplate.opsForValue().get("luckyDraw"),
+                object : TypeReference<MutableMap<String, Int>>() {})
 
         return luckyDrawMap
     }
