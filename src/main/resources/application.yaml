@@ -8,7 +8,7 @@ spring:
         use_sql_comments: true
   data:
     redis:
-      host: redis
+      host: redis_test
       port: 6379
   servlet:
     multipart:
