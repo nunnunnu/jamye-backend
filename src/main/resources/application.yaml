@@ -6,10 +6,7 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true
-  data:
-    redis:
-      host: redis_test
-      port: 6379
+
   servlet:
     multipart:
       max-file-size: 10000MB

@@ -14,7 +14,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        use_sql_comments: true
+        use_sql_comments: true\
+  data:
+    redis:
+      host: local
+      port: 6379
 server:
   port: 8081
   shutdown: graceful

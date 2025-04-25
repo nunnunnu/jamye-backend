@@ -10,6 +10,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  data:
+    redis:
+      host: redis_test
+      port: 6379
 cloud:
   aws:
     s3:

@@ -10,6 +10,8 @@ services:
       MYSQL_PASSWORD: jamye-db
     ports:
       - 3306:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
   redis:
     image: redis:latest
     container_name: redis_test
@@ -19,6 +21,8 @@ services:
       - "name=redis"
       - "mode=standalone"
     restart: always
+    volumes:
+      - redis-data:/data
   spring-boot-app:
     image: jamye-backend-app
     container_name: spring-boot-container
@@ -41,3 +45,8 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+volumes:
+  mysql_data:
+    driver: local
+  redis-data:
+    driver: local
