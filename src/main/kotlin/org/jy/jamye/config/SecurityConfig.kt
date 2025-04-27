@@ -52,7 +52,8 @@ class SecurityConfig(private val jwtFilter: JwtFilter) {
             "http://localhost:8080",
             "http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com", //s3엔드포인트
             "https://jamye.p-e.kr/", //내도메인 한국
-            "https://d39kn92x79hg54.cloudfront.net/" //Cloudfront 도메인
+            "https://d39kn92x79hg54.cloudfront.net/", //Cloudfront 도메인,
+            "file://" //cordova 도메인
             )
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration)
 
