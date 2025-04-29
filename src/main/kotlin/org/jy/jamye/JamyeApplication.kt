@@ -1,5 +1,6 @@
 package org.jy.jamye
 
+import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -23,8 +24,13 @@ fun main(args: Array<String>) {
 class TestController {
     val log: Logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
     @GetMapping
-    fun test(): String {
+    fun test(request: HttpServletRequest): String {
         log.info("무중단배포 테스트")
+        val referer = request.getHeader("Referer")
+        val origin = request.getHeader("Origin")
+
+        println("Referer: $referer")
+        println("Origin: $origin")
         return "build test3"
     }
 
