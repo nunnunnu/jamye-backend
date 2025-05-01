@@ -22,6 +22,8 @@ class User(
     @Column(name = "type")
     @Enumerated(value = EnumType.STRING)
     var loginType: LoginType? = LoginType.NOMAL,
+    @Column(name = "fcm_token")
+    var fcmToken: String? = null,
     @Column(name = "create_date")
     @CreationTimestamp
     val createDate: LocalDateTime = LocalDateTime.now(),
@@ -29,7 +31,7 @@ class User(
     @UpdateTimestamp
     val updateDate: LocalDateTime = LocalDateTime.now(),
     @Enumerated(value = EnumType.STRING)
-    @Column(name="role") var role: Role,
+    @Column(name = "role") var role: Role,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ui_seq", nullable = false)
     val sequence: Long? = null,
@@ -57,6 +59,10 @@ class User(
 
     fun discordConnect(channelId: String) {
         this.discordChannelId = channelId
+    }
+
+    fun updateFcmToken(token: String) {
+
     }
 }
 

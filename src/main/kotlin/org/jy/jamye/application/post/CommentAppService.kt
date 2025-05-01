@@ -39,7 +39,8 @@ class CommentAppService(
             groupSeq = groupSeq,
             postSeq = postSeq,
             userSeqs = setOf(postTitle.createdUserSequence!!),
-            message = "${groupInfo.name}: ${postTitle.title} - 댓글이 등록되었습니다"
+            title = "${groupInfo.name}: ${postTitle.title}",
+            message = "댓글이 등록되었습니다"
         )
         publisher.publishEvent(event)
         return commentService.createComment(user.sequence, groupSeq, postSeq, comment)

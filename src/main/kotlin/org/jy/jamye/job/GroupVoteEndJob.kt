@@ -50,7 +50,7 @@ class GroupVoteEndJob(
             deleteVoteMap.remove(groupSeq)
             redisClient.setValueObject("deleteVotes", deleteVoteMap)
             val userSeqsInGroup = groupService.getUserSeqsInGroup(groupSeq)
-            val event = NotifyInfo(groupSeq = groupSeq, userSeqs = userSeqsInGroup, message = message)
+            val event = NotifyInfo(groupSeq = groupSeq, userSeqs = userSeqsInGroup, title = "[${group.name} 삭제 투표 결과]", message = message)
             publisher.publishEvent(event)
         }
 

@@ -53,3 +53,6 @@ cloud:
       bucket: jamye-image
     region:
       static: ap-northeast-2
+fire_base:
+  file: ${FIRE_BASE}
+  fire_base_id: ${FIRE_BASE_ID}

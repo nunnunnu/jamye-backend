@@ -118,7 +118,8 @@ class PostApplicationService(
         userSeqsInGroup.remove(userSeq)
         val group = groupService.getGroup(userSequence = userSeq, groupSequence = groupSeq)
         val event = NotifyInfo(
-            message = "[${group.name}] 새로운 잼얘가 등록되었습니다 지금 접속하여 뽑아보세요",
+            title = "[${group.name}] 새로운 잼얘가 등록되었습니다 ",
+            message = "지금 접속하여 뽑아보세요",
             userSeqs = userSeqsInGroup
         )
         publisher.publishEvent(event)
@@ -212,7 +213,8 @@ class PostApplicationService(
             userSeqs = postUserSeqs,
             groupSeq = groupSeq,
             postSeq = postSeq,
-            message = "보유하신 " + group.name +"의 잼얘 " + post.title + "이 업데이트되었습니다."
+            title = "[${group.name}] ${post.title} 업데이트",
+            message = "보유하신 ${group.name}의 잼얘 ${post.title}이 업데이트되었습니다."
         )
         publisher.publishEvent(event)
     }

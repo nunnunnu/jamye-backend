@@ -256,4 +256,20 @@ class UserService(
             email = user.email,
             token = token)
     }
+
+    @Transactional
+    fun updateFcmToken(userId: String, token: String) {
+        val user = userReader.getUserByIdOrThrow(userId)
+        user.fcmToken = token
+        userRepo.save(user)
+        log.info("[fcm token update] end")
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserFcmInfo(userSeqs: Set<Long>): Set<String> {
+        //TODO: 1:n 구조 변경 필요
+        val users = userRepo.findAllById(userSeqs)
+        return users.filter { it.fcmToken != null }.map { it.fcmToken!! }.toSet()
+
+    }
 }

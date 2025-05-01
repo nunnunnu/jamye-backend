@@ -112,7 +112,7 @@ class GroupApplicationService(
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
         val group = groupService.getGroupSimpleInfo(groupSeq)
-        val event = NotifyInfo(message = group.name + "그룹의 그룹 삭제 투표가 실시되었습니다. 과반수 동의 시 자동 삭제됩니다.", groupSeq = groupSeq, userSeqs = totalUser)
+        val event = NotifyInfo(title = group.name + "그룹의 그룹 삭제 투표가 실시되었습니다.", message = "과반수 동의 시 자동 삭제됩니다.", groupSeq = groupSeq, userSeqs = totalUser)
         publisher.publishEvent(event)
         val userSeqsInGroup = groupService.getUserSeqsInGroup(groupSeq)
         userSeqsInGroup.forEach { groupService.getDeleteVoteMapInMyGroup(it) }
@@ -137,7 +137,7 @@ class GroupApplicationService(
             val message = "${group.name}의 삭제 투표가 완료되었습니다. 과반수 삭제 동의(${deleteVote.agreeUserSeqs.size}/${deleteVote.standardVoteCount}명)로 인해 그룹이 자동 삭제되었습니다."
             log.info("$groupSeq: 과반수 삭제 동의 ${deleteVote.agreeUserSeqs.size}/${deleteVote.standardVoteCount}명")
             groupService.deleteGroup(groupSeq)
-            val event = NotifyInfo(groupSeq = groupSeq, userSeqs = userSeqsInGroup, message = message)
+            val event = NotifyInfo(groupSeq = groupSeq, userSeqs = userSeqsInGroup, title = message)
             publisher.publishEvent(event)
             userSeqsInGroup.forEach { groupService.getDeleteVoteMapInMyGroup(it) }
             deleteVoteMap.remove(groupSeq)

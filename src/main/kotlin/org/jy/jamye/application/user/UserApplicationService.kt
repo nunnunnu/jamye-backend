@@ -59,4 +59,5 @@ class UserApplicationService(
         redisClient.setBlackList(accessToken)
         redisClient.deleteRefreshToken(refreshToken, userId)
     }
+
 }
