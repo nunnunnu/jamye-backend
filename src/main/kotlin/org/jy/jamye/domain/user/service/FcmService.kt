@@ -8,11 +8,9 @@ import com.google.firebase.messaging.FirebaseMessagingException
 import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.Notification
 import jakarta.annotation.PostConstruct
-import lombok.RequiredArgsConstructor
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
-import java.io.IOException
+import java.io.FileInputStream
 
 
 @Service
@@ -29,7 +27,7 @@ class FcmService {
     fun initialize() {
         //Firebase 프로젝트 정보를 FireBaseOptions에 입력해준다.
         val options = FirebaseOptions.builder()
-            .setCredentials(GoogleCredentials.fromStream(ClassPathResource(serviceAccountFilePath!!).inputStream))
+            .setCredentials(GoogleCredentials.fromStream(FileInputStream(serviceAccountFilePath!!)))
             .setProjectId(projectId)
             .build()
 
