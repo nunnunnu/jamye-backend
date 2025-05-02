@@ -24,6 +24,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.HttpClientErrorException.BadRequest
 import java.time.LocalDateTime
 
 @Service
@@ -77,7 +78,7 @@ class UserService(
         val user = userReader.getUserByIdOrThrow(id)
         if (!passwordEncoder.matches(data.oldPassword, user.password)) {
             log.info("[유저 정보 수정] 실패 - 비밀번호 오류")
-            throw BadCredentialsException("비밀번호를 다시 확인해주세요.")
+            throw EntityNotFoundException("비밀번호를 다시 확인해주세요.")
         }
         val encodePassword =
             if (StringUtils.hasText(data.newPassword)) passwordEncoder.encode(data.newPassword) else null
@@ -113,6 +114,7 @@ class UserService(
     }
 
     @Transactional
+    @CacheEvict(cacheNames = ["userCache"], key = "#id")
     fun userUpdateRandomPassword(id: String, email: String, randomPassword: String): String {
         val user = userRepo.findByUserIdAndEmail(id, email).orElseThrow { throw EntityNotFoundException() }
         val encodePassword = passwordEncoder.encode(randomPassword)
