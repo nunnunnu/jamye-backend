@@ -21,7 +21,7 @@ class User(
     var discordChannelId: String? = null,
     @Column(name = "type")
     @Enumerated(value = EnumType.STRING)
-    var loginType: LoginType? = LoginType.NOMAL,
+    var loginType: LoginType = LoginType.NORMAL,
     @Column(name = "fcm_token")
     var fcmToken: String? = null,
     @Column(name = "create_date")
@@ -71,5 +71,5 @@ enum class Role {
     ROLE_USER
 }
 enum class LoginType(val basicPassword: String?) {
-    NOMAL(null), KAKAO("[KAKAO]PASSWORD"), GOOGLE("[GOOGLE]PASSWORD")
+    NORMAL(null), KAKAO("[KAKAO]PASSWORD"), GOOGLE("[GOOGLE]PASSWORD")
 }

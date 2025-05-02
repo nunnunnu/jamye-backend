@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component
 
 data class EmailEvent(
     val email: String,
-    val userId: String? = null) {
+    val userId: String? = null,
+    val title: String,
+    val message: String) {
 
 }
 
@@ -22,6 +24,6 @@ class EmailEventListener(private val emailService: EmailService) {
     @EventListener
     fun codeSendPush(data: EmailEvent) {
         log.info("[email 인증정보 전송] event listener 수신")
-        emailService.sendCodeToEmail(data.email)
+        emailService.sendEmail(data.email, data.title, data.message)
     }
 }

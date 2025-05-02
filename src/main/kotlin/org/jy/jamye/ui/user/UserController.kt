@@ -165,4 +165,10 @@ class UserController(
         log.info("[로그아웃] end")
         return ResponseDto()
     }
+
+    @PostMapping("/find/id")
+    fun findIdByEmail(@RequestParam email: String): ResponseDto<String> {
+        val userId = userService.findIdByEmail(email)
+        return ResponseDto(data = userId)
+    }
 }

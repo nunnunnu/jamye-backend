@@ -27,7 +27,7 @@ class SecurityConfig(private val jwtFilter: JwtFilter) {
                     .requestMatchers(
                         "/api/user/login", "/api/user/join", "/v3/api-docs/**", "/", "/error", "/api/user/check/**",
                         "/api/email/**", "/api/file/**", "/api/user/refresh",  "/ws/**", "/oauth/**", "/profile",
-                        "/actuator/health"
+                        "/actuator/health", "/api/user/find/id"
                     ).permitAll()
                     .anyRequest().hasAnyRole("USER")
             }

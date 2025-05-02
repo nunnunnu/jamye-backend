@@ -112,6 +112,7 @@ class UserService(
 
     }
 
+    @Transactional
     fun userUpdateRandomPassword(id: String, email: String, randomPassword: String): String {
         val user = userRepo.findByUserIdAndEmail(id, email).orElseThrow { throw EntityNotFoundException() }
         val encodePassword = passwordEncoder.encode(randomPassword)
@@ -271,5 +272,14 @@ class UserService(
         val users = userRepo.findAllById(userSeqs)
         return users.filter { it.fcmToken != null }.map { it.fcmToken!! }.toSet()
 
+    }
+
+    @Transactional(readOnly = true)
+    fun findIdByEmail(email: String): String {
+        val user = userRepo.findByEmail(email).orElseThrow { EntityNotFoundException() }
+        if (user.loginType == LoginType.KAKAO || user.loginType == LoginType.GOOGLE) {
+            throw EntityNotFoundException("소셜로그인을 통한 가입 회원입니다. 해당 서비스를 이용하여 로그인해주세요")
+        }
+        return user.userId
     }
 }

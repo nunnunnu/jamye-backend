@@ -13,7 +13,7 @@ data class UserDto (
     var password: String? = null,
     val createDate: LocalDateTime? = null,
     var updateDate: LocalDateTime? = null,
-    val loginType: LoginType? = LoginType.NOMAL,
+    val loginType: LoginType? = LoginType.NORMAL,
 )
 
 data class UserLoginDto(
