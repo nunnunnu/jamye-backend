@@ -128,18 +128,17 @@
 - 아이디/비밀번호 찾기 (이메일 인증 기반)
 # ERD
 - 회원
-
+<img width="1211" alt="IMG-20250504151116" src="https://github.com/user-attachments/assets/98c26de9-3096-4901-b347-7ad0b5b8d172" />
     
 - 그룹
+<img width="1224" alt="IMG-20250504151155" src="https://github.com/user-attachments/assets/1c967613-eac0-4801-b371-fad52c586e80" />
 
-    
 - 게시글
-
-    
-
+<img width="1457" alt="IMG-20250504151215" src="https://github.com/user-attachments/assets/289d1e01-422e-4a75-b01a-9b117a99d52c" />
 
 # 실제 화면
 
 
 # 아키텍쳐 다이어그램
+<img width="1367" alt="image" src="https://github.com/user-attachments/assets/8c95ddba-c7b9-4706-a232-d6485f7c66ed" />
 
