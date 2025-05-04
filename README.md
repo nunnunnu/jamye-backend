@@ -1,5 +1,7 @@
 ## ✨ 잼얘가챠 - Backend
 
+<img width="1136" alt="image" src="https://github.com/user-attachments/assets/1d98ed98-6880-4153-b583-416d2941242e" />
+
 프론트 주소: https://jamye.p-e.kr
 
 백엔드 주소: https://jamye-backend.o-r.kr
