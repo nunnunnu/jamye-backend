@@ -23,9 +23,9 @@ class CommentController(
 
     @PostMapping("/{groupSeq}/{postSeq}")
     fun createComment(@AuthenticationPrincipal user: UserDetails,
-                      @PathVariable("groupSeq") groupSeq: Long,
-                      @PathVariable("postSeq") postSeq: Long,
-                      @RequestBody comment: CommentPostDto
+        @PathVariable("groupSeq") groupSeq: Long,
+        @PathVariable("postSeq") postSeq: Long,
+        @RequestBody comment: CommentPostDto
     ): ResponseDto<Long> {
         val createCommentSeq = commentAppService.createComment(user.username, groupSeq, postSeq, comment.comment)
         return ResponseDto(data = createCommentSeq)
