@@ -1,6 +1,6 @@
 ## ✨ 잼얘가챠 - Backend
 
-<img width="1136" alt="image" src="https://github.com/user-attachments/assets/1d98ed98-6880-4153-b583-416d2941242e" />
+![화면 기록 2025-05-05 오후 8 29 35](https://github.com/user-attachments/assets/2f05d71f-5c05-4a30-ae74-5adebc91d232)
 
 프론트 주소: https://jamye.p-e.kr
 
@@ -74,6 +74,7 @@
 ### 🧩 주요 기능
 
 #### ✅ 그룹
+<img width="1455" alt="image" src="https://github.com/user-attachments/assets/d563b1aa-650d-4841-ac51-1173af7bef8c" />
 
 - 그룹 생성 / 탈퇴 (마스터 탈퇴 시 권한 자동 양도)
 
@@ -109,6 +110,7 @@
 
 
 #### 📬 쪽지함
+<img width="1455" alt="image" src="https://github.com/user-attachments/assets/b9749745-0fcf-4e3c-b0b5-38891b4b00ac" />
 
 - 쪽지 확인/삭제
 
