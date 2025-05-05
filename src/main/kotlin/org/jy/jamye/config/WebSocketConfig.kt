@@ -23,8 +23,7 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         // 메시지 브로커 설정
-        registry.enableSimpleBroker("/alarm/receive")  // 구독 경로 설정
-        registry.enableSimpleBroker("/alarm/group/delete")  // 구독 경로 설정
+        registry.enableSimpleBroker("/alarm/receive", "/alarm/group/delete")
 
     }
 }

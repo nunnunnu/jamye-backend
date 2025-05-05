@@ -206,7 +206,7 @@ class UserService(
     fun getNotifyNoReadCount(userSeq: Long): Long {
         log.info("[안읽은 알람 갯수 socket 채널 전송] start")
         val unreadCount = notifyRepository.countByUserSeqAndIsRead(userSeq, false)
-        log.info("메시지 전송 중: ${userSeq}에게 /queue/unread-count로 $unreadCount 전송")
+        log.info("메시지 전송 중: ${userSeq}에게 /alarm/receive 로 $unreadCount 전송")
         messagingTemplate.convertAndSend("/alarm/receive/$userSeq", unreadCount)
         log.info("[안읽은 알람 갯수 socket 채널 전송] end")
         return unreadCount
