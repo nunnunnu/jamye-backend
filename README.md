@@ -88,6 +88,10 @@
 
 
 #### 📝 게시글
+![화면 기록 2025-05-05 오후 9 33 47 (2) (1)](https://github.com/user-attachments/assets/2c984ff3-54c7-409f-bb6d-98b088fd7fd8)
+![KakaoTalk_Video_2025-05-05-22-02-07](https://github.com/user-attachments/assets/86c684a7-8388-487d-9e2c-2969858023b3)
+![KakaoTalk_Video_2025-05-05-22-02-11](https://github.com/user-attachments/assets/8c96bf2b-0770-4fec-b4ae-2b42169746cd)
+
 
 - 게시글 작성 (알림 전송)
 
