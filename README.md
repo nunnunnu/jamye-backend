@@ -1,4 +1,4 @@
-## ✨ 잼얘가챠 - Backend
+## 잼얘가챠 - Backend
 
 ![화면 기록 2025-05-05 오후 8 29 35](https://github.com/user-attachments/assets/2f05d71f-5c05-4a30-ae74-5adebc91d232)
 
@@ -12,12 +12,12 @@
 
 ---
 
-### 📌 Language
+### Language
 
 - Kotlin
 
 
-### 📦 Library & Framework
+### Library & Framework
 
 - Spring Boot
 
@@ -29,32 +29,16 @@
 
 - Quartz Scheduler
 
-- Firebase Admin SDK (FCM) - 모바일 알람
+### Database
 
-- Discord Bot API
+- MySQL
 
-- Google Cloud Vision API (OCR)
-
-- JavaMail (SMTP)
-
-- Sentry
-
-- Logback
-
-
-### 🗃 Database
-
-- MySQL (AWS RDS)
-
-- Redis (블랙리스트 토큰 및 그룹 투표정보/뽑기횟수 등 정보 관리)
-
-
-### ⚙ ORM
+### ORM
 
 - Spring Data JPA
 
 
-### 🚀 Deploy
+### Deploy
 
 - EC2 (Backend 서버)
 
@@ -73,7 +57,7 @@
 
 ### 🧩 주요 기능
 
-#### ✅ 그룹
+#### 그룹
 <img width="1455" alt="image" src="https://github.com/user-attachments/assets/d563b1aa-650d-4841-ac51-1173af7bef8c" />
 
 - 그룹 생성 / 탈퇴 (마스터 탈퇴 시 권한 자동 양도)
@@ -87,7 +71,7 @@
 - 그룹 소속 회원 목록 및 정보 수정
 
 
-#### 📝 게시글
+#### 게시글
 ![화면 기록 2025-05-05 오후 9 33 47 (2) (1)](https://github.com/user-attachments/assets/2c984ff3-54c7-409f-bb6d-98b088fd7fd8)
 ![KakaoTalk_Video_2025-05-05-22-02-07](https://github.com/user-attachments/assets/86c684a7-8388-487d-9e2c-2969858023b3)
 ![KakaoTalk_Video_2025-05-05-22-02-11](https://github.com/user-attachments/assets/8c96bf2b-0770-4fec-b4ae-2b42169746cd)
@@ -109,12 +93,12 @@
 - 게시글 수정/삭제 (알림 전송 포함)
 
 
-#### 💬 댓글
+#### 댓글
 
 - 댓글 작성/조회/수정/삭제 (작성자 알림 전송)
 
 
-#### 📬 쪽지함
+#### 쪽지함
 <img width="1455" alt="image" src="https://github.com/user-attachments/assets/b9749745-0fcf-4e3c-b0b5-38891b4b00ac" />
 
 - 쪽지 확인/삭제
@@ -126,7 +110,7 @@
 - Discord 봇 알림 연동
 
 
-#### 👤 회원
+#### 회원
 
 - 회원가입 / 로그인 / 로그아웃
 
@@ -135,6 +119,7 @@
 - 회원 탈퇴
 
 - 아이디/비밀번호 찾기 (이메일 인증 기반)
+
 # ERD
 - 회원
 <img width="1211" alt="IMG-20250504151116" src="https://github.com/user-attachments/assets/98c26de9-3096-4901-b347-7ad0b5b8d172" />
@@ -144,9 +129,6 @@
 
 - 게시글
 <img width="1457" alt="IMG-20250504151215" src="https://github.com/user-attachments/assets/289d1e01-422e-4a75-b01a-9b117a99d52c" />
-
-# 실제 화면
-
 
 # 아키텍쳐 다이어그램
 <img width="1367" alt="image" src="https://github.com/user-attachments/assets/8c95ddba-c7b9-4706-a232-d6485f7c66ed" />
