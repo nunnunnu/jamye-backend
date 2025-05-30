@@ -84,7 +84,14 @@ class UserService(
             if (StringUtils.hasText(data.newPassword)) passwordEncoder.encode(data.newPassword) else null
 
         user.updateUserInfo(data.email, encodePassword)
-        return UserDto(sequence = user.sequence, id = user.userId, email = user.email, updateDate = user.updateDate, createDate = user.createDate)
+        userRepo.save(user)
+        return UserDto(
+            sequence = user.sequence,
+            id = user.userId,
+            email = user.email,
+            updateDate = user.updateDate,
+            createDate = user.createDate
+        )
 
     }
 
