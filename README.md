@@ -11,6 +11,8 @@
 이를 가챠처럼 랜덤으로 뽑아보며 다시 떠올릴 수 있는 서비스입니다. 
 
 ---
+# 아키텍쳐 다이어그램
+<img width="1367" alt="image" src="https://github.com/user-attachments/assets/8c95ddba-c7b9-4706-a232-d6485f7c66ed" />
 
 ### Language
 
@@ -129,7 +131,4 @@
 
 - 게시글
 <img width="1457" alt="IMG-20250504151215" src="https://github.com/user-attachments/assets/289d1e01-422e-4a75-b01a-9b117a99d52c" />
-
-# 아키텍쳐 다이어그램
-<img width="1367" alt="image" src="https://github.com/user-attachments/assets/8c95ddba-c7b9-4706-a232-d6485f7c66ed" />
 
