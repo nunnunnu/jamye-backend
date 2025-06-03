@@ -27,7 +27,7 @@ class UserController(
     val log = LoggerFactory.getLogger(UserController::class.java)!!
 
     @PostMapping("/join")
-    fun createUser(@Valid @RequestBody data: UserPostDto) : ResponseDto<Long> {
+    fun createUser(@Valid @RequestBody data: UserPostDto): ResponseDto<Long> {
         log.info("[createUser] start")
         val sequence = userService.createUser(
             UserDto(id = data.id, email = data.email, password = data.password,)
@@ -37,9 +37,10 @@ class UserController(
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody data: LoginPostDto) : ResponseDto<UserLoginDto> {
+    fun login(@Valid @RequestBody data: LoginPostDto) : ResponseDto<UserLoginDto> {
         log.info("[login] start")
-        LoginType.entries.forEach{ if(it.basicPassword.equals(data.password)) {
+        LoginType.entries.forEach {
+            if (it.basicPassword.equals(data.password)) {
                 log.info("[login] 실패 - 소셜 로그인 비밀번호 입력")
                 throw throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
             }
@@ -58,7 +59,7 @@ class UserController(
     }
 
     @PatchMapping
-    fun updateUser(@AuthenticationPrincipal user: UserDetails, @RequestBody data: UserUpdateDto) : ResponseDto<UserDto> {
+    fun updateUser(@AuthenticationPrincipal user: UserDetails, @RequestBody @Valid data: UserUpdateDto) : ResponseDto<UserDto> {
         log.info("[유저 정보 수정] start")
         val userDto = userService.updateUser(user.username, data)
         log.info("[유저 정보 수정] end")
@@ -66,7 +67,10 @@ class UserController(
     }
 
     @PostMapping
-    fun deleteUser(@AuthenticationPrincipal user: UserDetails, @RequestBody password: UserPasswordDto) : ResponseDto<Nothing> {
+    fun deleteUser(
+        @AuthenticationPrincipal user: UserDetails,
+        @RequestBody @Valid password: UserPasswordDto
+    ): ResponseDto<Nothing> {
         log.info("[유저 탈퇴] start")
         userAppService.deleteUser(user.username, password.password)
         log.info("[유저 탈퇴] end")
@@ -74,7 +78,7 @@ class UserController(
     }
 
     @GetMapping("/check/id/{id}")
-    fun duplicateIdCheck(@PathVariable id: String) : ResponseDto<Boolean> {
+    fun duplicateIdCheck(@PathVariable id: String): ResponseDto<Boolean> {
         log.info("[중복 아이디 체크] start")
         val duplicateIdCheck = userAppService.duplicateIdCheck(id)
         log.info("[중복 아이디 체크] end")
@@ -90,7 +94,10 @@ class UserController(
     }
 
     @PostMapping("/password/check")
-    fun passwordCheck(@AuthenticationPrincipal user: UserDetails, @RequestBody data: UserPasswordDto): ResponseDto<Nothing> {
+    fun passwordCheck(
+        @AuthenticationPrincipal user: UserDetails,
+        @RequestBody @Valid data: UserPasswordDto
+    ): ResponseDto<Nothing> {
         log.info("[비밀번호 검증] start")
         userService.passwordCheck(user.username, data.password)
         log.info("[비밀번호 검증] end")
@@ -124,7 +131,7 @@ class UserController(
     }
 
     @GetMapping("/no-read")
-    fun getNotifyNoReadCount(@AuthenticationPrincipal user: UserDetails) : ResponseDto<Long> {
+    fun getNotifyNoReadCount(@AuthenticationPrincipal user: UserDetails): ResponseDto<Long> {
         log.info("[안읽은 알람 갯수 조회] start")
         val noReadCount = userAppService.getNotifyNoReadCount(user.username)
         log.info("[안읽은 알람 갯수 조회] end")
@@ -132,7 +139,7 @@ class UserController(
     }
 
     @PostMapping("/notify/read/all")
-    fun allNotifyRead(@AuthenticationPrincipal user: UserDetails) : ResponseDto<Nothing> {
+    fun allNotifyRead(@AuthenticationPrincipal user: UserDetails): ResponseDto<Nothing> {
         log.info("[모든 알람 읽음 처리] start")
         userAppService.allNotifyRead(user.username)
         log.info("[모든 알람 읽음 처리] end")
@@ -140,7 +147,7 @@ class UserController(
     }
 
     @DeleteMapping("/notify/read/delete")
-    fun allReadNotifyDelete(@AuthenticationPrincipal user: UserDetails) : ResponseDto<Nothing> {
+    fun allReadNotifyDelete(@AuthenticationPrincipal user: UserDetails): ResponseDto<Nothing> {
         log.info("[읽은 알람 삭제 처리] start")
         userAppService.deleteReadNotify(user.username)
         log.info("[읽은 알람 삭제 처리] end")

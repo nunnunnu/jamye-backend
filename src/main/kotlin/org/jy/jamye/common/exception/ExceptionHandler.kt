@@ -28,9 +28,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 class ExceptionHandler(private val env: Environment) {
     val log: Logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
 
-
     @ExceptionHandler(IllegalArgumentException::class,
-        MethodArgumentNotValidException::class,
         EntityNotFoundException::class,
         JsonParseException::class,
         HttpMediaTypeNotSupportedException::class,
@@ -46,10 +44,20 @@ class ExceptionHandler(private val env: Environment) {
     )
     fun handleException(e: Exception): ResponseEntity<ErrorResponseDto> {
         log.info(e.printStackTrace().toString())
-        return ResponseEntity(ErrorResponseDto(
-            status = HttpStatus.BAD_REQUEST.value(),
-            message = e.message
-        ), HttpStatus.BAD_REQUEST)
+        return ResponseEntity(
+            ErrorResponseDto(
+                status = HttpStatus.BAD_REQUEST.value(),
+                message = e.message
+            ), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity(
+            ErrorResponseDto(
+                status = HttpStatus.BAD_REQUEST.value(),
+                message = e.bindingResult.fieldError!!.defaultMessage
+            ), HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(BasicException::class)
