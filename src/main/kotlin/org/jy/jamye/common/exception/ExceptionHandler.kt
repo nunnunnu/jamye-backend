@@ -63,20 +63,20 @@ class ExceptionHandler(private val env: Environment) {
     @ExceptionHandler(BasicException::class)
     fun basicException(e: BasicException): ResponseEntity<ErrorResponseDto> {
         return ResponseEntity(ErrorResponseDto(
-            status = e.status.value(),
-            error = e.status.reasonPhrase,
-            message = e.errorCode.message,
-            code = e.errorCode
-        ), e.status)
+                status = e.status.value(),
+                error = e.status.reasonPhrase,
+                message = e.errorCode.message,
+                code = e.errorCode
+            ), e.status)
     }
 
     @ExceptionHandler(BadCredentialsException::class
     )
     fun authExceptionHandler(e: Exception): ResponseEntity<ErrorResponseDto> {
         return ResponseEntity(ErrorResponseDto(
-            status = HttpStatus.FORBIDDEN.value(),
-            message = e.message
-        ), HttpStatus.FORBIDDEN)
+                status = HttpStatus.FORBIDDEN.value(),
+                message = e.message
+            ), HttpStatus.FORBIDDEN)
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

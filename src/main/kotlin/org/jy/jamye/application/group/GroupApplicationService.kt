@@ -245,4 +245,21 @@ class GroupApplicationService(
         return result
     }
 
+    @Transactional(readOnly = true)
+    fun jamyePanhandlingAlarm(groupSeq: Long, userId: String) {
+        val user = userService.getUser(userId);
+
+        val usersInGroup = groupService.getUsersInGroup(userSeq = user.sequence!!, groupSeq = groupSeq)
+        val group = groupService.getGroupSimpleInfo(groupSeq)
+
+        val event = NotifyInfo(
+            title = "[${group.name}]",
+            message = "잼얘없다얘들아잼얘해줘잼얘넣어잼얘해달라고잼얘해!!!!!!!!!!!!!!!!",
+            groupSeq = groupSeq,
+            userSeqs = usersInGroup.filter { it.userSequence != user.sequence }.map { it.userSequence }.toSet()
+        )
+        publisher.publishEvent(event)
+
+    }
+
 }

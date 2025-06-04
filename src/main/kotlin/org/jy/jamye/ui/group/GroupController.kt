@@ -18,8 +18,8 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/group")
 class GroupController(private val groupAppService: GroupApplicationService,
-                      private val groupService: GroupService,
-                      private val visionService: VisionService
+    private val groupService: GroupService,
+    private val visionService: VisionService
 ) {
     @GetMapping("/list")
     fun groups(@AuthenticationPrincipal user: UserDetails) :  ResponseDto<List<GroupDto.UserInfo>> {
@@ -87,7 +87,7 @@ class GroupController(private val groupAppService: GroupApplicationService,
 
     @GetMapping("/{groupSeq}/nick-name")
     fun duplicateNickName(@AuthenticationPrincipal user: UserDetails, @PathVariable("groupSeq") groupSeq: Long, @RequestParam nickName: String)
-    : ResponseDto<Nothing> {
+            : ResponseDto<Nothing> {
         groupService.nickNameDuplicateCheck(groupSeq, nickName = nickName)
         return ResponseDto()
     }
@@ -98,7 +98,7 @@ class GroupController(private val groupAppService: GroupApplicationService,
         @PathVariable("type") type: DeleteVote.VoteType,
         @PathVariable("groupSeq") groupSeq: Long,
     )
-    : ResponseDto<Nothing> {
+            : ResponseDto<Nothing> {
         groupAppService.deleteGroupVote(user.username, type, groupSeq)
         return ResponseDto()
     }
@@ -123,30 +123,30 @@ class GroupController(private val groupAppService: GroupApplicationService,
         @RequestParam("profile") profile: MultipartFile?,
         @AuthenticationPrincipal user: UserDetails,
     )
-    : ResponseDto<Nothing> {
+            : ResponseDto<Nothing> {
         groupAppService.updateUserInGroupInfo(groupSeq, userInGroupSeq, nickName, profile, user.username)
         return ResponseDto()
     }
 
     @PostMapping("/leave/{groupSeq}")
     fun leaveGroup(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails)
-    : ResponseDto<Nothing> {
+            : ResponseDto<Nothing> {
         groupAppService.leaveGroup(groupSeq, user.username)
         return ResponseDto()
     }
 
     @GetMapping("/vote-info/{groupSeq}")
     fun isGroupDeletionVoteInProgress(@PathVariable("groupSeq") groupSeq: Long,
-                                      @AuthenticationPrincipal user: UserDetails): ResponseDto<DeleteVote.Detail> {
+        @AuthenticationPrincipal user: UserDetails): ResponseDto<DeleteVote.Detail> {
         val voteInfo = groupAppService.isGroupDeletionVoteInProgress(groupSeq, user.username)
         return ResponseDto(data = voteInfo)
     }
 
     @PostMapping("/{groupSeq}")
     fun updateGroupInfo(@AuthenticationPrincipal user: UserDetails,
-                        @PathVariable("groupSeq") groupSeq: Long,
-                        @RequestPart data: GroupPostDto.Update,
-                        @RequestPart file: MultipartFile?) : ResponseDto<GroupDto>{
+        @PathVariable("groupSeq") groupSeq: Long,
+        @RequestPart data: GroupPostDto.Update,
+        @RequestPart file: MultipartFile?) : ResponseDto<GroupDto>{
         val saveFile = file?.let { visionService.saveFile(it) }
         val group = groupAppService.updateGroupInfo(user.username, groupSeq, data, saveFile)
         return ResponseDto(data = group)
@@ -171,5 +171,10 @@ class GroupController(private val groupAppService: GroupApplicationService,
     fun getAllDeleteVoteIngGroup(@AuthenticationPrincipal user: UserDetails): ResponseDto<Map<Long, DeleteVote.Detail>> {
         val deleteVote = groupAppService.getDeleteVoteInMyGroup(user.username)
         return ResponseDto(data = deleteVote)
+    }
+
+    @PostMapping("/{groupSeq}/panhandling")
+    fun jamyePanhandlingAlarm(@PathVariable("groupSeq") groupSeq: Long, @AuthenticationPrincipal user: UserDetails) {
+        groupAppService.jamyePanhandlingAlarm(groupSeq, user.username);
     }
 }

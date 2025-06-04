@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import java.lang.Thread.sleep
 
 @Component
 class NotifyEventListener(
@@ -18,6 +19,7 @@ class NotifyEventListener(
     private val fcmService: FcmService
 ) {
     val log: Logger = LoggerFactory.getLogger(NotifyEventListener::class.java)
+
     @Async
     @EventListener
     fun notifySend(data: NotifyInfo) {
@@ -28,8 +30,19 @@ class NotifyEventListener(
         val findDiscordConnectUser = userService.findDiscordConnectUser(data.userSeqs)
         if(findDiscordConnectUser.isNotEmpty()) {
             log.info("[NotifyEventListener] 알람 전송 시작 - 디스코드 알람 ${findDiscordConnectUser.size}개")
-            val postType = if (data.groupSeq != null && data.postSeq != null) postService.getPostTitle(groupSeq = data.groupSeq, postSeq = data.postSeq) else null
-            findDiscordConnectUser.forEach { channelId -> discordService.sendDiscordDm(channelId, message = finalMessage, data.groupSeq, data.postSeq, postType?.type) }
+            val postType = if (data.groupSeq != null && data.postSeq != null) postService.getPostTitle(
+                groupSeq = data.groupSeq,
+                postSeq = data.postSeq
+            ) else null
+            findDiscordConnectUser.forEach { channelId ->
+                discordService.sendDiscordDm(
+                    channelId,
+                    message = finalMessage,
+                    data.groupSeq,
+                    data.postSeq,
+                    postType?.type
+                )
+            }
         }
 
         val fcmTokens = userService.getUserFcmInfo(data.userSeqs)
