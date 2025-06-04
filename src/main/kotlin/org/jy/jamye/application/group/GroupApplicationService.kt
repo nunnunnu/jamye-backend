@@ -107,7 +107,7 @@ class GroupApplicationService(
             try {
                 groupVoteService.scheduleVoteEndJob(groupSeq, endDateTime = endDateTime)
             } catch (e: Exception) {
-               e.printStackTrace()
+                e.printStackTrace()
             }
         }
         redisClient.setValueObject("deleteVotes", deleteVoteMap)
