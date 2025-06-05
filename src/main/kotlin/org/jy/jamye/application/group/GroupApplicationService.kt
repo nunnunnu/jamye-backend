@@ -249,14 +249,19 @@ class GroupApplicationService(
     fun jamyePanhandlingAlarm(groupSeq: Long, userId: String) {
         val user = userService.getUser(userId);
 
-        val usersInGroup = groupService.getUsersInGroup(userSeq = user.sequence!!, groupSeq = groupSeq)
+        val usersInGroup = groupService.getUsersInGroup(userSeq = user.sequence!!, groupSeq = groupSeq).filter { it.userSequence != user.sequence }.map { it.userSequence }.toSet()
         val group = groupService.getGroupSimpleInfo(groupSeq)
 
+        if (usersInGroup.isEmpty()) {
+            throw IllegalArgumentException("안타깝게도 그룹에 잼얘를 할 사람이 당신뿐입니다ㅜㅜ 다른 회원을 초대해보세요!")
+        }
+
+        var message = listOf("고잼얘 고잼얘 고잼얘 고잼얘 고잼얘 고잼얘 고잼얘 고잼얘 ", "잼얘없다얘들아잼얘해줘잼얘넣어잼얘해달라고잼얘해!!!!!!!!!!!!!!!!")
         val event = NotifyInfo(
             title = "[${group.name}]",
-            message = "잼얘없다얘들아잼얘해줘잼얘넣어잼얘해달라고잼얘해!!!!!!!!!!!!!!!!",
+            message = message.random(),
             groupSeq = groupSeq,
-            userSeqs = usersInGroup.filter { it.userSequence != user.sequence }.map { it.userSequence }.toSet()
+            userSeqs = usersInGroup
         )
         publisher.publishEvent(event)
 
