@@ -16,6 +16,9 @@ class ProfileController(
     @GetMapping("/profile")
     fun profile(): String {
         val profiles: List<String> = env.activeProfiles.toList()
+        for (profile in profiles) {
+
+        }
         log.info("[profile] 현재 실행중인 ActiveProfiles: {}", profiles)
         val realProfiles = listOf("dev", "dev1", "real2")
         val defaultProfile = if(profiles.isEmpty()) {

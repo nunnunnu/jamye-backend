@@ -12,7 +12,7 @@ interface UserRepository : JpaRepository<User, Long> {
     fun existsByUserId(id: String): Boolean
     @Meta(comment = "ID로 유저 정보 조회")
     fun findByUserId(id: String): Optional<User>
-    fun findByUserIdAndEmail(userId: String, email: String): Optional<User>
+    fun findByUserIdAndEmail(userId: String, email: String): User?
     fun findBySequenceInAndDiscordChannelIdNotNull(userSeqs: Set<Long>): List<User>
     @Meta(comment = "아이디 찾기")
     fun findByEmail(email: String): Optional<User>

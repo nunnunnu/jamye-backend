@@ -12,6 +12,7 @@ import org.jy.jamye.common.listener.PostDeleteEvent
 import org.jy.jamye.domain.user.model.Grade
 import org.jy.jamye.domain.group.model.Group
 import org.jy.jamye.domain.user.model.GroupUser
+import org.jy.jamye.domain.user.model.User
 import org.jy.jamye.infra.group.GroupFactory
 import org.jy.jamye.infra.group.GroupReader
 import org.jy.jamye.infra.group.GroupRepository
@@ -154,7 +155,7 @@ class GroupService(
 
     fun groupUserInfo(groupSequence: Long, userSequence: Long): UserInGroupDto? {
         return groupUserRepo.findByGroupSequenceAndUserSequence(groupSequence, userSequence)
-            .orElse(null)?.let { userInfo ->
+            ?.let { userInfo ->
                 UserInGroupDto(
                     userSequence = userInfo.userSequence,
                     groupSequence = userInfo.groupSequence,
@@ -169,18 +170,17 @@ class GroupService(
     }
 
     fun groupUserInfoOrThrow(groupSequence: Long, userSequence: Long): UserInGroupDto {
-        val userInfo = groupUserRepo.findByGroupSequenceAndUserSequence(groupSequence, userSequence)
-            .orElseThrow { EntityNotFoundException("그룹 내 존재하는 유저가 아닙니다") }
+        val userInfo: GroupUser = groupUserRepo.findByGroupSequenceAndUserSequence(groupSequence, userSequence)?: throw EntityNotFoundException("그룹 내 존재하는 유저가 아닙니다")
         return UserInGroupDto(
-                    userSequence = userInfo.userSequence,
-                    groupSequence = userInfo.groupSequence,
-                    groupUserSequence = userInfo.groupUserSequence!!,
-                    nickname = userInfo.nickname,
-                    imageUrl = userInfo.imageUrl,
-                    grade = userInfo.grade,
-                    createDate = userInfo.createDate,
-                    updateDate = userInfo.updateDate
-                )
+            userSequence = userInfo.userSequence,
+            groupSequence = userInfo.groupSequence,
+            groupUserSequence = userInfo.groupUserSequence!!,
+            nickname = userInfo.nickname,
+            imageUrl = userInfo.imageUrl,
+            grade = userInfo.grade,
+            createDate = userInfo.createDate,
+            updateDate = userInfo.updateDate
+        )
 
     }
 

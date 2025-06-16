@@ -85,15 +85,15 @@ class ExceptionHandler(private val env: Environment) {
         log.info(e.printStackTrace().toString())
         reportErrorToSentry(e)
         return ResponseEntity(ErrorResponseDto(
-            status = HttpStatus.BAD_REQUEST.value(),
-            message = e.message,
-            code = ErrorCode.SERVER_ERROR
-        ), HttpStatus.BAD_REQUEST)
+                status = HttpStatus.BAD_REQUEST.value(),
+                message = e.message,
+                code = ErrorCode.SERVER_ERROR
+            ), HttpStatus.BAD_REQUEST)
     }
 
-    	private fun reportErrorToSentry(e: Exception) {
-            if (!env.activeProfiles.contains("local")) return
+    private fun reportErrorToSentry(e: Exception) {
+        if (!env.activeProfiles.contains("local")) return
 
-            Sentry.captureException(e); //sentry 에러 전송
-	}
+        Sentry.captureException(e); //sentry 에러 전송
+    }
 }

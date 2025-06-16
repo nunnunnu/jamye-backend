@@ -123,7 +123,7 @@ class UserService(
     @Transactional
     @CacheEvict(cacheNames = ["userCache"], key = "#id")
     fun userUpdateRandomPassword(id: String, email: String, randomPassword: String): String {
-        val user = userRepo.findByUserIdAndEmail(id, email).orElseThrow { throw EntityNotFoundException() }
+        val user = userRepo.findByUserIdAndEmail(id, email)?: throw EntityNotFoundException()
         val encodePassword = passwordEncoder.encode(randomPassword)
         user.updateUserInfo(encodePassword = encodePassword)
         return randomPassword

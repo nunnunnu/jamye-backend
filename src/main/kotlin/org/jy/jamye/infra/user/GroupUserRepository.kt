@@ -19,7 +19,7 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     fun existsByUserSequenceAndGroupSequence(userSequence: Long, groupSequence: Long): Boolean
     fun existsByGroupSequenceAndNickname(groupSequence: Long, nickName: String): Boolean
     fun existsByUserSequenceAndGroupSequenceAndGrade(userSequence: Long, groupSequence: Long, grade: Grade): Boolean
-    fun findByGroupSequenceAndUserSequence(groupSequence: Long, userSequence: Long): Optional<GroupUser>
+    fun findByGroupSequenceAndUserSequence(groupSequence: Long, userSequence: Long): GroupUser?
     fun findByGroupSequenceAndUserSequenceIn(groupSeq: Long, userSeqs: List<Long>): List<GroupUser>
     fun findAllByUserSequenceAndGrade(userSeq: Long, grade: Grade): List<GroupUser>
 

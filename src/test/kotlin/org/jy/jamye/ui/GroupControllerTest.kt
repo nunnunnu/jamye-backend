@@ -31,6 +31,7 @@ class GroupControllerTest @Autowired constructor(val groupController: GroupContr
     var setupInviteCode: String? = null
     var inviteCodes = mutableSetOf<String>()
 
+
 //    @BeforeEach
 //    fun setup() {
 //        val user = userFactory.create(UserDto(id = "testId", email = "testEmail@email.com", password = "testPassword"))
