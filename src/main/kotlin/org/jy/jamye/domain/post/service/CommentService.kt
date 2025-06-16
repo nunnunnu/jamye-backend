@@ -42,7 +42,7 @@ class CommentService(
     }
 
     private fun getCommentOrThrow(commentSeq: Long, userSeq: Long): Comment {
-        return commentRepository.findByUserSeqAndCommentSeq(userSeq, commentSeq).orElseThrow { EntityNotFoundException("해당 댓글에 접근할 수 없습니다.") }
+        return commentRepository.findByUserSeqAndCommentSeq(userSeq, commentSeq)?: throw EntityNotFoundException("해당 댓글에 접근할 수 없습니다.")
     }
 
     @Transactional

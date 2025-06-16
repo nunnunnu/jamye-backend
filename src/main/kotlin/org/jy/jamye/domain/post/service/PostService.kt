@@ -133,7 +133,7 @@ class PostService(
     }
 
     private fun getPostOrThrow(groupSequence: Long, postSequence: Long): Post {
-        return postRepository.findByGroupSeqAndPostSeq(groupSequence, postSequence).orElseThrow { throw EntityNotFoundException("잘못된 게시글 번호입니다.") }
+        return postRepository.findByGroupSeqAndPostSeq(groupSequence, postSequence)?: throw EntityNotFoundException("잘못된 게시글 번호입니다.")
     }
 
     fun getPosts(userSeq: Long, groupSeq: Long, keyword: String?, tagSeqs: Set<Long>, page: Pageable, type: Set<PostType>): Page<PostDto.Detail> {
@@ -422,7 +422,7 @@ class PostService(
     }
 
     private fun getBoardPostOrThrow(postSeq: Long): Board {
-        return boardRepository.findByPostSeq(postSeq).orElseThrow { EntityNotFoundException("잘못된 게시글 번호입니다.") }
+        return boardRepository.findByPostSeq(postSeq)?: throw EntityNotFoundException("잘못된 게시글 번호입니다.")
     }
 
     fun updatePost(groupSeq: Long, postSeq: Long, title: String, tagDisconnected: Set<Long>, tags: List<TagDto.Detail>) {

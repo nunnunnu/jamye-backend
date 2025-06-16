@@ -14,7 +14,7 @@ class UserReader(private val userRepo: UserRepository) {
     @Cacheable(cacheNames = ["userCache"], key = "#userId")
     fun getUserByIdOrThrow(userId: String): User {
         log.info("[유저 정보 조회] DB 조회")
-        return userRepo.findByUserId(userId).orElseThrow { NonExistentUser() }
+        return userRepo.findByUserId(userId)?: throw NonExistentUser()
     }
 
 }

@@ -7,10 +7,9 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Meta
 import org.springframework.data.jpa.repository.Query
-import java.util.Optional
 
 interface PostRepository: JpaRepository<Post, Long> {
-    fun findByGroupSeqAndPostSeq(groupSequence: Long, postSequence: Long): Optional<Post>
+    fun findByGroupSeqAndPostSeq(groupSequence: Long, postSequence: Long): Post?
     fun findByGroupSeq(groupSequence: Long): List<Post>
     fun deleteByGroupSeq(groupSeq: Long)
     fun deleteByUserSeqInAndGroupSeq(agreeUserSeqs: Set<Long>, groupSeq: Long)

@@ -10,6 +10,7 @@ import org.jy.jamye.common.exception.PasswordErrorException
 import org.jy.jamye.common.util.StringUtils
 import org.jy.jamye.domain.user.model.LoginType
 import org.jy.jamye.domain.user.model.Notify
+import org.jy.jamye.domain.user.model.User
 import org.jy.jamye.infra.user.UserFactory
 import org.jy.jamye.infra.user.UserReader
 import org.jy.jamye.infra.user.NotifyRepository
@@ -51,10 +52,7 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun login(id: String, password: String): UserLoginDto {
-        val user = userRepo.findByUserId(id).orElseThrow {
-            log.info("[login] 로그인 정보 조회 실패")
-            throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
-        }
+        val user: User = userRepo.findByUserId(id)?: throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
         log.info("[login] 로그인 정보 조회 성공")
         if (!passwordEncoder.matches(password, user.password)) {
             log.info("[login] 로그인 실패 - 비밀번호 오류")
@@ -130,10 +128,7 @@ class UserService(
     }
 
     fun passwordCheck(id: String, password: String) {
-        val user = userRepo.findByUserId(id).orElseThrow {
-            log.info("[비밀번호 검증] 아이디 오류")
-            throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
-        }
+        val user = userRepo.findByUserId(id)?: throw BadCredentialsException("로그인 정보를 다시 확인해주세요")
         if (!passwordEncoder.matches(password, user.password)) {
             log.info("[비밀번호 검증] 비밀번호 오류 오류")
             throw PasswordErrorException("비밀번호가 잘못되었습니다.")
@@ -147,11 +142,7 @@ class UserService(
             log.info("[access token 재발급] 만료된 refresh 토큰 = {}", refreshToken)
             throw IllegalArgumentException("만료된 토큰")
         }
-        val user = userRepo.findByUserId(userId)
-            .orElseThrow {
-                log.info("[access token 재발급] refresh 토큰의 유저 정보가 존재하지않음 = {}", userId)
-                throw IllegalArgumentException("refresh 토큰의 유저 정보가 존재하지않습니다.")
-            }
+        val user = userRepo.findByUserId(userId)?: throw IllegalArgumentException("refresh 토큰의 유저 정보가 존재하지않습니다.")
 
         val generateToken = tokenProvider.getAccessToken(user.userId, user.password)
         redisClient.setIdByRefreshToken(generateToken.refreshToken, user.userId)
@@ -252,7 +243,7 @@ class UserService(
 
     fun registerUserIfNeed(kakaoUserInfo: UserDto, type: LoginType): UserLoginDto {
         log.info("[${type.name} 인증코드 - user 정보 조회] 3. ${type.name}ID로 회원가입 처리 - user 정보 조회")
-        var user = userRepo.findByUserId(kakaoUserInfo.id).orElse(null)
+        var user = userRepo.findByUserId(kakaoUserInfo.id)
         if(user == null) {
             log.info("[${type.name} 인증코드 - user 정보 조회] 3. ${type.name}ID로 회원가입 처리 - 미가입 회원 -> 강제 회원가입 처리")
             user = userFactory.createSocial(kakaoUserInfo, type)
@@ -285,7 +276,7 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun findIdByEmail(email: String): String {
-        val user = userRepo.findByEmail(email).orElseThrow { EntityNotFoundException() }
+        val user = userRepo.findByEmail(email)?: throw EntityNotFoundException()
         if (user.loginType == LoginType.KAKAO || user.loginType == LoginType.GOOGLE) {
             throw EntityNotFoundException("소셜로그인을 통한 가입 회원입니다. 해당 서비스를 이용하여 로그인해주세요")
         }

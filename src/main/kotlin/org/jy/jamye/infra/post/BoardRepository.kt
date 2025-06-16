@@ -6,10 +6,9 @@ import org.springframework.data.jpa.repository.Meta
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.transaction.annotation.Transactional
-import java.util.Optional
 
 interface BoardRepository: JpaRepository<Board, Long> {
-    fun findByPostSeq(postSequence: Long): Optional<Board>
+    fun findByPostSeq(postSequence: Long): Board?
     @Modifying
     @Query("""    
         delete from Board b where b.postSeq in (
