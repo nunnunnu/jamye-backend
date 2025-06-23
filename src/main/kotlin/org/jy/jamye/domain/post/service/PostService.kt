@@ -37,6 +37,7 @@ class PostService(
         }
     }
 
+    @Transactional(readOnly = true)
     fun getPostTitle(groupSeq: Long, postSeq: Long): PostDto {
         val post = getPostOrThrow(groupSeq, postSeq)
         return PostDto(

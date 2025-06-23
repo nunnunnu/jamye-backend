@@ -12,7 +12,6 @@ import org.jy.jamye.common.listener.PostDeleteEvent
 import org.jy.jamye.domain.user.model.Grade
 import org.jy.jamye.domain.group.model.Group
 import org.jy.jamye.domain.user.model.GroupUser
-import org.jy.jamye.domain.user.model.User
 import org.jy.jamye.infra.group.GroupFactory
 import org.jy.jamye.infra.group.GroupReader
 import org.jy.jamye.infra.group.GroupRepository
@@ -184,7 +183,7 @@ class GroupService(
 
     }
 
-    fun getGroupInUsersNickName(groupSeq: Long, userSeqs: List<Long>): Map<Long, String> {
+    fun getGroupInUsersNickName(groupSeq: Long, userSeqs: Set<Long>): Map<Long, String> {
         val groupUsers =
             groupUserRepo.findByGroupSequenceAndUserSequenceIn(groupSeq, userSeqs)
         return groupUsers.associate { user -> user.userSequence to user.nickname }
@@ -312,6 +311,7 @@ class GroupService(
         )
     }
 
+    @Transactional(readOnly = true)
     fun getGroupSimpleInfo(groupSeq: Long): GroupDto {
         val group = getGroupOrThrow(groupSeq)
         return GroupDto(
@@ -348,6 +348,20 @@ class GroupService(
             filterMap
         )
         return filterMap
+    }
+
+    @Transactional(readOnly = true)
+    fun checkUserInGroupByGroupUserSeq(groupSeq: Long, userSeq: Long) {
+        if(!groupUserRepository.existsByGroupSequenceAndUserSequence(groupSeq, userSeq)) {
+            throw EntityNotFoundException("그룹에 존재하지않는 회원입니다.")
+        }
+
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserNicknamesInGroupByGroupUserSeq(groupSeq: Long, groupUserSeqs: Set<Long>): Map<Long, String> {
+        return groupUserRepo.findByGroupSequenceAndGroupUserSequenceIn(groupSeq, groupUserSeqs)
+            .associate { it.groupUserSequence!! to it.nickname }
     }
 }
 

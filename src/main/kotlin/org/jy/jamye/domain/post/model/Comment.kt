@@ -7,15 +7,17 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "pi_comment")
-class Comment (
+class Comment(
     @Column(name = "cm", columnDefinition = "TEXT")
     var comment: String,
-    @Column(name="gi_seq")
+    @Column(name = "gi_seq")
     val groupSeq: Long,
-    @Column(name="pi_seq")
+    @Column(name = "pi_seq")
     val postSeq: Long,
-    @Column(name="ui_seq")
+    @Column(name = "ui_seq")
     val userSeq: Long,
+    @Column(name = "re_seq")
+    val replySeq: Long?,
     @Column(name = "create_date")
     @CreationTimestamp
     val createDate: LocalDateTime = LocalDateTime.now(),

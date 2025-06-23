@@ -17,19 +17,21 @@ class CommentService(
     fun getComment(groupSeq: Long, postSeq: Long): List<CommentDto> {
         val comments = commentRepository.findAllByGroupSeqAndPostSeq(groupSeq, postSeq)
         return comments.map { CommentDto(
-            comment = it.comment,
-                    groupSeq = it.groupSeq,
-                    postSeq = it.postSeq,
-                    userSeq = it.userSeq,
-                    createDate = it.createDate,
-                    updateDate = it.updateDate,
-                    commentSeq = it.commentSeq
-        ) }.toList()
+                comment = it.comment,
+                groupSeq = it.groupSeq,
+                postSeq = it.postSeq,
+                userSeq = it.userSeq,
+                createDate = it.createDate,
+                updateDate = it.updateDate,
+                commentSeq = it.commentSeq,
+                replySeq = it.replySeq,
+            )
+        }.toList()
     }
 
     @Transactional
-    fun createComment(userSeq: Long, groupSeq: Long, postSeq: Long, commentText: String): Long {
-        val comment = commentFactory.createComment(userSeq, groupSeq, postSeq, commentText)
+    fun createComment(userSeq: Long, groupSeq: Long, postSeq: Long, commentText: String, replySeq: Long?): Long {
+        val comment = commentFactory.createComment(userSeq, groupSeq, postSeq, commentText, replySeq)
         commentRepository.save(comment)
         return comment.commentSeq!!
     }

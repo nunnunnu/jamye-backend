@@ -26,24 +26,35 @@ class CommentAppService(
         val usersInGroup =
             groupService.getUsersInGroup(groupSeq, user.sequence).associate { it.userSequence to it.nickname }
         val comments = commentService.getComment(groupSeq, postSeq)
-        comments.forEach { it.nickName = usersInGroup[it.userSeq] }
+        val replySeqs = comments.filter { it.replySeq != null }.map { it.replySeq!! }.toSet()
+        val replyUserNicknamesMap =
+            groupService.getGroupInUsersNickName(groupSeq, replySeqs)
+        comments.forEach {
+            it.nickName = usersInGroup[it.userSeq]
+            it.replyUserNickname = replyUserNicknamesMap[it.replySeq]
+        }
         return comments
     }
 
-    fun createComment(userId: String, groupSeq: Long, postSeq: Long, comment: String): Long {
+    fun createComment(userId: String, groupSeq: Long, postSeq: Long, comment: String, replySeq: Long?): Long {
         val user = userService.getUser(userId)
         postService.postCheck(groupSeq, postSeq, user.sequence!!)
+        replySeq?.let {
+            groupService.checkUserInGroupByGroupUserSeq(groupSeq, it)
+        }
         val postTitle = postService.getPostTitle(groupSeq, postSeq)
         val groupInfo = groupService.getGroupSimpleInfo(groupSeq)
         val event = NotifyInfo(
             groupSeq = groupSeq,
             postSeq = postSeq,
-            userSeqs = setOf(postTitle.createdUserSequence!!),
+            userSeqs = if (replySeq != null) setOf(postTitle.createdUserSequence!!, replySeq) else setOf(
+                postTitle.createdUserSequence!!
+            ),
             title = "${groupInfo.name}: ${postTitle.title}",
             message = "댓글이 등록되었습니다"
         )
         publisher.publishEvent(event)
-        return commentService.createComment(user.sequence, groupSeq, postSeq, comment)
+        return commentService.createComment(user.sequence, groupSeq, postSeq, comment, replySeq)
     }
 
     @Transactional

@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "gi_ui_con")
-class GroupUser (
+class GroupUser(
     @Column(name = "ui_seq", nullable = false)
     val userSequence: Long,
     @Column(name = "gi_seq", nullable = false)
@@ -32,7 +32,7 @@ class GroupUser (
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gi_seq", updatable = false, insertable = false)
     val group: Group
-    ){
+){
     fun updateInfo(nickName: String?, saveFile: String?) {
         if (nickName != null) {
             this.nickname = nickName

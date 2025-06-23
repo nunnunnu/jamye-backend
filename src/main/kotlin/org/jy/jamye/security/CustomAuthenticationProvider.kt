@@ -14,7 +14,6 @@ class CustomAuthenticationProvider(
     private val userRepository: UserRepository,
 ) : AuthenticationProvider {
 
-
     @Throws(AuthenticationException::class)
     override fun authenticate(authentication: Authentication): Authentication {
         val user = userRepository.findByUserId(authentication.name)?: throw EntityNotFoundException()

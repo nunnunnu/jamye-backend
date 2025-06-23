@@ -9,6 +9,8 @@ data class CommentDto(
     val postSeq: Long,
     val userSeq: Long,
     var nickName: String? = null,
+    var replySeq: Long? = null,
+    var replyUserNickname: String? = null,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val createDate: LocalDateTime,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

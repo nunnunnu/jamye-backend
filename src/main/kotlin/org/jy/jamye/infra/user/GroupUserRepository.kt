@@ -19,7 +19,7 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     fun existsByGroupSequenceAndNickname(groupSequence: Long, nickName: String): Boolean
     fun existsByUserSequenceAndGroupSequenceAndGrade(userSequence: Long, groupSequence: Long, grade: Grade): Boolean
     fun findByGroupSequenceAndUserSequence(groupSequence: Long, userSequence: Long): GroupUser?
-    fun findByGroupSequenceAndUserSequenceIn(groupSeq: Long, userSeqs: List<Long>): List<GroupUser>
+    fun findByGroupSequenceAndUserSequenceIn(groupSeq: Long, userSeqs: Set<Long>): List<GroupUser>
     fun findAllByUserSequenceAndGrade(userSeq: Long, grade: Grade): List<GroupUser>
 
     @Transactional
@@ -29,7 +29,8 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
 
     @Transactional
     @Modifying
-    @Query("""
+    @Query(
+        """
        UPDATE GroupUser gu
             SET gu.grade = 'MASTER'
             WHERE gu.groupUserSequence IN (:groupUserSeqs) 
@@ -38,7 +39,8 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     fun assignMasterToOldestUser(groupUserSeqs: List<Long>)
     fun findByUserSequence(sequence: Long): GroupUser
 
-    @Query("""
+    @Query(
+        """
             SELECT gu 
             FROM GroupUser gu 
             WHERE gu.createDate = (
@@ -51,20 +53,26 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     """)
     fun findByGroupOldestUser(groupSeqs: Collection<Long>, deleteAgree: Set<Long>): List<GroupUser>
     fun findByGroupSequenceAndCreateDateGreaterThan(groupSequence: Long, createDate: LocalDateTime): Set<GroupUser>
+
     @Modifying
     @Transactional
     fun deleteAllByGroupSequence(groupSeq: Long)
+
     @Modifying
     @Transactional
     fun deleteAllByGroupSequenceAndUserSequenceIn(groupSeq: Long, deleteAgree: Set<Long>)
-    @Query("""
+
+    @Query(
+        """
        SELECT g.userSequence
        FROM GroupUser g
        WHERE g.groupSequence = :groupSeq
         AND g.userSequence IN (:userSeqs)
         AND g.grade = 'MASTER'
-    """)
+    """,
+    )
     fun findGroupMasterSeq(groupSeq: Long, userSeqs: Set<Long>): Long
+
     @Query("""
         SELECT g.groupSequence as groupSeq, count(g.userSequence) as totalUser
         FROM GroupUser g
@@ -73,7 +81,16 @@ interface GroupUserRepository: JpaRepository<GroupUser, Long> {
     fun countGroupInUser(map: List<Long>): List<GroupDto.GroupTotalUser>
     fun countByUserSequenceInAndGroupSequence(userSeqs: Set<Long>, groupSequence: Long): Int
     fun countByGroupSequence(groupSeq: Long): Long
+
     @Modifying
     fun deleteAllByGroupSequenceAndUserSequence(groupSeq: Long, userSeq: Long)
-    fun findAllByUserSequenceAndGradeAndGroupSequenceIn(userSeq: Long, master: Grade, groupSeqs: MutableSet<Long>): List<GroupUser>
+    fun findAllByUserSequenceAndGradeAndGroupSequenceIn(
+        userSeq: Long,
+        master: Grade,
+        groupSeqs: MutableSet<Long>
+    ): List<GroupUser>
+
+    fun existsByGroupSequenceAndUserSequence(groupSeq: Long, userSequence: Long): Boolean
+    fun findByGroupSequenceAndGroupUserSequenceIn(groupSeq: Long, groupUserSeqs: Set<Long>): List<GroupUser>
+
 }

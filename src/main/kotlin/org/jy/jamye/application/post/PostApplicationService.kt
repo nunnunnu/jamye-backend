@@ -63,7 +63,7 @@ class PostApplicationService(
         val user = userService.getUser(id = userId)
         groupService.userInGroupCheckOrThrow(userSeq = user.sequence!!, groupSeq = groupSequence)
         val posts = postService.getPosts(user.sequence, groupSequence, keyword, tagSeqs, page, type)
-        val userInfoMap = groupService.getGroupInUsersNickName(groupSequence, posts.map { it.createdUserSequence }.toList())
+        val userInfoMap = groupService.getGroupInUsersNickName(groupSequence, posts.map { it.createdUserSequence }.toSet())
 
         posts.forEach { it.createdUserNickName = userInfoMap[it.createdUserSequence] }
         return posts
