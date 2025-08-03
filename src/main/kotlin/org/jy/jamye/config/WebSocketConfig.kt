@@ -18,6 +18,7 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
                 "http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com",
                 "https://jamye.p-e.kr", //내도메인 한국
                 "file://*",//cordova 도메인
+                "https://localhost",//cordova 도메인
                 "https://d39kn92x79hg54.cloudfront.net" //Cloudfront 도메인
             )
             .withSockJS() // SockJS 지원
