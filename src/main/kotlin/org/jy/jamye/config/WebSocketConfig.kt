@@ -14,10 +14,11 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
         // 클라이언트가 연결할 수 있는 엔드포인트 설정
         registry.addEndpoint("/ws")
             .setAllowedOriginPatterns("http://localhost:8081",
+                "http://localhost:8080",
                 "http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com",
-                "https://jamye.p-e.kr/", //내도메인 한국
-                "file://",//cordova 도메인
-                "https://d39kn92x79hg54.cloudfront.net/" //Cloudfront 도메인
+                "https://jamye.p-e.kr", //내도메인 한국
+                "file://*",//cordova 도메인
+                "https://d39kn92x79hg54.cloudfront.net" //Cloudfront 도메인
             )
             .withSockJS() // SockJS 지원
     }
