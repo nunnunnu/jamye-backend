@@ -22,3 +22,4 @@ jobs:
           chown ec2-user:ec2-user ~/app/jamye/*.jar
           chmod +x ~/app/jamye/start-port.sh
           ~/app/jamye/start-port.sh
+          tail -n 20 ~/app/jamye/start-port-debug.log
