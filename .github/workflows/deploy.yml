@@ -6,7 +6,6 @@ on:
 
 jobs:
   deploy:
-#    runs-on: ubuntu-latest
     runs-on: self-hosted
 
     steps:
@@ -16,8 +15,94 @@ jobs:
       - name: Build
         run: ./gradlew clean build -x test
 
-      - name: Deploy
+      - name: Deploy with Zero Downtime
         run: |
-          cp build/libs/jamye-0.0.1-SNAPSHOT.jar ~/app/jamye/
-          chmod +x ~/app/jamye/start-port.sh
-          ~/app/jamye/start-port.sh
+          # 환경 변수 설정
+          REPOSITORY=/home/ec2-user/app/jamye
+          JAR_NAME=$(ls -tr $REPOSITORY/*.jar 2>/dev/null | tail -n 1 | xargs basename 2>/dev/null || echo "")
+          NEW_JAR_NAME=$(ls build/libs/*.jar | head -1 | xargs basename)
+          
+          # 새 JAR 파일 복사
+          cp build/libs/*.jar $REPOSITORY/
+          JAR_NAME=$NEW_JAR_NAME
+          
+          echo "> JAR_NAME: $JAR_NAME"
+          echo "> 현재 구동 중인 애플리케이션 확인"
+          
+          # 현재 실행 중인 프로필 확인
+          CURRENT_PROFILE=$(ps -ef | grep java | grep 'spring.profiles.active' | awk -F'spring.profiles.active=' '{print $2}' | awk '{print $1}')
+          echo "> profile 확인: $CURRENT_PROFILE"
+          
+          # IDLE 포트 결정
+          if [ "$CURRENT_PROFILE" == "dev1" ]; then
+            IDLE_PROFILE="dev2"
+            IDLE_PORT=8081
+            OLD_PROFILE="dev1"
+          elif [ "$CURRENT_PROFILE" == "dev2" ]; then
+            IDLE_PROFILE="dev1"
+            IDLE_PORT=8080
+            OLD_PROFILE="dev2"
+          else
+            echo "> 실행 중인 프로세스가 없거나 알 수 없습니다. 기본값 dev1으로 실행"
+            IDLE_PROFILE="dev1"
+            IDLE_PORT=8080
+            OLD_PROFILE="default"
+          fi
+          
+          echo "> 새 어플리케이션 실행: $IDLE_PROFILE ($IDLE_PORT)"
+          
+          # 세션과 완전히 분리하여 Java 애플리케이션 실행
+          cd $REPOSITORY
+          setsid nohup java -jar -Dspring.profiles.active=$IDLE_PROFILE $JAR_NAME > $REPOSITORY/nohup-$IDLE_PROFILE.out 2>&1 < /dev/null &
+          disown
+          
+          # 애플리케이션 시작 대기
+          sleep 30
+          
+          echo "> Health Check 요청"
+          # Health Check 수행
+          for i in {1..10}; do
+            RESPONSE=$(curl -s -w "%{http_code}" -o /dev/null http://localhost:${IDLE_PORT})
+            if [ -n "$RESPONSE" ] && [ "$RESPONSE" -eq 200 ]; then
+              echo "> Health check 성공"
+              break
+            else
+              echo "> Health check 실패... 재시도 ($i/10)"
+              sleep 30
+            fi
+            if [ $i -eq 10 ]; then
+              echo "> Health check 실패로 배포 중단"
+              echo "> 로그 확인:"
+              tail -20 $REPOSITORY/nohup-$IDLE_PROFILE.out
+              exit 1
+            fi
+          done
+          
+          # nginx 설정 리로드
+          sudo systemctl reload nginx
+          echo "> nginx 리로드 완료"
+          
+          # 기존 애플리케이션 종료
+          echo "> 현재 구동중인 어플리케이션 pid 확인"
+          CURRENT_PID=$(ps -ef | grep "java.*-Dspring.profiles.active=$OLD_PROFILE" | grep -v grep | awk '{print $2}')
+          echo "> 현재 구동중인 어플리케이션 pid: $CURRENT_PID"
+          
+          if [ -z "$CURRENT_PID" ]; then
+            echo "> 현재 구동 중인 어플리케이션이 없으므로 종료하지 않습니다."
+          else
+            echo "> kill -15 $CURRENT_PID"
+            kill -15 $CURRENT_PID
+            sleep 10
+          
+            # 강제 종료가 필요한지 확인
+            if ps -p $CURRENT_PID > /dev/null 2>&1; then
+              echo "> 프로세스가 아직 실행 중입니다. 강제 종료합니다."
+              kill -9 $CURRENT_PID
+            fi
+          fi
+          
+          # 최종 상태 확인
+          echo "> 배포 완료 후 최종 상태:"
+          sudo lsof -i:8080 || echo "8080 포트 사용 중이지 않음"
+          sudo lsof -i:8081 || echo "8081 포트 사용 중이지 않음"
+          ps aux | grep java | grep spring.profiles.active | grep -v grep || echo "Java 프로세스 없음"
