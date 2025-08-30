@@ -16,9 +16,9 @@ jobs:
       - name: Build
         run: ./gradlew clean build -x test
 
-
       - name: Deploy
         run: |
           cp build/libs/*.jar ~/app/jamye/
+          chown ec2-user:ec2-user ~/app/jamye/*.jar
           chmod +x ~/app/jamye/start-port.sh
           ~/app/jamye/start-port.sh
