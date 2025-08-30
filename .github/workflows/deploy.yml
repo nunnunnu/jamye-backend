@@ -19,5 +19,4 @@ jobs:
         run: |
           cp build/libs/*.jar ~/app/jamye/
           chmod +x ~/app/jamye/start-port.sh
-          # setsid로 세션과 분리, nohup으로 로그 남김
-          setsid nohup ~/app/jamye/start-port.sh > ~/app/jamye/start-port-nohup.log 2>&1 < /dev/null &
+          ~/app/jamye/start-port.sh
