@@ -18,8 +18,6 @@ jobs:
 
       - name: Deploy
         run: |
-          cp build/libs/*.jar ~/app/jamye/
-          chown ec2-user:ec2-user ~/app/jamye/*.jar
+          cp build/libs/jamye-0.0.1-SNAPSHOT.jar ~/app/jamye/
           chmod +x ~/app/jamye/start-port.sh
           ~/app/jamye/start-port.sh
-          tail -n 20 ~/app/jamye/start-port-debug.log
