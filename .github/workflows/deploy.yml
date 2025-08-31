@@ -18,5 +18,5 @@ jobs:
       - name: Deploy
         run: |
           cp build/libs/*.jar ~/app/jamye/
-          chmod +x ~/app/jamye/start-port.sh
-          ~/app/jamye/start-port.sh
+          chmod +x ~/app/jamye/deploy-systemd2.sh
+          ~/app/jamye/deploy-systemd2.sh
