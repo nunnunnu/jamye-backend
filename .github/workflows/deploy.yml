@@ -2,21 +2,31 @@ name: CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./gradlew clean build -x test
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: build/libs/*.jar
+
   deploy:
     runs-on: self-hosted
-
+    needs: build
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Build
-        run: ./gradlew clean build -x test --no-daemon
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: ~/app/jamye/
 
       - name: Deploy
         run: |
-          cp build/libs/*.jar ~/app/jamye/
           chmod +x ~/app/jamye/deploy-systemd2.sh
           ~/app/jamye/deploy-systemd2.sh
