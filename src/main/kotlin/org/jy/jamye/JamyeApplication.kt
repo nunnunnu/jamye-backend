@@ -25,13 +25,13 @@ class TestController {
     val log: Logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
     @GetMapping
     fun test(request: HttpServletRequest): String {
-        log.info("무중단배포 테스트4")
+        log.info("무중단배포 테스트1")
         val referer = request.getHeader("Referer")
         val origin = request.getHeader("Origin")
 
         println("Referer: $referer")
         println("Origin: $origin")
-        return "build test4"
+        return "build test1"
     }
 
 }
