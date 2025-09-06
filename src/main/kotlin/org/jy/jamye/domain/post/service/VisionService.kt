@@ -88,6 +88,7 @@ class VisionService(private val s3Client: AmazonS3) {
                             var lineText = paragraph.wordsList.joinToString(" ") { word ->
                                 word.symbolsList.joinToString("") { it.text }
                             }
+                            lineText = normalize(lineText)
 
                             val lineRightX = paragraph.boundingBox.verticesList.maxOfOrNull { it.x } ?: 0
                             val isRightmost = lineRightX >= maxRightX - 80  // 오른쪽 끝 기준 조정
@@ -159,10 +160,6 @@ class VisionService(private val s3Client: AmazonS3) {
                                         }
                                     }
                                 } else if (lineText.contains("오전") || lineText.contains("오후")) {
-                                    println(lineText)
-                                    println(lineText.contains("오전") || lineText.contains("오후"))
-                                    println(lineText.contains("오전"))
-                                    println(lineText.contains("오후"))
                                     messagePost.sendDate = lineText
                                 }
                             }
@@ -231,4 +228,12 @@ class VisionService(private val s3Client: AmazonS3) {
             .body(resource)
     }
 
+}
+
+fun normalize(input: String): String {
+    return when {
+        Regex("^[Oo0]+$").matches(input) -> "ㅇ".repeat(input.length)
+        Regex("^T+$").matches(input) -> "ㅜ".repeat(input.length)
+        else -> input
+    }
 }
