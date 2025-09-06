@@ -88,7 +88,7 @@ class VisionService(private val s3Client: AmazonS3) {
                             var lineText = paragraph.wordsList.joinToString(" ") { word ->
                                 word.symbolsList.joinToString("") { it.text }
                             }
-                            lineText = normalize(lineText)
+                            lineText = normalize(lineText.replace(" ", ""))
 
                             val lineRightX = paragraph.boundingBox.verticesList.maxOfOrNull { it.x } ?: 0
                             val isRightmost = lineRightX >= maxRightX - 80  // 오른쪽 끝 기준 조정
