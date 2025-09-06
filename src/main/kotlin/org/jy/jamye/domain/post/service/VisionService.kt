@@ -230,10 +230,12 @@ class VisionService(private val s3Client: AmazonS3) {
 
 }
 
+//자주 변환오류나는 자음 강제변환
 fun normalize(input: String): String {
     return when {
-        Regex("^[Oo0]+$").matches(input) -> "ㅇ".repeat(input.length)
+        Regex("^[Oo0○o]+$").matches(input) -> "ㅇ".repeat(input.length)
         Regex("^T+$").matches(input) -> "ㅜ".repeat(input.length)
+        Regex("^C+$").matches(input) -> "ㄷ".repeat(input.length)
         else -> input
     }
 }
