@@ -99,7 +99,7 @@ class VisionService(private val s3Client: AmazonS3) {
                                 sequence++
                             } else {
                                 for (it in spaceRemoveNickname) {
-                                    if (!lineText.endsWith("에게 답장") && spaceRemoveLineText.startsWith(it)) {
+                                    if (!lineText.trim().endsWith("에게답장") && spaceRemoveLineText.startsWith(it)) {
                                         currentUser = sendUser.first { nickName -> nickName.replace(" ", "") == it}
                                         sequence++
                                         lineText = spaceRemoveLineText.replace(it, "")
@@ -112,7 +112,7 @@ class VisionService(private val s3Client: AmazonS3) {
                             }
 
                             val messagePost = messageMap[sequence]
-                            if(lineText.endsWith("에게 답장")) {
+                            if(lineText.trim().endsWith("에게답장")) {
                                 isReply = true
                                 replyTo = lineText.replace("에게 답장", "").replace(" ", "")
                             } else {
