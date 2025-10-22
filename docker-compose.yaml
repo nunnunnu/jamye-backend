@@ -40,10 +40,15 @@ services:
       CLOUD_AWS_CREDENTIALS_SECRETKEY: ${CLOUD_AWS_CREDENTIALS_SECRETKEY}
       DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
       DISCORD_SECRET_KEY: ${DISCORD_SECRET_KEY}
-      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      FIRE_BASE: /usr/src/app/firebase-credentials.json
+      FIRE_BASE_ID: your_firebase_project_id
+      GOOGLE_APPLICATION_CREDENTIALS: /usr/src/app/google-credentials.json
+    volumes:
+      - /Users/jinhee/Workspace/jamye-backend/src/main/resources/jamye-android-firebase-adminsdk-fbsvc-fe80bc2c29.json:/usr/src/app/firebase-credentials.json
+      - /Users/jinhee/Workspace/jamye-backend/src/main/resources/silken-zenith-440207-u0-58acde469bd4.json:/usr/src/app/google-credentials.json
 volumes:
   mysql_data:
     driver: local

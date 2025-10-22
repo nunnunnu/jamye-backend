@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
-class JamyeApplication
+open class JamyeApplication
 
 fun main(args: Array<String>) {
     runApplication<JamyeApplication>(*args)
