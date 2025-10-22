@@ -3,6 +3,7 @@ services:
     image: mysql:latest
     container_name: mysql-container
     environment:
+      MYSQL_ROOT_HOST: '%'
       MYSQL_ROOT_PASSWORD: jamye-db
       MYSQL_DATABASE: jamye-db
       MYSQL_USER: jamye-db
