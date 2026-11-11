@@ -17,7 +17,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig(private val jwtFilter: JwtFilter) {
+class SecurityConfig(
+    private val jwtFilter: JwtFilter,
+    private val corsOriginProperties: CorsOriginProperties,
+) {
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -42,26 +45,20 @@ class SecurityConfig(private val jwtFilter: JwtFilter) {
     }
 
     fun corsConfigurationSource(): CorsConfigurationSource {
-        val urlBasedCorsConfigurationSource = UrlBasedCorsConfigurationSource()
-
         val corsConfiguration = CorsConfiguration()
-        corsConfiguration.addAllowedMethod(CorsConfiguration.ALL)
-        corsConfiguration.addAllowedHeader(CorsConfiguration.ALL)
-
-        corsConfiguration.allowedOrigins = listOf("http://localhost:8081",
-            "http://localhost:8080",
-            "http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com", //s3엔드포인트
-            "https://jamye.p-e.kr/", //내도메인 한국
-            "https://d39kn92x79hg54.cloudfront.net/", //Cloudfront 도메인,
-            "file://",//cordova 도메인
-            "https://localhost" //test 도메인
-            )
-        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration)
-
+        corsConfiguration.allowedMethods = listOf(CorsConfiguration.ALL)
+        corsConfiguration.allowedHeaders = listOf(CorsConfiguration.ALL)
+        corsConfiguration.allowedOrigins = corsOriginProperties.exactOrigins()
+        val patterns = corsOriginProperties.wildcardPatterns()
+        if (patterns.isNotEmpty()) {
+            corsConfiguration.allowedOriginPatterns = patterns
+        }
         corsConfiguration.allowCredentials = true
-        corsConfiguration.maxAge = 7200 // 2시간(초)
+        corsConfiguration.maxAge = 7200
 
-        return urlBasedCorsConfigurationSource
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", corsConfiguration)
+        return source
     }
 
     @Bean

@@ -8,20 +8,16 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-class WebSocketConfig : WebSocketMessageBrokerConfigurer {
+class WebSocketConfig(
+    private val corsOriginProperties: CorsOriginProperties,
+) : WebSocketMessageBrokerConfigurer {
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        // 클라이언트가 연결할 수 있는 엔드포인트 설정
+        // SockJS는 allowedOriginPatterns만 보는 경우가 있어 exact origin도 패턴으로 넘긴다.
+        val patterns = (corsOriginProperties.exactOrigins() + corsOriginProperties.wildcardPatterns()).distinct()
         registry.addEndpoint("/ws")
-            .setAllowedOriginPatterns("http://localhost:8081",
-                "http://localhost:8080",
-                "http://jamye-frontend.s3-website.ap-northeast-2.amazonaws.com",
-                "https://jamye.p-e.kr", //내도메인 한국
-                "file://*",//cordova 도메인
-                "https://localhost",//cordova 도메인
-                "https://d39kn92x79hg54.cloudfront.net" //Cloudfront 도메인
-            )
-            .withSockJS() // SockJS 지원
+            .setAllowedOriginPatterns(*patterns.toTypedArray())
+            .withSockJS()
     }
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {

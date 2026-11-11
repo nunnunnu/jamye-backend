@@ -44,17 +44,15 @@
 
 ### Deploy
 
-- EC2 (Backend 서버)
+- Oracle Cloud Always Free ARM (aarch64) Ubuntu VM 한 대
 
-- Jenkins (별도 EC2에서 Webhook 기반 자동 배포)
+- Docker Compose (앱 + MySQL + Redis + Caddy)
 
-- Docker Compose (로컬 개발 환경에만 적용하였습니다)
+- Caddy 자동 HTTPS (`https://jamye-backend.o-r.kr`, WebSocket `/ws` 포함)
 
-- Nginx (무중단 배포)
+- AWS S3 / CloudFront (이미지 저장소, 기존과 동일)
 
-- HTTPS 인증 (도메인 보안)
-
-- AWS S3 (이미지 저장소)
+절차는 [docs/DEPLOY.md](docs/DEPLOY.md)에 있다.
 
 
 ---

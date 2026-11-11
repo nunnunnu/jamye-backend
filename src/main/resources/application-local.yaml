@@ -3,26 +3,26 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: jdbc:mysql://localhost:3306/jamye
-    username: root
-    password: 1234
-
+    url: ${DB_URL:jdbc:mysql://localhost:3306/jamye}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
 cloud:
   aws:
     s3:
-      bucket: jamye-image-local
+      bucket: ${AWS_S3_BUCKET:jamye-image-local}
 discord:
-  redirect: http://localhost:8081/oauth/redirect
+  redirect: ${DISCORD_REDIRECT:http://localhost:8081/oauth/redirect}
 image:
-  url: http://jamye-image-local.s3-website.ap-northeast-2.amazonaws.com
+  url: ${IMAGE_URL:http://jamye-image-local.s3-website.ap-northeast-2.amazonaws.com}
 kakao:
-  redirect: http://localhost:8081/oauth/kakao
+  redirect: ${KAKAO_REDIRECT:http://localhost:8081/oauth/kakao}
 front:
-  url: http://localhost:8081
+  url: ${FRONT_URL:http://localhost:8081}
