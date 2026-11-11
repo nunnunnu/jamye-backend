@@ -3,9 +3,9 @@ spring:
     activate:
       on-profile: dev2
   datasource:
-    url: jdbc:mysql://jamye-service.cfek882iekrl.ap-northeast-2.rds.amazonaws.com/jamye_prod
-    username: jm
-    password: jamye123!
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: none
@@ -14,34 +14,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        use_sql_comments: true\
+        use_sql_comments: true
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
 server:
   port: 8081
   shutdown: graceful
-cloud:
-  aws:
-    s3:
-      bucket: jamye-image
-sentry:
-  dsn: https://5a64bba9caa96ae5187c36b3c208d4d2@o4507389505699840.ingest.us.sentry.io/4508822101819392
-  traces-sample-rate: 1.0 # 전송할 트랜잭션의 양 1 = 100% \
-  max-request-body-size: always # requestBody 캐치 설정
-  logging:
-    minimum-event-level: info # 최소 이벤트 레벨
-    minimum-breadcrumb-level: info # 최소 브래드크럼 레벨
-discord:
-  redirect: https://jamye.p-e.kr/oauth/redirect
-image:
-  url: https://d23eha8a4ssn72.cloudfront.net
-kakao:
-  redirect: https://jamye.p-e.kr/oauth/kakao
-front:
-  url: https://jamye.p-e.kr
-
 management:
   endpoints:
     web:
@@ -49,4 +30,4 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: always  # 선택: 상세 정보도 보고 싶을 때
+      show-details: always

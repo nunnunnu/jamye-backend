@@ -15,6 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 class WebConfig(
     var octetStreamReadMsgConverter: OctetStreamReadMsgConverter,
+    private val corsOriginProperties: CorsOriginProperties,
 ) : WebMvcConfigurer {
 
 
@@ -28,18 +29,23 @@ class WebConfig(
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**")
-            .allowedOriginPatterns("*")
+        val mapping = registry.addMapping("/**")
+            .allowedOrigins(*corsOriginProperties.exactOrigins().toTypedArray())
             .allowedMethods(
                 HttpMethod.GET.name(),
                 HttpMethod.HEAD.name(),
                 HttpMethod.POST.name(),
                 HttpMethod.PUT.name(),
-                HttpMethod.DELETE.name()
+                HttpMethod.DELETE.name(),
+                HttpMethod.OPTIONS.name(),
             )
             .allowedHeaders("*")
             .allowCredentials(true)
-            .maxAge(3600) //pre-flight 설정
+            .maxAge(3600)
+        val patterns = corsOriginProperties.wildcardPatterns()
+        if (patterns.isNotEmpty()) {
+            mapping.allowedOriginPatterns(*patterns.toTypedArray())
+        }
     }
 }
 

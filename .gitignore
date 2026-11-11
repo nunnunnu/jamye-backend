@@ -1,0 +1,12 @@
+.env
+secrets/
+logs/
+*.log
+build/
+.gradle/
+.idea/
+*.iml
+out/
+src/main/resources/*.json
+**/*firebase-adminsdk*.json
+**/*credentials*.json

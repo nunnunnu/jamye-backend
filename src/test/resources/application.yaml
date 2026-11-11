@@ -21,10 +21,10 @@ spring:
     hikari:
       connection-test-query: select 1 from dual
   mail:
-    host: smtp.gmail.com  # Gmail의 SMTP 서버 호스트
-    port: 587 # Gmail SMTP 서버는 587번 포트를 사용
-    username: nod15277@gmail.com
-    password: kefc lfcy kgjo yugv
+    host: smtp.gmail.com
+    port: 587
+    username: test@example.com
+    password: test-password-not-real
     properties:
       mail:
         smtp:
@@ -47,6 +47,10 @@ logging:
 
 jwt:
   secretKey: testkeytestkeytestkeytestkeytestkey
+
+app:
+  cors:
+    allowed-origins: https://jamye.p-e.kr,file://,file://*,https://localhost
 
 cloud:
   aws:
