@@ -15,38 +15,7 @@
 ---
 # 아키텍처 v2 (현재, GCP)
 
-```mermaid
-flowchart TB
-  user["사용자 브라우저"]
-
-  gha["GitHub Actions"]
-  cf["CloudFront + S3<br/>jamye.p-e.kr · Vue"]
-
-  subgraph vm["GCP Compute Engine e2-micro · docker compose"]
-    caddy["Caddy<br/>HTTPS 리버스 프록시"]
-    app["Spring Boot<br/>REST + WebSocket /ws"]
-    mysql[("MySQL 8")]
-    redis[("Redis 7")]
-  end
-
-  s3["AWS S3 · 이미지"]
-  fcm["Firebase · FCM"]
-  vision["Google Vision"]
-  oauth["Kakao / Google OAuth"]
-  discord["Discord webhook"]
-
-  user --> cf
-  user -->|"https://jamye-backend.o-r.kr"| caddy
-  gha -->|프론트 배포| cf
-  caddy --> app
-  app --> mysql
-  app --> redis
-  app --> s3
-  app --> fcm
-  app --> vision
-  app --> oauth
-  app --> discord
-```
+<img width="1367" alt="아키텍처 v2 (현재, GCP)" src="docs/architecture-v2.png" />
 
 # 아키텍처 v1 (AWS, 이전)
 
