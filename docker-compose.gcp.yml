@@ -1,0 +1,37 @@
+# Low-memory override for one GCP e2-micro (1GB RAM + swap).
+# Pair with docker-compose.prod.yml. The image is loaded on the VM; do not build there.
+#   sudo docker compose -f docker-compose.prod.yml -f docker-compose.gcp.yml up -d --no-build
+# `command` replaces the prod command, so charset / auth flags are repeated here.
+
+services:
+  app:
+    image: jamye-backend:amd64
+    mem_limit: 640m
+    environment:
+      JAVA_OPTS: "-Xms128m -Xmx300m -Xss512k -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=48m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError -Duser.timezone=Asia/Seoul -Dfile.encoding=UTF-8"
+
+  mysql:
+    mem_limit: 400m
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --innodb-buffer-pool-size=64M
+      - --max-connections=30
+      - --performance-schema=OFF
+      - --skip-name-resolve
+
+  redis:
+    mem_limit: 64m
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - ${REDIS_PASSWORD:?set REDIS_PASSWORD}
+      - --maxmemory
+      - 32mb
+      - --maxmemory-policy
+      - allkeys-lru
+
+  caddy:
+    mem_limit: 64m
