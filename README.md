@@ -13,7 +13,43 @@
 이를 가챠처럼 랜덤으로 뽑아보며 다시 떠올릴 수 있는 서비스입니다. 
 
 ---
-# 아키텍쳐 다이어그램
+# 아키텍처 v2 (현재, GCP)
+
+```mermaid
+flowchart TB
+  user["사용자 브라우저"]
+
+  gha["GitHub Actions"]
+  cf["CloudFront + S3<br/>jamye.p-e.kr · Vue"]
+
+  subgraph vm["GCP Compute Engine e2-micro · docker compose"]
+    caddy["Caddy<br/>HTTPS 리버스 프록시"]
+    app["Spring Boot<br/>REST + WebSocket /ws"]
+    mysql[("MySQL 8")]
+    redis[("Redis 7")]
+  end
+
+  s3["AWS S3 · 이미지"]
+  fcm["Firebase · FCM"]
+  vision["Google Vision"]
+  oauth["Kakao / Google OAuth"]
+  discord["Discord webhook"]
+
+  user --> cf
+  user -->|"https://jamye-backend.o-r.kr"| caddy
+  gha -->|프론트 배포| cf
+  caddy --> app
+  app --> mysql
+  app --> redis
+  app --> s3
+  app --> fcm
+  app --> vision
+  app --> oauth
+  app --> discord
+```
+
+# 아키텍처 v1 (AWS, 이전)
+
 <img width="1367" alt="image" src="https://github.com/user-attachments/assets/8c95ddba-c7b9-4706-a232-d6485f7c66ed" />
 
 ### Language
